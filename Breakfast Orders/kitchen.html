@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css' />
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+    <style>
+      * {
+        text-align: center;
+        font: sans-serif;
+      }
+
+    </style>
+  </head>
+
+  <body onload='getView()'>
+
+    <div class='w3-center'>
+      <h1>KITCHEN</h1>
+    </div>
+
+    <br>
+
+    <div class='w3-center w3-row-padding'>
+      <div class='w3-col s6'>
+        <button id='btn-show-by-person' onclick='showByPerson()' class='w3-red'>Show By Person</button>
+      </div>
+      <div class='w3-col s6'>
+        <button id='btn-show-by-item' onclick='showByItem()' class='w3-green'>Show By Items</button>
+      </div>
+    </div>
+
+    <br>
+
+    <!-- SHOW BY PERSON -->
+    <!-- USING TABLET, SO 4 COLS x 2 ROWS APPROPRIATE -->
+
+    <div id='div-show-by-person' class='w3-show'>
+
+      <div class='w3-row'>
+
+        <div class='w3-col s3 w3-border w3-pale-yellow'>
+          <h3>Person 1</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Eggs</li>
+            <li>Tomatoes</li>
+            <li>Mushrooms</li>
+            <li>Hash Browns</li>
+            <li>White Toast</li>
+            <li>Lightly toasted, wet yolk, no butter</li>
+          </ul>
+        </div>
+
+        <div class='w3-col s3 w3-border w3-pale-blue'>
+          <h3>Person 2</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Eggs</li>
+            <li>Hash Browns</li>
+            <li>Brown Toast</li>
+            <li>Burned to a crisp</li>
+          </ul>
+        </div>
+
+        <div class='w3-col s3 w3-border w3-pale-green'>
+          <h3>Person 3</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Tomatoes</li>
+            <li>Mushrooms</li>
+            <li>Hash Browns</li>
+            <li>White Toast</li>
+            <li>Lightly toasted, wet yolk, no butter</li>
+          </ul>
+        </div>
+
+        <div class='w3-col s3 w3-border w3-pale-red'>
+          <h3>Person 4</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Eggs</li>
+            <li>Tomatoes</li>
+            <li>Mushrooms</li>
+            <li>Hash Browns</li>
+            <li>White Toast</li>
+            <li>Lightly toasted, wet yolk, no butter</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class='w3-row'>
+
+        <div class='w3-col s3 w3-border w3-pale-red'>
+          <h3>Person 5</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Eggs</li>
+            <li>Tomatoes</li>
+            <li>Mushrooms</li>
+            <li>Hash Browns</li>
+            <li>White Toast</li>
+            <li>Lightly toasted, wet yolk, no butter</li>
+          </ul>
+        </div>
+
+        <div class='w3-col s3 w3-border w3-pale-green'>
+          <h3>Person 6</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Eggs</li>
+            <li>Hash Browns</li>
+            <li>Brown Toast</li>
+            <li>Burned to a crisp</li>
+          </ul>
+        </div>
+
+        <div class='w3-col s3 w3-border w3-pale-blue'>
+          <h3>Person 7</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Tomatoes</li>
+            <li>Mushrooms</li>
+            <li>Hash Browns</li>
+            <li>White Toast</li>
+            <li>Lightly toasted, wet yolk, no butter</li>
+          </ul>
+        </div>
+
+        <div class='w3-col s3 w3-border w3-pale-yellow'>
+          <h3>Person 8</h3>
+          <ul class='orderList'>
+            <li>Bacon</li>
+            <li>Sausage</li>
+            <li>Eggs</li>
+            <li>Tomatoes</li>
+            <li>Mushrooms</li>
+            <li>Hash Browns</li>
+            <li>White Toast</li>
+            <li>Lightly toasted, wet yolk, no butter</li>
+          </ul>
+        </div>
+
+      </div>
+
+    <!-- END SHOW-BY-PERSON -->
+    </div>
+
+
+    <!-- SHOW BY ITEM -->
+    <!-- USING TABLET, SO 4 COLS x 2 ROWS APPROPRIATE -->
+
+    <div id='div-show-by-item' class='w3-hide'>
+
+      <ul class='orderList'>
+        <li>3 X Sausages</li>
+        <li>3 X Bacon</li>
+        <li>2 X Eggs</li>
+        <li>3 X White Toast</li>
+        <li>2 X Brown Toast</li>
+      </ul>
+
+    <!-- END SHOW-BY-ITEM -->
+    </div>
+
+
+    <script>
+
+    var viewFlag = 0;   // = PERSON, 1 = ITEM
+    function showByItem(){
+
+      if (viewFlag === 0){
+
+        viewFlag = 1;
+        // HIDE THE PERSON DIV
+        document.getElementById('div-show-by-person').classList.remove('w3-show');
+        document.getElementById('div-show-by-person').classList.add('w3-hide');
+        // TURN THE PERSON BUTTON GREEN
+        document.getElementById('btn-show-by-person').classList.add('w3-green');
+        document.getElementById('btn-show-by-person').classList.remove('w3-red');
+        // SHOW THE ITEM DIV
+        document.getElementById('div-show-by-item').classList.remove('w3-hide');
+        document.getElementById('div-show-by-item').classList.add('w3-show');
+        // TURN THE ITEM BUTTON RED
+        document.getElementById('btn-show-by-item').classList.add('w3-red');
+        document.getElementById('btn-show-by-item').classList.remove('w3-green');
+
+        //console.log('Now showing by item!');
+      }else{
+        console.warn('Already showing by item!');
+      }
+
+    }
+
+    function showByPerson(){
+
+      if (viewFlag === 1){
+        viewFlag = 0;
+        // HIDE THE ITEM DIV
+        document.getElementById('div-show-by-item').classList.remove('w3-show');
+        document.getElementById('div-show-by-item').classList.add('w3-hide');
+        // TURN THE ITEM BUTTON GREEN
+        document.getElementById('btn-show-by-item').classList.add('w3-green');
+        document.getElementById('btn-show-by-item').classList.remove('w3-red');
+        // SHOW THE PERSON DIV
+        document.getElementById('div-show-by-person').classList.remove('w3-hide');
+        document.getElementById('div-show-by-person').classList.add('w3-show');
+        // TURN THE PERSON BUTTON RED
+        document.getElementById('btn-show-by-person').classList.add('w3-red');
+        document.getElementById('btn-show-by-person').classList.remove('w3-green');
+        //console.log('Now showing by person!');
+      }else{
+        console.warn('Already showing by person!');
+      }
+
+    }
+
+      window.addEventListener("hashchange", getView, false);
+
+      function getView(){
+        hash = location.hash;
+        // Member of a team
+        if (hash.indexOf("teamView") >= 0){
+
+          document.getElementById('teamPanel').style.visibility = 'visible';
+
+        }else if (hash.indexOf("teamBuzz") >= 0){
+
+          var teamBuzzer = hash.substring(hash.indexOf("teamBuzz") + 8 , hash.length - 1);
+          document.getElementById('light' + teamBuzzer + 'on').style.classList.add(w3-yellow);
+
+        }
+      }
+
+      function buttonClick(team){
+        //location.hash = 'team' + team + 'click';
+        location.assign('team' + team + 'click');
+      }
+
+    </script>
+
+  </body>
+
+</html>
