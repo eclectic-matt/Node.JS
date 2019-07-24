@@ -1,0 +1,20 @@
+{
+  "name": "secrethitlergame",
+  "version": "1.0.0",
+  "description": "Code for playing a local game of Secret Hitler",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "game",
+    "local",
+    "multiplayer"
+  ],
+  "author": "Matt Tiernan (EclecticMatt)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  }
+}

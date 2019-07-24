@@ -12,6 +12,12 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 
+// Use npm install ip
+// https://github.com/indutny/node-ip
+var ip = require('ip');
+var myLocalIP = ip.address();
+//console.log ( myLocalIP );
+
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
@@ -68,11 +74,6 @@ http.createServer(function (req, res){
 
   }else {
 
-    // Use npm install ip
-    // https://github.com/indutny/node-ip
-    var ip = require('ip');
-    console.log ( ip.address() );
-
     //displayView('login', res);
     var selectedView = 'admin';
 
@@ -82,8 +83,29 @@ http.createServer(function (req, res){
 
         res.writeHead(200, {'Content-Type': 'text/html'});
 
-        console.log(typeOf(data));
-        res.write(data);
+        //console.log(typeOf(data));
+
+        var output = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+
+        </head>
+        <body>
+
+          <h1>Secret Hitler</h1>
+          <p>To join this game, please visit: </p>
+          <span id='joinLinkSpan'>${myLocalIP}:${nodePort}</span>
+          <br><br>
+          <img id='joinLinkQRImage' width='300' height='300' src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${myLocalIP}:${nodePort}' />
+
+        </body>
+        </html>
+
+        `;
+
+        //res.write(data);
+        res.write(output);
 
         res.end();
 
