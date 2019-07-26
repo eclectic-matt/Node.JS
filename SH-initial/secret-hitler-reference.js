@@ -44,6 +44,28 @@
 
 */
 
+/*
+
+  GAME RULES
+
+  Rule PDF: https://cdn.vapid.site/sites/a67e0c72-4902-4365-a899-3386df73c2c4/assets/Secret_Hitler_Rules-023bc755617986cb2276a3b6920e43e0.pdf
+
+  Game Print PDF: https://secrethitler.com/assets/Secret_Hitler_Print_and_Play.pdf
+
+  Policy Cards
+    6 Liberal
+    11 Fascist
+
+  Players
+    5:  3L, 1F, 1H
+    6:  4L, 1F, 1H
+    7:  4L, 2F, 1H
+    8:  5L, 2F, 1H
+    9:  5L, 3F, 1H
+    10: 6L, 3F, 1H
+
+*/
+
 
 // To get an API you can use
 // https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=
