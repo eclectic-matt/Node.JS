@@ -55,7 +55,9 @@ When using Git Version control, the package can be rebuilt quickly including all
 
 As such, there is no need to version control the files in the node_modules folder (where the actual dependency files are saved). 
 
-You can therefore add a file called ".gitignore" which has a single line in it "node_modules".
+You can therefore add a file called ".gitignore" which has a single line in it:
+
+    node_modules
 
 ### Run the project (serve)
 Once your project is set up and ready to run, then test it out using the following command:
