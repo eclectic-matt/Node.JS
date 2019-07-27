@@ -21,13 +21,17 @@
       #messages li:nth-child(odd) { background: #eee; }
       #messages { margin-bottom: 80px }
 
-      button { font-size: 2em; background-color: green; color: white; font-weight: bold;  }
+      button { font-size: 2em; background-color: green; color: white; font-weight: bold;  width: 100%; }
+
+      .nominateBtn { margin: 10px; width: 100%; overflow: hidden; }
+
+      option { width: 50%; }
+      select { font-size: 2em; }
 
 
     </style>
   </head>
   <body>
-
 
     <div id='loginSection' class='section'>
       <h1>Secret Hitler Game</h1>
@@ -46,142 +50,30 @@
 
     <div id='showRoleSection' class='section'>
       <h3>Your Role</h3>
-      <em>You are <span class='yourRoleSpan'>ROLE</span></em>
+      <em>Your SECRET role is: <span class='yourRoleSpan'>ROLE</span></em>
       <ul class='playerRolesList'></ul>
-      <h3>Going to game in <span class='timerLeftSpan'>10</span> seconds</h1>
+      <button class='playerReadyBtn'>Ready to Play</button>
+    </div>
+
+    <div id='nominateChancellorSection' class='section'>
+      <h3>You are the President!</h3>
+      <em>You must now nominate a Chancellor from the list below:</em>
+      <div class='nominateChancellorDiv'></div>
+      <button class='nominateChancellorBtn'>Nominate Chancellor</button>
+    </div>
+
+    <div id='governmentVoteSection' class='section'>
+      <h2>Voting Time!</h2>
+      <b>The proposed government is: </b>
+      <div class='governmentVoteDiv'></div>
+      <br>
+      <button class='jaBtn'>Ja</button>
+      <button class='neinBtn'>Nein</button>
     </div>
 
 
     <script src='/socket.io/socket.io.js'></script>
     <script src='https://code.jquery.com/jquery-1.11.1.js'></script>
-    <script>
-
-      var myUsername = null;
-
-      $(function () {
-
-        // On load, start socket connection
-        var socket = io.connect();
-        // Only show the login section
-        showSection('loginSection');
-        $('.startGameBtn').hide();
-
-        // Submit Login Form
-        $('#loginForm').submit(function(e){
-          // Prevent form from reloading the page
-          e.preventDefault();
-          // Get the inputted username
-          var newUsername = $('#playerNameInput').val();
-          // TESTING - check this has been submitted in client window
-          console.log('New user logged in: ' + newUsername);
-
-          // Now emit a socket to propogate the new user
-          socket.emit('new user', newUsername, function(data){
-            if (data){
-              showSection('waitingSection');
-              myUsername = newUsername;
-            }
-          });
-          return false;
-        });
-
-        // Submit Message form
-        $('#messageForm').submit(function(e){
-          // Prevent form from reloading the page
-          e.preventDefault();
-          // Get the message text
-          var message = $('#m').val();
-          // Emit this to the socket for propogation
-          socket.emit('send message', message);
-          // TESTING - checking form submit works
-          //console.log('Client-side message: ' + message);
-          // Clear the message input box
-          $('#m').val('');
-          //$('#messages').append($('<li>').text(message));
-          return false;
-        });
-
-
-        // Message received from socket emit
-        socket.on('new message', function(data){
-
-          // Create B tag for user name
-          let strongTag = document.createElement('b');
-          // Set the B tag inner HTML to the user name (data.user)
-          strongTag.innerHTML = data.user;
-          // Create an EM tag for the message body
-          let emTag = document.createElement('em');
-          // Set the EM tag inner HTML to the message body (data.msg)
-          emTag.innerHTML = ' ' + data.msg;
-          // Create a LI to hold the new message
-          let listItem = document.createElement('li');
-          // Append the user name B tag
-          listItem.appendChild(strongTag);
-          // Append the message body EM tag
-          listItem.appendChild(emTag);
-          // Append the new list item to the messages list
-          $('#messages').append(listItem);
-          //console.log('Appending ' + $('#m').val());
-          // Append this to the messages ul
-          //$('#messages').append($('<li>').text(newMsg));
-          // Scroll to the bottom (once messages run over a page)
-          window.scrollTo(0, document.body.scrollHeight);
-        });
-
-        // Users updated
-        socket.on('get users', function(data){
-
-            // Clear the list of online users
-            $('.onlineUserList').html(null);
-            // Clear the output string
-            var usersOutput = '';
-            var userCount = data.length;
-
-            // Loop through the user names data
-            for (let i = 0; i < userCount; i++){
-              // Append each username to the list
-              usersOutput += '<li>' + data[i] + '</li>';
-            }
-
-            // Then attach the list to the online users list
-            $('.onlineUserList').append(usersOutput);
-            // Update the player count visible to players
-            $('.playerCountSpan').html(userCount);
-
-            console.log('Checking if this is first user ' + myUsername);
-            if (myUsername === data[0]){
-              console.log('First user!');
-              $('.startGameBtn').show();
-            }
-
-        });
-
-        // Roles Updated
-        socket.on('player roles', function(data){
-
-          users = data.users;
-          roles = data.roles;
-          myRole = roles[users.indexOf(myUsername)];
-          console.log('My role is ' + myRole);
-
-        });
-
-        $('.startGameBtn').click(function(e){
-
-          socket.emit('start game');
-
-        });
-
-      });
-
-      function showSection(showId){
-        let sectionEls = document.getElementsByClassName('section');
-        for (let i = 0; i < sectionEls.length; i++){
-          $(sectionEls[i]).hide();
-        }
-        let showEl = document.getElementById(showId);
-        $(showEl).show();
-      }
-    </script>
+    <script src='/client.js'></script>
   </body>
 </html>

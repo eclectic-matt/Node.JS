@@ -13,24 +13,29 @@
     "LOGIN" allows players to add their name and join the game
       Name Box
       Join Game Button
+    @END - First player clicks "Start Game"
 
     "SHOW ROLE" is a view shown at the game start
       Role Box (liberal, fascist, Hitler)
       Other Players Box (If Fascist & If Hitler when players < 6)
+    @END - All players ready
 
     "NOMINATE"
       Nominate as Chancellor Dropdown
       Nominate Button
+    @END - President Nominates
 
     "GOVERNMENT VOTE"
       Show Players/Roles Box (President: Jim, Chancellor: Fred)
       JA Button
       NEIN Button
       Submit Vote Button
+    @END - All players voted
 
     "SELECT POLICIES"
       Policy Boxes (3 for president, 2 for chancellor)
       Confirm Policy Button
+    @END - policies selected by president and then chancellor
 
   Admin Views/elements:
 
