@@ -160,25 +160,41 @@ io.on('connection', (socket) => {
     if (playerResponses.responses.indexOf(user) >= 0){ return false; }
     // If not, add this user to the list
     playerResponses.responses.push(user);
+    // Also add the vote to the list
     playerResponses.votes.push(vote);
+    // Show the votes (visible once a player has submitted their vote)
     io.sockets.emit('vote received', vote, user);
+    // The number of responses received
     var respCount = playerResponses.responses.length;
+    // The number of votes expected
     var userCount = users.length;
+    // The number of responses still awaited
     var respRemaining = userCount - respCount;
-    //console.log(respCount, userCount, respRemaining);
+    // If all votes have been submitted
     if (respRemaining === 0){
-      // All players ready - start the game!
+      // All players voted - calculate result!
       console.log('All players have voted!');
+      // Admin sees all votes
       console.log(playerResponses.votes);
+
+      // Start the counting!
       let positiveVotes = 0;
-      // NEED TO EDIT!!!
-      // This should be a MAJORITY - not just 50%
+      // Threshold votes shows the majority
       let thresholdVotes = Math.ceil(users.length / 2);
-      for (let i = 0; i < userCount; i++){
+      // If there are an even number of voters, add 1
+      if (userCount % 2 === 0){
+        thresholdVotes++;
+      }
+
+      // Loop through the votes and count the JAs
+      /*for (let i = 0; i < userCount; i++){
         if (playerResponses.votes[i] === 'ja'){
           positiveVotes++;
         }
-      }
+      }*/
+      // Better way to do the above?
+      positiveVotes = playerResponses.votes.filter(function(x){ return x === "ja"; }).length;
+
       if (positiveVotes >= thresholdVotes){
         console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government elected!');
         // Track elected pres/chancellor to exclude them from the next election!
@@ -196,6 +212,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // The Chancellor has been nominated - go to the vote
   socket.on('nominate chancellor', function(user){
     console.log('The President has nominated ' + user + ' to be the Chancellor');
     publicRoles[1] = user;
