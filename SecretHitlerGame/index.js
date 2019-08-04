@@ -57,20 +57,49 @@ app.get('/farisea-dark.ttf', function(req, res){
 var io = socket(server);
 io.on('connection', (socket) => {
 
-  // Add this socket to the connections array
-  connections.push(socket);
-  console.log('Connected: %s sockets connected', connections.length);
+  // Get the IP of the socket which has connected
+  var clientIp = socket.request.connection.remoteAddress;
+  console.log('Checking Client IP: ' + clientIp);
+  // Flag for new connection
+  var newConnection = true;
+
+  // Loop through the connections
+  for (let i = 0; i < connections.length; i++){
+    console.log('Checking Connection %s', i);
+    var thisIp = connections[i].request.connection.remoteAddress;
+    console.log('Connection IP is: ' + thisIp);
+    // Check if this is an existing player
+    if (thisIp === clientIp){
+      newConnection = false;
+      // Existing user! confirm this user
+      console.log('Existing user');
+      socket.username = users[i];
+      connections[i] = socket;
+      //users[i] = socket.username;
+      console.log('Users matched: %s users connected', users.length);
+    }
+  }
+
+  if (newConnection){
+    // Add this socket to the connections array
+    connections.push(socket);
+    console.log('New Socket Connected: %s sockets connected', connections.length);
+  }
 
   // Socket Disconnected
   socket.on('disconnect', function(){
+
+    // Check if this socket had assigned username
+    if (!socket.username) return;
+
     // Remove this socket from the connections array
     connections.splice(connections.indexOf(socket), 1);
     console.log('Socket disconnected: %s sockets connected', connections.length);
-    // Check if this socket had assigned username
-    if (!socket.username) return;
+
     // If so, remove this socket from the users array
     users.splice(users.indexOf(socket.username), 1);
     console.log('User disconnected: %s users connected', users.length);
+    
   });
 
   // Message received from socket
@@ -138,6 +167,7 @@ io.on('connection', (socket) => {
 
   // Submitting that player is ready
   socket.on('player ready', function(user){
+
     if (playerResponses.responses.indexOf(user) >= 0){ return false; }
     playerResponses.responses.push(user);
     var respCount = playerResponses.responses.length;
@@ -149,6 +179,7 @@ io.on('connection', (socket) => {
       console.log('All players ready!');
       finaliseGameSetup();
     }else{
+      // Still waiting for more players to respond
       console.log('Player ' + user + ' is ready');
       console.log(`Still waiting for ${respRemaining} responses`);
     }
@@ -156,6 +187,7 @@ io.on('connection', (socket) => {
 
   // Submitting a player's vote
   socket.on('player vote', function(vote, user){
+
     // Check if this player has already voted
     if (playerResponses.responses.indexOf(user) >= 0){ return false; }
     // If not, add this user to the list
@@ -170,8 +202,10 @@ io.on('connection', (socket) => {
     var userCount = users.length;
     // The number of responses still awaited
     var respRemaining = userCount - respCount;
+
     // If all votes have been submitted
     if (respRemaining === 0){
+
       // All players voted - calculate result!
       console.log('All players have voted!');
       // Admin sees all votes
@@ -195,6 +229,7 @@ io.on('connection', (socket) => {
       // Better way to do the above?
       positiveVotes = playerResponses.votes.filter(function(x){ return x === "ja"; }).length;
 
+      // If the number of votes meets the threshold, the government is elected
       if (positiveVotes >= thresholdVotes){
         console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government elected!');
         // Track elected pres/chancellor to exclude them from the next election!
@@ -214,6 +249,7 @@ io.on('connection', (socket) => {
 
   // The Chancellor has been nominated - go to the vote
   socket.on('nominate chancellor', function(user){
+
     console.log('The President has nominated ' + user + ' to be the Chancellor');
     publicRoles[1] = user;
     playerResponses.state = 'voting';
@@ -229,6 +265,7 @@ io.on('connection', (socket) => {
 
 // Shuffle cards, assign president, start game
 function finaliseGameSetup(){
+
   policyCards = shuffle(cardPack.policyCards.cards);
   // Assign the first user to President
   publicRoles.push(users[0]);

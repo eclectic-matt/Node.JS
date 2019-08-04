@@ -89,12 +89,20 @@ $(function () {
   // Round is now ready to begin
   socket.on('round begin', function(publicRoles, cards){
 
+    // If you have been assigned the Presidency
     if (publicRoles[0] === myUsername){
+
       console.log('I have been assigned the presidency!');
       //showSection('selectPolicies');
+      // Prepare Chancellor nomination HTML
       var chancellorOutput = '<select id="nominateSelect">';
+
+      // Loop through the users
       for (let i = 0; i < users.length; i++){
-        if (users[i] !== myUsername){
+
+        // If the checked user is NOT themselves, nor holding public office
+        if ((users[i] !== myUsername) && (publicRoles.indexOf(users[i]) === -1)){
+            // Then add this user to the nomination form
             chancellorOutput += `<option value="${users[i]}" class="nominateOption">${users[i]}</option>`;
         }
       }
@@ -124,7 +132,10 @@ $(function () {
   socket.on('vote received', function(vote, user){
     // Quick hack to remove spaces in user names
     let userId = user.replace(/ /g, '');
+    // Show the actual vote for each user by modifying the list
     $('#userLI' + userId).append(' - ' + vote);
+    // REMOVED - Show that the user has voted, not how
+    // $('#userLI' + userId).append(' - voted');
     /*let userList = $('.onlineUserList').children();
     console.log(userList);
     for (child in userList){
