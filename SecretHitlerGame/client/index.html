@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Secret Hitler Game</title>
+
+    <link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css' />
+    <link rel='stylesheet' href='style.css' />
+
+  </head>
+  <body>
+
+    <div id='loginSection' class='section'>
+      <h1 class='sectionTitle'>Secret Hitler</h1>
+      <strong>Enter your name below to join in...</strong>
+      <br>
+      <br>
+      <form id='loginForm' action=''>
+        <div class='w3-row-padding w3-display-container'>
+          <div class='w3-col s3 w3-display-bottom'>
+            <label>Your Name:</label>
+          </div>
+          <div class='w3-col s6 w3-display-bottom'>
+            <input id='playerNameInput' required autocomplete='off' class='w3-input w3-yellow'/>
+          </div>
+          <div class='w3-col s3 w3-display-bottom'>
+            <button class='w3-green w3-button'>Join</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+
+    <div id='waitingSection' class='section'>
+      <h1 class='sectionTitle'>Preparing</h1>
+      <strong>Waiting on other players...</strong>
+      <br>
+      <em>Players in game - <span class='playerCountSpan'>1</span></em>
+      <br>
+      <button class='startGameBtn w3-green w3-button'>Start Game</button>
+      <ul class='onlineUserList'></ul>
+    </div>
+
+
+    <div id='showRoleSection' class='section'>
+      <h3>Your Role</h3>
+      <em>Your SECRET role is: <span class='yourRoleSpan'>ROLE</span></em>
+      <ul class='playerRolesList'></ul>
+      <button class='playerReadyBtn'>Ready to Play</button>
+    </div>
+
+
+    <div id='nominateChancellorSection' class='section'>
+      <h3>You are the President!</h3>
+      <em>You must now nominate a Chancellor from the list below:</em>
+      <div class='nominateChancellorDiv'></div>
+      <button class='nominateChancellorBtn'>Nominate Chancellor</button>
+    </div>
+
+
+    <div id='governmentVoteSection' class='section'>
+      <h2>Voting Time!</h2>
+      <b>The proposed government is: </b>
+      <div class='governmentVoteDiv'></div>
+      <br>
+      <button class='jaBtn'>Ja</button>
+      <button class='neinBtn'>Nein</button>
+    </div>
+
+
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='https://code.jquery.com/jquery-1.11.1.js'></script>
+    <script src='/client.js'></script>
+  </body>
+</html>

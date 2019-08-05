@@ -51,6 +51,35 @@
 
 /*
 
+  Sockets reference
+
+    Original name               New name
+
+  // User socket events ( user ____ )
+  // Received as socket.on('user added')
+    - new user                  user added
+    - nominate chancellor       user nominate     *** Found in index.js
+    - start game                user startGame
+    - player vote               user vote
+    - player ready              user ready
+    - disconnect                disconnect        *** BUILT-IN
+
+  // Server socket events ( server ____ )
+  // Emitted as sockets.emit('server shareUsers')
+    - get users                 server shareUsers
+    - player roles              server shareRoles
+    - vote received             server voteReceived
+    - government elected        server govElected
+    - government fails          server govRejected
+    - government vote           server shareNomination
+    - round begin               server roundStart
+
+*/
+
+
+
+/*
+
   GAME RULES
 
   Rule PDF: https://cdn.vapid.site/sites/a67e0c72-4902-4365-a899-3386df73c2c4/assets/Secret_Hitler_Rules-023bc755617986cb2276a3b6920e43e0.pdf

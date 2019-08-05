@@ -42,15 +42,19 @@ var server = app.listen(port, myLocalIP, function(){
 app.use(express.static('/'));
 // No path, serve index.html
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/client/index.html');
 });
 // Client JS functions
 app.get('/client.js', function(req, res){
-  res.sendFile(__dirname + '/client.js');
+  res.sendFile(__dirname + '/client/client.js');
 });
 // Font used in file
 app.get('/farisea-dark.ttf', function(req, res){
-  res.sendFile(__dirname + '/farisea-dark.ttf');
+  res.sendFile(__dirname + '/client/farisea-dark.ttf');
+});
+// Font used in file
+app.get('/style.css', function(req, res){
+  res.sendFile(__dirname + '/client/style.css');
 });
 
 // Socket setup & pass server
@@ -99,9 +103,10 @@ io.on('connection', (socket) => {
     // If so, remove this socket from the users array
     users.splice(users.indexOf(socket.username), 1);
     console.log('User disconnected: %s users connected', users.length);
-    
+
   });
 
+/*
   // Message received from socket
   socket.on('send message', function(data){
     // Check the username received
@@ -110,9 +115,10 @@ io.on('connection', (socket) => {
     io.sockets.emit('new message', {msg: data, user: username});
 
   });
+*/
 
   // New user handle
-  socket.on('new user', function(data, callback){
+  socket.on('user added', function(data, callback){
     console.log('New user added', data);
     // The callback is fired on the client side once confirmed
     // This hides the login section and shows message section
@@ -128,11 +134,11 @@ io.on('connection', (socket) => {
   // Function to emit usernames to all sockets
   function updateUsernames(){
     // Push the new users array out to
-    io.sockets.emit('get users', users);
+    io.sockets.emit('server shareUsers', users);
   }
 
   // Game start button clicked - Assign roles!
-  socket.on('start game', function(){
+  socket.on('user startGame', function(){
     var userCount = users.length;
     if ( (userCount < cardPack.minPlayers) || (userCount > cardPack.maxPlayers) ){
       console.log('Player count error');
@@ -160,13 +166,13 @@ io.on('connection', (socket) => {
       //console.log(playerRoles);
       console.log(users);
 
-      io.sockets.emit('player roles', {roles: playerRoles, users: users});
+      io.sockets.emit('server shareRoles', {roles: playerRoles, users: users});
 
     }
   });
 
   // Submitting that player is ready
-  socket.on('player ready', function(user){
+  socket.on('user ready', function(user){
 
     if (playerResponses.responses.indexOf(user) >= 0){ return false; }
     playerResponses.responses.push(user);
@@ -186,7 +192,7 @@ io.on('connection', (socket) => {
   });
 
   // Submitting a player's vote
-  socket.on('player vote', function(vote, user){
+  socket.on('user vote', function(vote, user){
 
     // Check if this player has already voted
     if (playerResponses.responses.indexOf(user) >= 0){ return false; }
@@ -195,7 +201,7 @@ io.on('connection', (socket) => {
     // Also add the vote to the list
     playerResponses.votes.push(vote);
     // Show the votes (visible once a player has submitted their vote)
-    io.sockets.emit('vote received', vote, user);
+    io.sockets.emit('server voteReceived', vote, user);
     // The number of responses received
     var respCount = playerResponses.responses.length;
     // The number of votes expected
@@ -233,12 +239,12 @@ io.on('connection', (socket) => {
       if (positiveVotes >= thresholdVotes){
         console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government elected!');
         // Track elected pres/chancellor to exclude them from the next election!
-        io.sockets.emit('government elected', positiveVotes);
+        io.sockets.emit('server govElected', positiveVotes);
       }else{
         console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government fails!');
         // Increase election failure tracker
         // Move on to next president and restart round
-        io.sockets.emit('government fails', positiveVotes);
+        io.sockets.emit('server govRejected', positiveVotes);
       }
 
     }else{
@@ -248,7 +254,7 @@ io.on('connection', (socket) => {
   });
 
   // The Chancellor has been nominated - go to the vote
-  socket.on('nominate chancellor', function(user){
+  socket.on('user nominate', function(user){
 
     console.log('The President has nominated ' + user + ' to be the Chancellor');
     publicRoles[1] = user;
@@ -256,7 +262,7 @@ io.on('connection', (socket) => {
     playerResponses.responses = [];
     playerResponses.votes = [];
     // Voting begins
-    io.sockets.emit('government vote', publicRoles);
+    io.sockets.emit('server shareNomination', publicRoles);
   });
 
 
@@ -271,7 +277,7 @@ function finaliseGameSetup(){
   publicRoles.push(users[0]);
   console.log('The President is now ' + users[0]);
   console.log(policyCards);
-  io.sockets.emit('round begin', publicRoles, policyCards);
+  io.sockets.emit('server roundStart', publicRoles, policyCards);
 }
 
 

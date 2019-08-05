@@ -20,7 +20,7 @@ $(function () {
     console.log('New user logged in: ' + newUsername);
 
     // Now emit a socket to propogate the new user
-    socket.emit('new user', newUsername, function(data){
+    socket.emit('user added', newUsername, function(data){
       if (data){
         showSection('waitingSection');
         myUsername = newUsername;
@@ -34,7 +34,7 @@ $(function () {
   */
 
   // Users updated
-  socket.on('get users', function(data){
+  socket.on('server shareUsers', function(data){
 
       // Clear the list of online users
       $('.onlineUserList').html(null);
@@ -65,7 +65,7 @@ $(function () {
   });
 
   // Roles Updated
-  socket.on('player roles', function(data){
+  socket.on('server shareRoles', function(data){
 
     users = data.users;
     roles = data.roles;
@@ -87,7 +87,7 @@ $(function () {
   });
 
   // Round is now ready to begin
-  socket.on('round begin', function(publicRoles, cards){
+  socket.on('server roundStart', function(publicRoles, cards){
 
     // If you have been assigned the Presidency
     if (publicRoles[0] === myUsername){
@@ -117,7 +117,7 @@ $(function () {
   });
 
   // Start voting on government
-  socket.on('government vote', function(roles){
+  socket.on('server shareNomination', function(roles){
 
     var voteOutput = `<ul>
         <li>President: ${roles[0]}</li>
@@ -129,7 +129,7 @@ $(function () {
   });
 
   // Show votes as they are received
-  socket.on('vote received', function(vote, user){
+  socket.on('server voteReceived', function(vote, user){
     // Quick hack to remove spaces in user names
     let userId = user.replace(/ /g, '');
     // Show the actual vote for each user by modifying the list
@@ -155,11 +155,11 @@ $(function () {
   $('.nominateChancellorBtn').click(function(e){
     let nomination = $('#nominateSelect').val();
     console.log(nomination + ' has been nominated');
-    socket.emit('nominate chancellor', nomination);
+    socket.emit('user nominate', nomination);
   });
 
   $('.startGameBtn').click(function(e){
-    socket.emit('start game');
+    socket.emit('user startGame');
   });
 
   // Voting on government - yes button
@@ -169,7 +169,7 @@ $(function () {
     // TESTING - check this has been submitted in client window
     console.log('This player has voted JA');
     // Now emit a socket to indicate this player is ready
-    socket.emit('player vote', 'ja', myUsername);
+    socket.emit('user vote', 'ja', myUsername);
     //$('.playerReadyBtn').hide();
     showSection('waitingSection');
     return false;
@@ -182,7 +182,7 @@ $(function () {
     // TESTING - check this has been submitted in client window
     console.log('This player has voted NEIN');
     // Now emit a socket to indicate this player is ready
-    socket.emit('player vote', 'nein', myUsername);
+    socket.emit('user vote', 'nein', myUsername);
     //$('.playerReadyBtn').hide();
     showSection('waitingSection');
     return false;
@@ -196,18 +196,19 @@ $(function () {
     // TESTING - check this has been submitted in client window
     console.log('This player is now ready');
     // Now emit a socket to indicate this player is ready
-    socket.emit('player ready', myUsername);
+    socket.emit('user ready', myUsername);
     $('.playerReadyBtn').hide();
     return false;
   });
 
 });
 
+/*
 function nominateChancellor(user){
   console.log('Nominated ' + user + ' as Chancellor');
   socket.emit('chancellor nominated', user);
 }
-
+*/
 
 function showSection(showId){
   let sectionEls = document.getElementsByClassName('section');
