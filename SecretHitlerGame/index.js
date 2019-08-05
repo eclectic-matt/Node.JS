@@ -25,7 +25,7 @@ playerResponses.state = 'ready';
 playerResponses.responses = [];
 playerResponses.votes = [];
 // The current game state (not used at present)
-var gameState = 'init';
+var gameState = 'login';
 // config object for the game
 var gameConfig = {};
 // Limit on the number of players
@@ -81,6 +81,17 @@ io.on('connection', (socket) => {
       connections[i] = socket;
       //users[i] = socket.username;
       console.log('Users matched: %s users connected', users.length);
+
+      // Send the current game state to this user
+      // On the client side, this will load the appropriate section
+      if (gameState === 'nominateChancellor'){
+        // The nomination section is different for different roles
+        io.to(socket.id).emit('server roundStart', publicRoles, policyCards);
+      }else{
+        // All other game states should be directly joinable
+        io.to(socket.id).emit('server rejoin', gameState);
+      }
+
     }
   }
 
@@ -142,6 +153,7 @@ io.on('connection', (socket) => {
     var userCount = users.length;
     if ( (userCount < cardPack.minPlayers) || (userCount > cardPack.maxPlayers) ){
       console.log('Player count error');
+      io.to(socket.id).emit('server playerCount', userCount);
       return false;
     }else{
       // Randomise the users list
@@ -167,6 +179,7 @@ io.on('connection', (socket) => {
       console.log(users);
 
       io.sockets.emit('server shareRoles', {roles: playerRoles, users: users});
+      gameState = 'showRole';
 
     }
   });
@@ -184,6 +197,7 @@ io.on('connection', (socket) => {
       // All players ready - start the game!
       console.log('All players ready!');
       finaliseGameSetup();
+      gameState = 'nominateChancellor';
     }else{
       // Still waiting for more players to respond
       console.log('Player ' + user + ' is ready');
@@ -202,6 +216,7 @@ io.on('connection', (socket) => {
     playerResponses.votes.push(vote);
     // Show the votes (visible once a player has submitted their vote)
     io.sockets.emit('server voteReceived', vote, user);
+    gameState = 'governmentVote';
     // The number of responses received
     var respCount = playerResponses.responses.length;
     // The number of votes expected
@@ -226,13 +241,7 @@ io.on('connection', (socket) => {
         thresholdVotes++;
       }
 
-      // Loop through the votes and count the JAs
-      /*for (let i = 0; i < userCount; i++){
-        if (playerResponses.votes[i] === 'ja'){
-          positiveVotes++;
-        }
-      }*/
-      // Better way to do the above?
+      // Count the JA votes received
       positiveVotes = playerResponses.votes.filter(function(x){ return x === "ja"; }).length;
 
       // If the number of votes meets the threshold, the government is elected

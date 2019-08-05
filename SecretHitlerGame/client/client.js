@@ -130,20 +130,25 @@ $(function () {
 
   // Show votes as they are received
   socket.on('server voteReceived', function(vote, user){
+
     // Quick hack to remove spaces in user names
     let userId = user.replace(/ /g, '');
     // Show the actual vote for each user by modifying the list
     $('#userLI' + userId).append(' - ' + vote);
     // REMOVED - Show that the user has voted, not how
     // $('#userLI' + userId).append(' - voted');
-    /*let userList = $('.onlineUserList').children();
-    console.log(userList);
-    for (child in userList){
-      if (child.innerHTML === user){
-        child.append(' - ' + vote);
-        console.log(child);
-      }
-    }*/
+
+  });
+
+  // Rejoining game - load correct screen
+  socket.on('server rejoin', function(state){
+    console.log('Server suggests you rejoin the game at ' + state);
+    showSection(state + 'Section');
+  });
+
+  socket.on('server playerCount', function(count){
+
+    $('#serverCountMsg').html('You need 5 - 10 players to start the game but there are currently ' + count + ' players who have joined!');
 
   });
 
