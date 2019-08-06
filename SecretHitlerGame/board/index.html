@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Secret Hitler Game</title>
+
+    <link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css' />
+    <link rel='stylesheet' href='/board/style.css'>
+
+  </head>
+  <body>
+
+    <div id='boardSection' class='section'>
+      <!--h1 class='sectionTitle'>Secret Hitler</h1-->
+      <div id='fascistBoard' class='w3-row w3-border w3-center'>
+
+        <h2 class='boardTitle'>FASCISTS</h2>
+
+        <div class='w3-row w3-border'>
+          <div class='w3-col s2 w3-border w3-pale-red'>
+            <br>
+            <br>
+            <br>
+          </div>
+          <div class='w3-col s2 w3-border w3-pale-red'>
+            <br>
+            <br>
+            <br>
+          </div>
+          <div class='w3-col s2 w3-border w3-pale-red'>
+            <!--i class="fas fa-layer-group"></i-->
+            <br>
+            <p>THE PRESIDENT EXAMINES THE TOP THREE CARDS.</p>
+          </div>
+          <div class='w3-col s2 w3-border w3-red'>
+            <!--i class="fas fa-skull-crossbones"></i-->
+            <br>
+            <p>THE PRESIDENT MUST KILL A PLAYER.</p>
+          </div>
+          <div class='w3-col s2 w3-border w3-red'>
+            <!--i class="fas fa-skull-crossbones"></i-->
+            <p>THE PRESIDENT MUST KILL A PLAYER.
+            THE VETO POWER IS UNLOCKED.</p>
+          </div>
+          <div class='w3-col s2 w3-border w3-red'>
+            <!--i class="fas fa-book-dead"></i-->
+            <br>
+            <p>THE FASCISTS WIN.</p>
+          </div>
+        </div>
+      </div>
+
+      <!--br-->
+
+      <div id='liberalBoard' class='w3-row w3-border w3-center'>
+
+        <h2 class='boardTitle'>LIBERALS</h2>
+
+        <div class='w3-row w3-border'>
+          <div class='w3-col s1 w3-blue'>
+            <br>
+            <br>
+            <br>
+            <p class='rotateLeft'>Draw Pile</p>
+          </div>
+          <div class='w3-col s2 w3-border w3-light-blue'>
+            <br>
+            <br>
+            <br>
+          </div>
+          <div class='w3-col s2 w3-border w3-light-blue'>
+            <br>
+            <br>
+            <br>
+          </div>
+          <div class='w3-col s2 w3-border w3-light-blue'>
+            <br>
+            <br>
+            <br>
+          </div>
+          <div class='w3-col s2 w3-border w3-light-blue'>
+            <br>
+            <br>
+            <br>
+          </div>
+          <div class='w3-col s2 w3-border w3-dark-grey'>
+            <br>
+            <br>
+            <p>THE LIBERALS WIN.</p>
+          </div>
+          <div class='w3-col s1 w3-blue'>
+            <br>
+            <br>
+            <br>
+            <p class='rotateRight'>Discard Pile</p>
+          </div>
+        </div>
+      </div>
+
+      <div id='electionTracker' class='w3-row w3-border w3-center'>
+        <div class='w3-col s2 w3-black'>
+          &nbsp;
+        </div>
+        <div class='w3-col s2'>
+          O - FAIL
+        </div>
+        <div class='w3-col s2'>
+          O - FAIL
+        </div>
+        <div class='w3-col s2'>
+          O - FAIL
+        </div>
+        <div class='w3-col s2'>
+          O - REVEAL & PASS TOP POLICY
+        </div>
+        <div class='w3-col s2 w3-black'>
+          &nbsp;
+        </div>
+      </div>
+    </div>
+
+
+    </div>
+
+
+
+    <div id='waitingSection' class='section'>
+      <h1 class='sectionTitle'>Preparing</h1>
+      <strong>Waiting on other players...</strong>
+      <p>To join this game, please visit <span id='addressSpan'></span>
+        <br>
+      <img id='QRcodeImg' width='300' height='300' />
+      <p><em>Players in game - <span class='playerCountSpan'>1</span></em></p>
+      <ul class='onlineUserList'></ul>
+    </div>
+
+
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='https://code.jquery.com/jquery-1.11.1.js'></script>
+    <script src='/board.js'></script>
+    <script defer src='/fontawesome-all.min.js'></script>
+
+  </body>
+</html>

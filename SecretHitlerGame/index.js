@@ -38,9 +38,15 @@ var server = app.listen(port, myLocalIP, function(){
     console.log(`Listening for requests on port ${port}`);
 });
 
-// Static files
+/*
+  -----------------
+  STATIC FILES
+  -----------------
+*/
 app.use(express.static('/'));
-// No path, serve index.html
+
+// --- CLIENT FILES
+// No path, serve index.html (client)
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/client/index.html');
 });
@@ -48,18 +54,45 @@ app.get('/', function(req, res){
 app.get('/client.js', function(req, res){
   res.sendFile(__dirname + '/client/client.js');
 });
-// Font used in file
+// Font used by client and board
 app.get('/farisea-dark.ttf', function(req, res){
-  res.sendFile(__dirname + '/client/farisea-dark.ttf');
+  res.sendFile(__dirname + '/farisea-dark.ttf');
 });
-// Font used in file
+// Stylesheet for the client
 app.get('/style.css', function(req, res){
   res.sendFile(__dirname + '/client/style.css');
 });
 
+// --- BOARD FILES
+// Board Index HTML file
+app.get('/board', function(req, res){
+  res.sendFile(__dirname + '/board/index.html');
+});
+// Board Index File
+app.get('/board.js', function(req, res){
+  res.sendFile(__dirname + '/board/board.js');
+});
+// Board CSS
+app.get('/board/style.css', function(req, res){
+  res.sendFile(__dirname + '/board/style.css');
+});
+// Font used by client and board
+app.get('/board/farisea-dark.ttf', function(req, res){
+  res.sendFile(__dirname + '/board/farisea-dark.ttf');
+});
+// Font Awesome
+app.get('/fontawesome-all.min.js', function(req, res){
+  res.sendFile(__dirname + '/board/fontawesome-all.min.js');
+});
+
+
 // Socket setup & pass server
 var io = socket(server);
+
 io.on('connection', (socket) => {
+
+  var ipAndPort = myLocalIP + ":" + port;
+  io.sockets.emit('board init', ipAndPort);
 
   // Get the IP of the socket which has connected
   var clientIp = socket.request.connection.remoteAddress;
@@ -69,18 +102,21 @@ io.on('connection', (socket) => {
 
   // Loop through the connections
   for (let i = 0; i < connections.length; i++){
-    console.log('Checking Connection %s', i);
+
+    //console.log('Checking Connection %s', i);
     var thisIp = connections[i].request.connection.remoteAddress;
-    console.log('Connection IP is: ' + thisIp);
+    //console.log('Connection IP is: ' + thisIp);
+
     // Check if this is an existing player
     if (thisIp === clientIp){
+
       newConnection = false;
       // Existing user! confirm this user
-      console.log('Existing user');
+      //console.log('Existing user');
       socket.username = users[i];
       connections[i] = socket;
       //users[i] = socket.username;
-      console.log('Users matched: %s users connected', users.length);
+      console.log('Existing user matched: %s users connected', users.length);
 
       // Send the current game state to this user
       // On the client side, this will load the appropriate section
@@ -101,7 +137,11 @@ io.on('connection', (socket) => {
     console.log('New Socket Connected: %s sockets connected', connections.length);
   }
 
-  // Socket Disconnected
+  /*
+    -------------------
+    Socket Disconnected
+    -------------------
+  */
   socket.on('disconnect', function(){
 
     // Check if this socket had assigned username
@@ -117,18 +157,12 @@ io.on('connection', (socket) => {
 
   });
 
-/*
-  // Message received from socket
-  socket.on('send message', function(data){
-    // Check the username received
-    var username = socket.username;
-    // Emit this message to all sockets
-    io.sockets.emit('new message', {msg: data, user: username});
 
-  });
-*/
-
-  // New user handle
+  /*
+    ---------------------
+    New user added (name)
+    ---------------------
+  */
   socket.on('user added', function(data, callback){
     console.log('New user added', data);
     // The callback is fired on the client side once confirmed
@@ -144,11 +178,16 @@ io.on('connection', (socket) => {
 
   // Function to emit usernames to all sockets
   function updateUsernames(){
-    // Push the new users array out to
+    // Push the new users array out to all users
     io.sockets.emit('server shareUsers', users);
+    io.sockets.emit('board users', users);
   }
 
-  // Game start button clicked - Assign roles!
+  /*
+    ---------------------------
+    Game started - assign roles
+    ---------------------------
+  */
   socket.on('user startGame', function(){
     var userCount = users.length;
     if ( (userCount < cardPack.minPlayers) || (userCount > cardPack.maxPlayers) ){
@@ -184,7 +223,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Submitting that player is ready
+  /*
+    --------------------
+    User confirmed ready
+    --------------------
+  */
   socket.on('user ready', function(user){
 
     if (playerResponses.responses.indexOf(user) >= 0){ return false; }
@@ -205,7 +248,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Submitting a player's vote
+  /*
+    --------------------
+    Player submits vote
+    --------------------
+  */
   socket.on('user vote', function(vote, user){
 
     // Check if this player has already voted
@@ -262,7 +309,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  // The Chancellor has been nominated - go to the vote
+  /*
+    -------------------------
+    User nominates chancellor
+    -------------------------
+  */
   socket.on('user nominate', function(user){
 
     console.log('The President has nominated ' + user + ' to be the Chancellor');
