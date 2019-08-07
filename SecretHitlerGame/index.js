@@ -19,6 +19,20 @@ var users = [];
 var playerRoles = [];
 // Public Roles (president/chancellor)
 var publicRoles = [];
+
+// Holds the user information
+var userObj = {};
+// Holds the connections list (IP addresses)
+userObj.connections = [];
+// Holds the names of users logged in
+userObj.users = [];
+// Holds the SORTED list of players for games
+userObj.players = [];
+// Holds the public (government) roles
+userObj.publicRoles = []; //['cur pres', 'cur chan', 'pre pres', 'pre chan'];
+// Holds the secret (party member) roles
+userObj.secretRoles = []; //['Liberal', 'Liberal', 'Liberal', 'Fascist', 'Hitler' ];
+
 // Player responses - ready & votes
 var playerResponses = {};
 playerResponses.state = 'ready';
@@ -56,11 +70,15 @@ app.get('/client.js', function(req, res){
 });
 // Font used by client and board
 app.get('/farisea-dark.ttf', function(req, res){
-  res.sendFile(__dirname + '/farisea-dark.ttf');
+  res.sendFile(__dirname + '/client/farisea-dark.ttf');
 });
 // Stylesheet for the client
 app.get('/style.css', function(req, res){
   res.sendFile(__dirname + '/client/style.css');
+});
+// Stylesheet for the client
+app.get('/favicon.ico', function(req, res){
+  res.sendFile(__dirname + '/client/favicon.ico');
 });
 
 // --- BOARD FILES
@@ -76,10 +94,13 @@ app.get('/board.js', function(req, res){
 app.get('/board/style.css', function(req, res){
   res.sendFile(__dirname + '/board/style.css');
 });
+
+/*
 // Font used by client and board
 app.get('/board/farisea-dark.ttf', function(req, res){
   res.sendFile(__dirname + '/board/farisea-dark.ttf');
 });
+*/
 // Font Awesome
 app.get('/fontawesome-all.min.js', function(req, res){
   res.sendFile(__dirname + '/board/fontawesome-all.min.js');
@@ -101,10 +122,10 @@ io.on('connection', (socket) => {
   var newConnection = true;
 
   // Loop through the connections
-  for (let i = 0; i < connections.length; i++){
+  for (let i = 0; i < userObj.connections.length; i++){
 
     //console.log('Checking Connection %s', i);
-    var thisIp = connections[i].request.connection.remoteAddress;
+    var thisIp = userObj.connections[i].request.connection.remoteAddress;
     //console.log('Connection IP is: ' + thisIp);
 
     // Check if this is an existing player
@@ -113,16 +134,16 @@ io.on('connection', (socket) => {
       newConnection = false;
       // Existing user! confirm this user
       //console.log('Existing user');
-      socket.username = users[i];
-      connections[i] = socket;
+      socket.username = userObj.users[i];
+      userObj.connections[i] = socket;
       //users[i] = socket.username;
-      console.log('Existing user matched: %s users connected', users.length);
+      console.log('Existing user matched: %s users connected', userObj.users.length);
 
       // Send the current game state to this user
       // On the client side, this will load the appropriate section
       if (gameState === 'nominateChancellor'){
         // The nomination section is different for different roles
-        io.to(socket.id).emit('server roundStart', publicRoles, policyCards);
+        io.to(socket.id).emit('server roundStart', userObj.publicRoles, policyCards);
       }else{
         // All other game states should be directly joinable
         io.to(socket.id).emit('server rejoin', gameState);
@@ -133,8 +154,8 @@ io.on('connection', (socket) => {
 
   if (newConnection){
     // Add this socket to the connections array
-    connections.push(socket);
-    console.log('New Socket Connected: %s sockets connected', connections.length);
+    userObj.connections.push(socket);
+    console.log('New Socket Connected: %s sockets connected', userObj.connections.length);
   }
 
   /*
@@ -148,12 +169,12 @@ io.on('connection', (socket) => {
     if (!socket.username) return;
 
     // Remove this socket from the connections array
-    connections.splice(connections.indexOf(socket), 1);
-    console.log('Socket disconnected: %s sockets connected', connections.length);
+    userObj.connections.splice(userObj.connections.indexOf(socket), 1);
+    console.log('Socket disconnected: %s sockets connected', userObj.connections.length);
 
     // If so, remove this socket from the users array
-    users.splice(users.indexOf(socket.username), 1);
-    console.log('User disconnected: %s users connected', users.length);
+    userObj.users.splice(userObj.users.indexOf(socket.username), 1);
+    console.log('User disconnected: %s users connected', userObj.users.length);
 
   });
 
@@ -171,7 +192,7 @@ io.on('connection', (socket) => {
     // Assign this new username to the socket
     socket.username = data;
     // Add this user to the users array
-    users.push(socket.username);
+    userObj.users.push(socket.username);
     // Then call the updateUsernames function to emit the new users array
     updateUsernames();
   });
@@ -179,8 +200,8 @@ io.on('connection', (socket) => {
   // Function to emit usernames to all sockets
   function updateUsernames(){
     // Push the new users array out to all users
-    io.sockets.emit('server shareUsers', users);
-    io.sockets.emit('board users', users);
+    io.sockets.emit('server shareUsers', userObj.users);
+    io.sockets.emit('board users', userObj.users);
   }
 
   /*
@@ -189,35 +210,38 @@ io.on('connection', (socket) => {
     ---------------------------
   */
   socket.on('user startGame', function(){
-    var userCount = users.length;
+
+    var userCount = userObj.users.length;
     if ( (userCount < cardPack.minPlayers) || (userCount > cardPack.maxPlayers) ){
       console.log('Player count error');
       io.to(socket.id).emit('server playerCount', userCount);
       return false;
     }else{
-      // Randomise the users list
-      shuffle(users);
+      // Randomise the players list !THIS SHOULD BE UPDATED
+      userObj.players = userObj.users.slice();
+      shuffle(userObj.players);
       let theseCards = cardPack.playerCards[userCount - 5];
 
       // Add liberals
       liberalCount = theseCards[0];
       for (let i = 0; i < liberalCount; i++){
-        playerRoles[i] = 'liberal';
+        userObj.secretRoles[i] = 'liberal';
       }
 
       // Add fascists
       fascistCount = theseCards[1];
       for (let i = liberalCount; i < (liberalCount + fascistCount); i++){
-        playerRoles[i] = 'fascist';
+        userObj.secretRoles[i] = 'fascist';
       }
 
       // Add Hitler - the last of the shuffled users
-      playerRoles[users.length - 1] = 'hitler';
+      userObj.secretRoles[userObj.players.length - 1] = 'hitler';
 
       //console.log(playerRoles);
-      console.log(users);
+      console.log('Players = ' + userObj.players);
+      console.log('Roles = ' + userObj.secretRoles);
 
-      io.sockets.emit('server shareRoles', {roles: playerRoles, users: users});
+      io.sockets.emit('server shareRoles', {roles: userObj.secretRoles, users: userObj.players});
       gameState = 'showRole';
 
     }
@@ -233,7 +257,7 @@ io.on('connection', (socket) => {
     if (playerResponses.responses.indexOf(user) >= 0){ return false; }
     playerResponses.responses.push(user);
     var respCount = playerResponses.responses.length;
-    var userCount = users.length;
+    var userCount = userObj.users.length;
     var respRemaining = userCount - respCount;
     //console.log(respCount, userCount, respRemaining);
     if (respRemaining === 0){
@@ -266,8 +290,8 @@ io.on('connection', (socket) => {
     gameState = 'governmentVote';
     // The number of responses received
     var respCount = playerResponses.responses.length;
-    // The number of votes expected
-    var userCount = users.length;
+    // The number of votes expected - USING PLAYERS AS SOME USERS MAY BE KILLED OFF
+    var userCount = userObj.players.length;
     // The number of responses still awaited
     var respRemaining = userCount - respCount;
 
@@ -282,7 +306,7 @@ io.on('connection', (socket) => {
       // Start the counting!
       let positiveVotes = 0;
       // Threshold votes shows the majority
-      let thresholdVotes = Math.ceil(users.length / 2);
+      let thresholdVotes = Math.ceil(userObj.players.length / 2);
       // If there are an even number of voters, add 1
       if (userCount % 2 === 0){
         thresholdVotes++;
@@ -293,14 +317,16 @@ io.on('connection', (socket) => {
 
       // If the number of votes meets the threshold, the government is elected
       if (positiveVotes >= thresholdVotes){
-        console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government elected!');
+        //console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government elected!');
         // Track elected pres/chancellor to exclude them from the next election!
-        io.sockets.emit('server govElected', positiveVotes);
+        //io.sockets.emit('server govElected', positiveVotes);
+        governmentElected(positiveVotes, userCount);
       }else{
-        console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government fails!');
+        //console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government fails!');
         // Increase election failure tracker
         // Move on to next president and restart round
-        io.sockets.emit('server govRejected', positiveVotes);
+        //io.sockets.emit('server govRejected', positiveVotes);
+        governmentRejected(positiveVotes, userCount);
       }
 
     }else{
@@ -317,12 +343,12 @@ io.on('connection', (socket) => {
   socket.on('user nominate', function(user){
 
     console.log('The President has nominated ' + user + ' to be the Chancellor');
-    publicRoles[1] = user;
+    userObj.publicRoles[1] = user;
     playerResponses.state = 'voting';
     playerResponses.responses = [];
     playerResponses.votes = [];
     // Voting begins
-    io.sockets.emit('server shareNomination', publicRoles);
+    io.sockets.emit('server shareNomination', userObj.publicRoles);
   });
 
 
@@ -334,10 +360,25 @@ function finaliseGameSetup(){
 
   policyCards = shuffle(cardPack.policyCards.cards);
   // Assign the first user to President
-  publicRoles.push(users[0]);
-  console.log('The President is now ' + users[0]);
+  userObj.publicRoles.push(userObj.players[0]);
+  console.log('The President is now ' + userObj.players[0]);
   console.log(policyCards);
-  io.sockets.emit('server roundStart', publicRoles, policyCards);
+  io.sockets.emit('server roundStart', userObj.publicRoles, policyCards);
+}
+
+function governmentElected(positiveVotes, userCount){
+  console.log('Government Elected with ' + positiveVotes + ' out of ' + userCount);
+  // Track elected pres/chancellor to exclude them from the next election!
+  //io.sockets.emit('server govElected', positiveVotes);
+
+}
+
+function governmentRejected(positiveVotes, userCount){
+  console.log('Government Elected ' + positiveVotes + ' out of ' + userCount);
+  // Increase election failure tracker
+
+  // Move on to next president and restart round
+  //io.sockets.emit('server govRejected', positiveVotes);
 }
 
 
@@ -381,3 +422,8 @@ gameBoard.liberal.slotActions = [null, null,  null, null, 'libsWin'];
 gameBoard.fascist = {};
 gameBoard.fascist.slotDescriptions = [null, null, 'The President examines the top three cards', 'The President must kill a player', 'The President must kill a player. Veto power is unlocked', 'Fascists win'];
 gameBoard.fascist.slotActions = [null, null, 'presExamine', 'presKill', 'presKill', 'fascWin'];
+
+var boardProgress = {};
+boardProgress.liberal = 0;
+boardProgress.fascist = 0;
+boardProgress.failure = 0;

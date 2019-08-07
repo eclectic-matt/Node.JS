@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Secret Hitler Game</title>
-
+    <link rel="icon" type="image/ico" sizes="16x16" href="/favicon.ico">
     <link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css' />
     <link rel='stylesheet' href='style.css' />
 
@@ -44,7 +44,7 @@
       <h3>Your Role</h3>
       <em>Your SECRET role is: <span class='yourRoleSpan'>ROLE</span></em>
       <ul class='playerRolesList'></ul>
-      <button class='playerReadyBtn'>Ready to Play</button>
+      <button class='w3-button w3-green playerReadyBtn'>Ready to Play</button>
     </div>
 
 
@@ -52,7 +52,7 @@
       <h3>You are the President!</h3>
       <em>You must now nominate a Chancellor from the list below:</em>
       <div class='nominateChancellorDiv'></div>
-      <button class='nominateChancellorBtn'>Nominate Chancellor</button>
+      <button class='w3-button w3-green nominateChancellorBtn'>Nominate Chancellor</button>
     </div>
 
 
@@ -61,8 +61,16 @@
       <b>The proposed government is: </b>
       <div class='governmentVoteDiv'></div>
       <br>
-      <button class='jaBtn'>Ja</button>
-      <button class='neinBtn'>Nein</button>
+      <button class='w3-button w3-green jaBtn'>Ja</button>
+      <button class='w3-button w3-green neinBtn'>Nein</button>
+    </div>
+
+    <div id='policySelectSection' class='section'>
+      <h2>Select Policies</h2>
+      <b>Please DO NOT SAY ANYTHING UNTIL THE FINAL POLICY HAS BEEN PLAYED. You must now choose <span id='policyCount'>2</span> from the policies below:</b>
+      <div class='policySelectDiv'></div>
+      <br>
+      <button class='policySubmitBtn'>Submit</button>
     </div>
 
 

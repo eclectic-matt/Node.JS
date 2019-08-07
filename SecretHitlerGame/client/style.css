@@ -75,8 +75,29 @@ li{
 
 .w3-button {
   border-radius: 10px;
+  font: 1em/1.25em farisea !important;
+  color: #ccc !important;
 }
 
 .w3-button:hover{
   background-color: green !important;
+  color: #fff !important;
+  box-shadow: 5px 10px #888 !important;
+}
+
+.governmentVoteDiv ul {
+  font-size: 1em;
+  list-style-type: circle;
+}
+
+.governmentVoteDiv ul li {
+  font-size: 1em;
+}
+
+select {
+  font-size: 1em;
+}
+
+option {
+  font-size: 1em;
 }
