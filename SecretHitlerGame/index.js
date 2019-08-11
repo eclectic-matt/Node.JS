@@ -12,6 +12,7 @@ var port = process.env.PORT || 1932;
 var ip = require('ip');
 var myLocalIP = ip.address();
 
+/*
 // Variables to hold connection list and users list
 var connections = [];
 var users = [];
@@ -19,7 +20,7 @@ var users = [];
 var playerRoles = [];
 // Public Roles (president/chancellor)
 var publicRoles = [];
-
+*/
 // Holds the user information
 var userObj = {};
 // Holds the connections list (IP addresses)
@@ -217,6 +218,9 @@ io.on('connection', (socket) => {
       io.to(socket.id).emit('server playerCount', userCount);
       return false;
     }else{
+
+      assignSecretRoles();
+      /*
       // Randomise the players list !THIS SHOULD BE UPDATED
       userObj.players = userObj.users.slice();
       shuffle(userObj.players);
@@ -243,8 +247,12 @@ io.on('connection', (socket) => {
 
       io.sockets.emit('server shareRoles', {roles: userObj.secretRoles, users: userObj.players});
       gameState = 'showRole';
+      */
+
+      io.sockets.emit('server shareRoles', {roles: userObj.secretRoles, users: userObj.players});
 
     }
+
   });
 
   /*
@@ -263,8 +271,17 @@ io.on('connection', (socket) => {
     if (respRemaining === 0){
       // All players ready - start the game!
       console.log('All players ready!');
+      // Shuffle cards, assign presidency
       finaliseGameSetup();
+      // The game state moves to nominate chancellor
       gameState = 'nominateChancellor';
+
+      // FOR TESTING PURPOSES
+      boardProgress.liberal = 2;
+      boardProgress.fascist = 1;
+      boardProgress.failure = 2;
+      // Tell the game board to show the game board for now
+      io.sockets.emit('board roundStart', boardProgress);
     }else{
       // Still waiting for more players to respond
       console.log('Player ' + user + ' is ready');
@@ -336,6 +353,32 @@ io.on('connection', (socket) => {
   });
 
   /*
+    ---------------------
+    New feature - socket request for each player's secret role
+    INSECURE AT PRESENT, TRUSTS THE USERNAME PASSED!
+    ---------------------
+  */
+  socket.on('user requestSecretRole', function(username){
+
+    console.log('User ' + username + ' has requested their secret role');
+    let playerIndex = -1;
+
+    // Match this PLAYER
+    for (let i = 0; i < userObj.players.length; i++){
+      if (username === userObj.players[i]){
+        playerIndex = i;
+      }
+    }
+    if (playerIndex === -1) return false;
+
+    // Return the associated SECRET ROLE
+    //return userObj.secretRoles[playerIndex];
+    let yourSecretRole = userObj.secretRoles[playerIndex];
+    io.to(socket.id).emit('server shareSecretRole', yourSecretRole);
+
+  });
+
+  /*
     -------------------------
     User nominates chancellor
     -------------------------
@@ -355,13 +398,75 @@ io.on('connection', (socket) => {
 });
 
 
+function assignSecretRoles(){
+
+  let userCount = userObj.users.length;
+  // Randomise the players list !THIS SHOULD BE UPDATED
+  userObj.players = userObj.users.slice();
+  shuffle(userObj.players);
+  let theseCards = cardPack.playerCards[userCount - 5];
+
+  // Add liberals
+  liberalCount = theseCards[0];
+  for (let i = 0; i < liberalCount; i++){
+    userObj.secretRoles[i] = 'liberal';
+  }
+
+  // Add fascists
+  fascistCount = theseCards[1];
+  for (let i = liberalCount; i < (liberalCount + fascistCount); i++){
+    userObj.secretRoles[i] = 'fascist';
+  }
+
+  // Add Hitler - the last of the shuffled users
+  userObj.secretRoles[userObj.players.length - 1] = 'hitler';
+
+  //console.log(playerRoles);
+  console.log('Players = ' + userObj.players);
+  console.log('Roles = ' + userObj.secretRoles);
+
+  gameState = 'showRole';
+
+}
+
+
 // Shuffle cards, assign president, start game
 function finaliseGameSetup(){
 
   policyCards = shuffle(cardPack.policyCards.cards);
-  // Assign the first user to President
-  userObj.publicRoles.push(userObj.players[0]);
-  console.log('The President is now ' + userObj.players[0]);
+
+  // Assign the Presidency to the first player
+  if (userObj.publicRoles[0] === undefined){
+    // No previous president - assign to player 0
+    userObj.publicRoles[0] = userObj.players[0];
+    console.log('No previous president - assigning to ' + userObj.publicRoles[0]);
+  }else{
+    var searchingForPres = false;
+    var prevPresIdx = userObj.players.indexOf(userObj.publicRoles[0]);
+    while (searchingForPres){
+      if (prevPresIdx >= userObj.players.length){
+        // Gone past the last player - start again!
+        console.log('Presidency moves to start of list');
+        prevPresIdx = 0;
+      }
+      // Check if this index is excluded from the presidency
+      if ( (userObj.players[prevPresIdx] === userObj.publicRoles[2]) || (userObj.players[prevPresIdx] === userObj.publicRoles[3]) ){
+        // This player has just been pres/chan
+        console.log('Player ' + userObj.players[prevPresIdx] + ' is excluded!');
+        // Increment the index
+        prevPresIdx++;
+      }else{
+        // This president should be fine!
+        searchingForPres = false;
+        // Assign this user the presidency!
+        userObj.publicRoles[0] = userObj.players[prevPresIdx];
+        //console.log('The President has now been assigned to ' + userObj.publicRoles[0]);
+      }
+    }
+
+  }
+
+  console.log('The President is now ' + userObj.publicRoles[0]);
   console.log(policyCards);
   io.sockets.emit('server roundStart', userObj.publicRoles, policyCards);
 }
@@ -369,6 +474,8 @@ function finaliseGameSetup(){
 function governmentElected(positiveVotes, userCount){
   console.log('Government Elected with ' + positiveVotes + ' out of ' + userCount);
   // Track elected pres/chancellor to exclude them from the next election!
+  userObj.publicRoles[2] = userObj.publicRoles[0];
+  userObj.publicRoles[3] = userObj.publicRoles[1];
   //io.sockets.emit('server govElected', positiveVotes);
 
 }

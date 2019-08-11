@@ -152,10 +152,19 @@ $(function () {
 
   });
 
+  socket.on('server shareSecretRole', function(role){
+    console.log(`Your Secret Role is ${role}`);
+  });
+
 
   /*
     CLIENT BUTTON CLICKS
   */
+
+  $('.showSecretRoleBtn').click(function(e){
+    //let secretRoleEl = $('.secretRoleText');
+    socket.emit('user requestSecretRole', myUsername);
+  });
 
   $('.nominateChancellorBtn').click(function(e){
     let nomination = $('#nominateSelect').val();

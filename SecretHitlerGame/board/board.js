@@ -3,7 +3,7 @@ $(function () {
   // On load, start socket connection
   var socket = io.connect();
 
-  showSection('waitingSection');
+  showSection('boardSection');
 
   socket.on('board users', function(data){
 
@@ -28,7 +28,7 @@ $(function () {
     // Update the player count visible to players
     $('.playerCountSpan').html(userCount);
 
-    showSection('waitingSection');
+    //showSection('waitingSection');
 
   });
 
@@ -46,7 +46,66 @@ $(function () {
 
   });
 
+  socket.on('board roundStart', function(progress){
+
+    updateTracker(progress);
+    showSection('boardSection');
+
+  });
+
 });
+
+function updateTracker(progress){
+
+  // Update fascist track
+  if (progress.fascist > 0){
+    // The track being checked
+    var fascTrackEl = $('#fascistTrack' + progress.fascist);
+    // Check if this card section NO inner div (card not present)
+    if (!fascTrackEl.has('div')){
+      // No element present - create one
+      var fascCard = document.createElement('div');
+      fascCard.style.cssText = 'position: absolute; z-index: 10; color: white; background-color: red; border: 5px solid black; text-align: center;';
+      var fascTitle = document.createElement('b');
+      fascTitle.innerHTML = 'Fascist';
+      fascCard.appendChild(fascTitle);
+      fascTrackEl.appendChild(fascCard);
+    }
+  }
+
+  // Update liberal track
+  if (progress.liberal > 0){
+    // The track being checked
+    var libsTrackEl = $('#liberalTrack' + progress.liberal);
+    // Check if this card section NO inner div (card not present)
+    if (!libsTrackEl.has('div')){
+      // No element present - create one
+      var libsCard = document.createElement('div');
+      libsCard.style.cssText = 'position: relative; z-index: 10; color: white; background-color: blue; border: 5px solid black; text-align: center; height: 100%;';
+      var libsTitle = document.createElement('b');
+      libsTitle.innerHTML = 'Liberal';
+      libsCard.appendChild(libsTitle);
+      libsTrackEl.appendChild(libsCard);
+    }
+  }
+
+  // Update failure track
+  if (progress.failure > 0){
+    // The track being checked
+    var progressTrackEl = $('#electFailTrack' + progress.failure);
+    // Check if this card section NO inner div (card not present)
+    if (!progressTrackEl.has('div')){
+      // No element present - create one
+      var progressCard = document.createElement('div');
+      progressCard.style.cssText = 'position: relative; z-index: 10; background-color: purple; border: 1px solid black; border-radius: 50%; text-align: center; left: 25px; top:-10px; width: 80%;';
+      var progressTitle = document.createElement('b');
+      progressTitle.innerHTML = 'FAIL';
+      progressCard.appendChild(progressTitle);
+      progressTrackEl.innerHTML = progressCard;
+    }
+  }
+
+}
 
 
 function showSection(showId){

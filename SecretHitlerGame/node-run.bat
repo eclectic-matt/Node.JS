@@ -1,2 +1,2 @@
 title Secret Hitler Game
-node index
+node index /K
