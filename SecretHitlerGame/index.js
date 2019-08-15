@@ -127,7 +127,6 @@ io.on('connection', (socket) => {
 
     //console.log('Checking Connection %s', i);
     var thisIp = userObj.connections[i].request.connection.remoteAddress;
-    //console.log('Connection IP is: ' + thisIp);
 
     // Check if this is an existing player
     if (thisIp === clientIp){
@@ -186,6 +185,7 @@ io.on('connection', (socket) => {
     ---------------------
   */
   socket.on('user added', function(data, callback){
+
     console.log('New user added', data);
     // The callback is fired on the client side once confirmed
     // This hides the login section and shows message section
@@ -196,13 +196,17 @@ io.on('connection', (socket) => {
     userObj.users.push(socket.username);
     // Then call the updateUsernames function to emit the new users array
     updateUsernames();
+
   });
 
   // Function to emit usernames to all sockets
   function updateUsernames(){
+
     // Push the new users array out to all users
     io.sockets.emit('server shareUsers', userObj.users);
+    // Also push out to the board (using separate events for now)
     io.sockets.emit('board users', userObj.users);
+
   }
 
   /*
@@ -213,43 +217,28 @@ io.on('connection', (socket) => {
   socket.on('user startGame', function(){
 
     var userCount = userObj.users.length;
+
     if ( (userCount < cardPack.minPlayers) || (userCount > cardPack.maxPlayers) ){
+
       console.log('Player count error');
+      // Socket ID works here as only first player can start game
       io.to(socket.id).emit('server playerCount', userCount);
       return false;
+
     }else{
 
       assignSecretRoles();
+      io.sockets.emit('server shareRoles', {roles: userObj.secretRoles, users: userObj.players});
       /*
-      // Randomise the players list !THIS SHOULD BE UPDATED
-      userObj.players = userObj.users.slice();
-      shuffle(userObj.players);
-      let theseCards = cardPack.playerCards[userCount - 5];
+      // TESTING - Only share secret role to individual sockets
+      let connCount = userObj.connections.length;
+      for (let i = 0; i < connCount; i++){
 
-      // Add liberals
-      liberalCount = theseCards[0];
-      for (let i = 0; i < liberalCount; i++){
-        userObj.secretRoles[i] = 'liberal';
+
+        io.to(userObj.connections[i].id).emit('server shareSecretRole', {roles: thisRole });
+
       }
-
-      // Add fascists
-      fascistCount = theseCards[1];
-      for (let i = liberalCount; i < (liberalCount + fascistCount); i++){
-        userObj.secretRoles[i] = 'fascist';
-      }
-
-      // Add Hitler - the last of the shuffled users
-      userObj.secretRoles[userObj.players.length - 1] = 'hitler';
-
-      //console.log(playerRoles);
-      console.log('Players = ' + userObj.players);
-      console.log('Roles = ' + userObj.secretRoles);
-
-      io.sockets.emit('server shareRoles', {roles: userObj.secretRoles, users: userObj.players});
-      gameState = 'showRole';
       */
-
-      io.sockets.emit('server shareRoles', {roles: userObj.secretRoles, users: userObj.players});
 
     }
 
@@ -268,7 +257,10 @@ io.on('connection', (socket) => {
     var userCount = userObj.users.length;
     var respRemaining = userCount - respCount;
     //console.log(respCount, userCount, respRemaining);
+
+    // If all responses have been submitted
     if (respRemaining === 0){
+
       // All players ready - start the game!
       console.log('All players ready!');
       // Shuffle cards, assign presidency
@@ -282,12 +274,17 @@ io.on('connection', (socket) => {
       boardProgress.failure = 2;
       // Tell the game board to show the game board for now
       io.sockets.emit('board roundStart', boardProgress);
+
     }else{
+
       // Still waiting for more players to respond
       console.log('Player ' + user + ' is ready');
       console.log(`Still waiting for ${respRemaining} responses`);
+
     }
+
   });
+
 
   /*
     --------------------
@@ -295,85 +292,22 @@ io.on('connection', (socket) => {
     --------------------
   */
   socket.on('user vote', function(vote, user){
-
-    // Check if this player has already voted
-    if (playerResponses.responses.indexOf(user) >= 0){ return false; }
-    // If not, add this user to the list
-    playerResponses.responses.push(user);
-    // Also add the vote to the list
-    playerResponses.votes.push(vote);
-    // Show the votes (visible once a player has submitted their vote)
-    io.sockets.emit('server voteReceived', vote, user);
-    gameState = 'governmentVote';
-    // The number of responses received
-    var respCount = playerResponses.responses.length;
-    // The number of votes expected - USING PLAYERS AS SOME USERS MAY BE KILLED OFF
-    var userCount = userObj.players.length;
-    // The number of responses still awaited
-    var respRemaining = userCount - respCount;
-
-    // If all votes have been submitted
-    if (respRemaining === 0){
-
-      // All players voted - calculate result!
-      console.log('All players have voted!');
-      // Admin sees all votes
-      console.log(playerResponses.votes);
-
-      // Start the counting!
-      let positiveVotes = 0;
-      // Threshold votes shows the majority
-      let thresholdVotes = Math.ceil(userObj.players.length / 2);
-      // If there are an even number of voters, add 1
-      if (userCount % 2 === 0){
-        thresholdVotes++;
-      }
-
-      // Count the JA votes received
-      positiveVotes = playerResponses.votes.filter(function(x){ return x === "ja"; }).length;
-
-      // If the number of votes meets the threshold, the government is elected
-      if (positiveVotes >= thresholdVotes){
-        //console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government elected!');
-        // Track elected pres/chancellor to exclude them from the next election!
-        //io.sockets.emit('server govElected', positiveVotes);
-        governmentElected(positiveVotes, userCount);
-      }else{
-        //console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government fails!');
-        // Increase election failure tracker
-        // Move on to next president and restart round
-        //io.sockets.emit('server govRejected', positiveVotes);
-        governmentRejected(positiveVotes, userCount);
-      }
-
-    }else{
-      console.log('Player ' + user + ' has voted ' + vote);
-      console.log(`Still waiting for ${respRemaining} responses`);
-    }
+      processVote(vote, user);
   });
 
   /*
     ---------------------
     New feature - socket request for each player's secret role
-    INSECURE AT PRESENT, TRUSTS THE USERNAME PASSED!
     ---------------------
   */
-  socket.on('user requestSecretRole', function(username){
+  socket.on('user requestSecretRole', function(){
 
-    console.log('User ' + username + ' has requested their secret role');
-    let playerIndex = -1;
+    console.log('User ' + socket.username + ' has requested their secret role');
 
-    // Match this PLAYER
-    for (let i = 0; i < userObj.players.length; i++){
-      if (username === userObj.players[i]){
-        playerIndex = i;
-      }
-    }
-    if (playerIndex === -1) return false;
+    let yourSecretRole = getSecretRoleFromIndex(matchSocketToPlayerIndex(socket.username));
+    console.log('Matched Secret Role for ' + socket.username + ' is ' + yourSecretRole);
 
     // Return the associated SECRET ROLE
-    //return userObj.secretRoles[playerIndex];
-    let yourSecretRole = userObj.secretRoles[playerIndex];
     io.to(socket.id).emit('server shareSecretRole', yourSecretRole);
 
   });
@@ -394,10 +328,51 @@ io.on('connection', (socket) => {
     io.sockets.emit('server shareNomination', userObj.publicRoles);
   });
 
-
+// END io.on('connection')
 });
 
 
+/**
+  * @desc matches a username against a playerIndex
+  * @param string username - can be pulled from socket.username
+  * @return int playerIndex - the matched index in the player array
+*/
+function matchSocketToPlayerIndex(username){
+
+  //let playerIndex = -1;
+  let playerIndex = userObj.players.indexOf(username);
+  return playerIndex === -1 ? false : playerIndex;
+  /*
+  // Match this PLAYER
+  for (let i = 0; i < userObj.players.length; i++){
+    if (username === userObj.players[i]){
+      playerIndex = i;
+    }
+  }
+  if (playerIndex === -1){
+    return false;
+  }else{
+    return playerIndex;
+  }
+  */
+}
+
+
+/**
+  * @desc returns a secret role from a playerIndex
+  * @param int playerIndex - the index in the player array
+  * @return string secretRole - the secret role for this player
+*/
+function getSecretRoleFromIndex(playerIndex){
+  return userObj.secretRoles[playerIndex];
+}
+
+
+/**
+  * @desc randomises the player array and assigns roles
+  * @param none - uses the userObj.users array
+  * @return none - mutates global vars userObj.players and userObj.secretRoles
+*/
 function assignSecretRoles(){
 
   let userCount = userObj.users.length;
@@ -429,6 +404,70 @@ function assignSecretRoles(){
 
 }
 
+/**
+  * @desc receives a vote and handles the vote system
+  * @param string vote - either JA or NEIN
+  * @param string user - the user who has voted
+  * @return none - fires other functions as appropriate
+*/
+function processVote(vote, user){
+
+  // Check if this player has already voted
+  if (playerResponses.responses.indexOf(user) >= 0){ return false; }
+  // If not, add this user to the list
+  playerResponses.responses.push(user);
+  // Also add the vote to the list
+  playerResponses.votes.push(vote);
+  // Show the votes (visible once a player has submitted their vote)
+  io.sockets.emit('server voteReceived', vote, user);
+  gameState = 'governmentVote';
+  // The number of responses received
+  var respCount = playerResponses.responses.length;
+  // The number of votes expected - USING PLAYERS AS SOME USERS MAY BE KILLED OFF
+  var userCount = userObj.players.length;
+  // The number of responses still awaited
+  var respRemaining = userCount - respCount;
+
+  // If all votes have been submitted
+  if (respRemaining === 0){
+
+    // All players voted - calculate result!
+    console.log('All players have voted!');
+    // Admin sees all votes
+    console.log(playerResponses.votes);
+
+    // Start the counting!
+    let positiveVotes = 0;
+    // Threshold votes shows the majority
+    let thresholdVotes = Math.ceil(userObj.players.length / 2);
+    // If there are an even number of voters, add 1
+    if (userCount % 2 === 0){
+      thresholdVotes++;
+    }
+
+    // Count the JA votes received
+    positiveVotes = playerResponses.votes.filter(function(x){ return x === "ja"; }).length;
+
+    // If the number of votes meets the threshold, the government is elected
+    if (positiveVotes >= thresholdVotes){
+      //console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government elected!');
+      // Track elected pres/chancellor to exclude them from the next election!
+      //io.sockets.emit('server govElected', positiveVotes);
+      governmentElected(positiveVotes, userCount);
+    }else{
+      //console.log('Government received ' + positiveVotes + ' out of ' + userCount + ' so government fails!');
+      // Increase election failure tracker
+      // Move on to next president and restart round
+      //io.sockets.emit('server govRejected', positiveVotes);
+      governmentRejected(positiveVotes, userCount);
+    }
+
+  }else{
+    console.log('Player ' + user + ' has voted ' + vote);
+    console.log(`Still waiting for ${respRemaining} responses`);
+  }
+
+}
 
 // Shuffle cards, assign president, start game
 function finaliseGameSetup(){
