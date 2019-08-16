@@ -98,6 +98,9 @@
     9:  5L, 3F, 1H
     10: 6L, 3F, 1H
 
+    Games 5 - 6: Hitler knows who the fascists are
+    Games 7 - 10: Hitler DOES NOT know who fascists are
+    
 */
 
 

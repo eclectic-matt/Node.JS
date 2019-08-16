@@ -1,4 +1,3 @@
-
 // Using an express app to handle routing/file serving
 var express = require('express');
 // Using socket to handle bi-direct real-time comm
@@ -11,6 +10,9 @@ var port = process.env.PORT || 1932;
 // https://github.com/indutny/node-ip
 var ip = require('ip');
 var myLocalIP = ip.address();
+
+/* Local module imports */
+//var supportFns = require('./support_fns.js');
 
 /*
 // Variables to hold connection list and users list
@@ -304,11 +306,47 @@ io.on('connection', (socket) => {
 
     console.log('User ' + socket.username + ' has requested their secret role');
 
+    // Getting secret role from 2 helper functions
+    // matchSocketToPlayerIndex to ensure get index in the roles list
+    // Then getSecretRoleFromIndex to get their own role
     let yourSecretRole = getSecretRoleFromIndex(matchSocketToPlayerIndex(socket.username));
     console.log('Matched Secret Role for ' + socket.username + ' is ' + yourSecretRole);
 
-    // Return the associated SECRET ROLE
-    io.to(socket.id).emit('server shareSecretRole', yourSecretRole);
+    // The complicated bit - additional roles
+    let otherRoles = null;
+    // If you are a liberal, you see nothing
+    if (yourSecretRole !== 'liberal'){
+
+      let userCount = userObj.users.length;
+      // If you are a fascist, you always see the other fascists and hitler
+      // Hitler will see if the player count is 6 or lower
+      if (
+        (yourSecretRole === 'fascist')
+        ||
+        ( (yourSecretRole === 'hitler') && (userCount <= 6) )
+      ){
+
+        // Get Hitler from the secretRoles array
+        otherRoles = 'Hitler: ' + userObj.players[userCount - 1];
+
+        // Get details of the other fascists
+
+        let theseCards = cardPack.playerCards[userCount - 5];
+        liberalCount = theseCards[0];
+        fascistCount = theseCards[1];
+
+        for (let i = liberalCount; i < (liberalCount + fascistCount); i++){
+          otherRoles += ' Fascist: ' + userObj.players[i];
+        }
+
+      }
+
+    }
+
+    console.log('Other roles= ' + otherRoles);
+
+    // Return the associated SECRET ROLE and OTHER roles
+    io.to(socket.id).emit('server shareSecretRole', yourSecretRole, otherRoles);
 
   });
 
@@ -527,7 +565,6 @@ function governmentRejected(positiveVotes, userCount){
   //io.sockets.emit('server govRejected', positiveVotes);
 }
 
-
 /**
  * Shuffles array in place. ES6 version
  * @param {Array} a items An array containing the items.
@@ -540,7 +577,6 @@ function shuffle(a) {
     }
     return a;
 }
-
 
 const cardPack = {};
 
