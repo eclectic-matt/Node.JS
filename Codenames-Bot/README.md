@@ -18,6 +18,7 @@ To install the bot, you will need to follow these steps:
   * npm install https://github.com/woor/discord.io/tarball/gateway_v6
   * npm install discord.js
 * Finally, run the command node bot.js
+* Now make sure you have given the bot permission to read/send messages in the text channel you wish to play a game in (**don't use a your regular chat channel as the bot will delete messages to make things clear for players**)
 * Now it should all work!
 
 ## Using the Codenames Bot
