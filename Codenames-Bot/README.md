@@ -4,6 +4,13 @@ This is a bot for running games of Codenames over Discord.
 
 The bot comes with all the features needed to play through games of Codenames, including generating the Spymaster grid and a random Word grid. It will also accept guesses and keep track of which team is guessing... and also winning or losing!
 
+## To Do (not yet implemented)
+
+* Customisation of some features
+* Further randomisation of the Spymaster grids (rotate for more variety)
+* More words (only one pack added so far)
+* A timer function - so the other team can force a guess
+
 ## Installing
 
 To install the bot, you will need to follow these steps:
