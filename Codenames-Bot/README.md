@@ -48,3 +48,4 @@ This allows players to pass the turn, allowing the other team to make a guess.
 This allows players to reset the game from the start in case something goes wrong! 
 
 **IMPORTANT: this will also clear the chat of the last 100 messages so that players don't get confused about old word grids!**
+**You can now use change the variable "msgClearup" to false if you DO NOT want messages to be deleted!**
