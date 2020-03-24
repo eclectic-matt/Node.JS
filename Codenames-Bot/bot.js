@@ -13,19 +13,32 @@ const client = new Client();
 // Setup team and grid variables
 const GRID_ROWS = 5;
 const GRID_COLS = 5;
+// The Discord IDs of spymasters 1 + 2
 var sm1 = '';
 var sm2 = '';
+// The current team
 var firstTeam = '';
+// The grid for spymasters
 var thisSpyGrid = '';
+// The word grid for teams (not changed)
 var thisWordGrid = '';
+// The word grid after guesses (*BLUE* etc)
 var thisCurrentWords = '';
+// The array of words being loaded into the grid (also edited by guesses)
 var wordArr = [];
+// The grid template being used (from SPY_GRIDS array)
 var gridTemplate = -1;
+// The number of blue/red words left to find
 var blueToFind = 0;
 var redToFind = 0;
+// Allow duplicate spymasters? Can force different spymasters if set to false
 var dupSpymasterAllowed = true;
-// Example HiddenGrid array
-// First row is a single element
+// Delete messages in the main channel to make the new game clear to players
+var msgClearup = true;
+
+// SPY GRIDS ARRAYS
+// First row is a single element - the team to guess first
+// The rest is the 5x5 grid of red/blue/innocent/assassins
 const SPY_GRIDS = [
   [
     "RED",
@@ -76,7 +89,7 @@ const SPY_GRIDS = [
     ["r","i","b","r","r"]
   ]
 ];
-
+// The word list being used - spaced centrally and limited to 10 char words (Millionaire removed)
 const WORD_LIST = [
   '   Duck   ','   Press  ','   Head   ','  Copper  ','  Mammoth ','  Dragon  ','   Palm   ','  Plastic ','   Line   ','  Stream  ',
   '   Pool   ','   Fall   ','  Knight  ','  Mercury ','   Crane  ','Helicopter',' Triangle ',' Australia','   Boom   ','    Kid   ',
@@ -90,6 +103,8 @@ const WORD_LIST = [
   '   Spell  ',' Contract ','  Bottle  ','   Laser  ','   Post   ','   Ball   ','   Mouse  ','    Mud   ','   Rock   '
 ]
 
+// Get the current array of r/b/i/a into a markdown table
+// Also sets the first team
 function gridArrToMarkdown(arr){
   let output = '-----------------------------------------------\n';
   firstTeam = arr[0];
@@ -138,6 +153,8 @@ function shuffle(a) {
     return a;
 }
 
+// Now generate a random word grid (shuffled WORD_LIST)
+// Put these words into a markdown table
 function generateWordGrid(){
   let output = '-----------------------------------------------\n';
   wordArr = WORD_LIST;
@@ -160,6 +177,8 @@ function generateWordGrid(){
   return output;
 }
 
+// CHANGE the word grid once a guess has been registered
+// Will amend the word guessed to the value of team (*BLUE*, *ASSASSIN* etc)
 function updateWordGrid(index, team){
   let output = '-----------------------------------------------\n';
   wordArr[index] = team;
@@ -171,15 +190,19 @@ function updateWordGrid(index, team){
       wordIndex++;
     }   //End j loop
 
+    // On the last row, just close the row |, otherwise add a border line
     if (i !== GRID_ROWS){
         output += '|\n--------------------------------------------------------\n';
     }else{
       output += '|';
     }
   }     //End i loop
+
+  // Wraps the word grid in 3 backticks for code formatting
   thisCurrentWords = '```' + output + '```';
 }
 
+// Switch teams over (should also add team colour here)
 function changeTeam(){
   if (firstTeam === 'BLUE'){
     firstTeam = 'RED';
@@ -188,6 +211,7 @@ function changeTeam(){
   }
 }
 
+// Reset the game variables so no guesses can be made
 function resetGame(){
   sm1 = '';
   sm2 = '';
@@ -201,6 +225,7 @@ function resetGame(){
   redToFind = 0;
 }
 
+// Not yet implemented, currently just in the GUESS command section
 function gameOver(team){
 
 }
@@ -232,24 +257,36 @@ client.on('message', message => {
   /*
       --- START COMMAND
   */
-  // If the message is "cn start"
+  // If the message is "!cn start"
   if (message.content === '!cn start') {
 
     console.log('Start message received...');
+
+    // If there is no ID for spymaster 1 registered
     if (sm1 === ''){
 
+      // No spymaster - so set them here
       sm1 = message.author.id;
 
-      // Generate spy grid
+      // GENERATE SPY GRIDS
+      // First, select a random grid template from SPY_GRIDS
       gridTemplate = Math.floor(Math.random() * SPY_GRIDS.length);
+      // Then turn this into a markdown table
       thisSpyGrid = gridArrToMarkdown(SPY_GRIDS[gridTemplate]);
 
-      // Generate word grid
+      // GENERATE WORD TABLE
+      // Use the function to generate the word grid
       thisWordGrid = generateWordGrid();
+      // And assign the fresh word grid to thisCurrentWords
+      // which will be updated when guesses come in
       thisCurrentWords = thisWordGrid;
 
       let thisMsg = 'OK, you are the BLUE spymaster and here is the grid for this game:\n\n```' + thisSpyGrid + '```\n\nThe first team should be: ' + firstTeam + '\n\nHere is your word grid!\n\n```' + thisCurrentWords + '```';;
-      console.log(thisMsg);
+      //console.log(thisMsg);
+      console.log('First spymaster added - grids set up!')
+
+      // Most messages done as embeds so they stand out/have a colour border
+      // This one is sent to the spymaster only
       const sm1embed = new MessageEmbed()
         // Set the title of the field
         .setTitle('Codenames Bot Help')
@@ -257,9 +294,10 @@ client.on('message', message => {
         .setColor(0x0000ff)
         // Set the main content of the embed
         .setDescription(thisMsg);
-      // Send message to the author using:
+      // Send message to the AUTHOR ONLY using:
       message.author.send(sm1embed);
 
+      // Then send a message to the channel confirming this new spymaster
       const sm1regEmbed = new MessageEmbed()
         // Set the title of the field
         .setTitle('Spymaster 1 - BLUE TEAM - ' + message.author.username + ' - registered!')
@@ -270,11 +308,14 @@ client.on('message', message => {
       // Send the embed to the same channel as the message
       message.channel.send(sm1regEmbed);
 
+
+    // If there's no second spymaster yet
     }else if (sm2 === ''){
 
+      // Check in case duplicate spymasters added
       if ( (sm1 === message.author.id) & (dupSpymasterAllowed === false)){
         let thisMsg = 'Sorry! You cannot be the spymaster for both teams! Get another player in this channel to step up to the plate!';
-        //console.log(thisMsg);
+        // Send a message to the channel asking for another spymaster
         const sm2embed = new MessageEmbed()
           // Set the title of the field
           .setTitle('Codenames Bot Help')
@@ -284,10 +325,15 @@ client.on('message', message => {
           .setDescription(thisMsg);
         // Send the embed to the same channel as the message
         message.channel.send(sm2embed);
+
+      // If not duplicate, or duplicates allowed...
       }else{
+
+        // Set this player as spymaster 2
         sm2 = message.author.id;
         let thisMsg = 'OK, you are the RED spymaster and here is the grid for this game:\n\n```' + thisSpyGrid + '```\n\nThe first team should be: ' + firstTeam + '\n\nHere is your word grid!\n\n```' + thisCurrentWords + '```';
-        //console.log(thisMsg);
+
+        // Message the new spymaster the grids
         const sm2embed = new MessageEmbed()
           // Set the title of the field
           .setTitle('Codenames Bot Help')
@@ -297,37 +343,45 @@ client.on('message', message => {
           .setDescription(thisMsg);
         // Send the embed to the same channel as the message
         message.author.send(sm2embed);
+
+        // Then message the group with the new spymaster
+        const sm2regEmbed = new MessageEmbed()
+          // Set the title of the field
+          .setTitle('Spymaster 2 - RED TEAM - ' + message.author.username + ' - registered!')
+          // Set the color of the embed
+          .setColor(0xff0000)
+          // Set the main content of the embed
+          .setDescription('We have our second spymaster - it\'s ' + message.author.username + '! Check your private messages from Codenames Bot for your word grid and spymaster grid!');
+        // Send the embed to the same channel as the message
+        message.channel.send(sm2regEmbed);
+
+        // Then send the channel the word grid!
+        let groupOutput = 'The spymasters have been chosen! Here is your word grid!\n\n```' + thisCurrentWords + '```' + '\n\n*The first team to make a guess should be the ' + firstTeam + ' team!*';
+
+        // Set the colour of the embed
+        let teamCol = 0x0000ff;
+        if (firstTeam === 'RED'){
+          teamCol = 0xff0000;
+        }
+
+        // Then send the word grid to the channel
+        const groupEmbed = new MessageEmbed()
+          // Set the title of the field
+          .setTitle('Game Started! Word Grid Below')
+          // Set the color of the embed
+          .setColor(teamCol)
+          // Set the main content of the embed
+          .setDescription(groupOutput);
+        // Send the embed to the same channel as the message
+        message.channel.send(groupEmbed);
+
       }
 
-      const sm2regEmbed = new MessageEmbed()
-        // Set the title of the field
-        .setTitle('Spymaster 2 - RED TEAM - ' + message.author.username + ' - registered!')
-        // Set the color of the embed
-        .setColor(0xff0000)
-        // Set the main content of the embed
-        .setDescription('We have our second spymaster - it\'s ' + message.author.username + '! Check your private messages from Codenames Bot for your word grid and spymaster grid!');
-      // Send the embed to the same channel as the message
-      message.channel.send(sm2regEmbed);
-
-      let groupOutput = 'The spymasters have been chosen! Here is your word grid!\n\n```' + thisCurrentWords + '```' + '\n\n*The first team to make a guess should be the ' + firstTeam + ' team!*';
-
-      let teamCol = 0x0000ff;
-      if (firstTeam === 'RED'){
-        teamCol = 0xff0000;
-      }
-      const groupEmbed = new MessageEmbed()
-        // Set the title of the field
-        .setTitle('Game Started! Word Grid Below')
-        // Set the color of the embed
-        .setColor(teamCol)
-        // Set the main content of the embed
-        .setDescription(groupOutput);
-      // Send the embed to the same channel as the message
-      message.channel.send(groupEmbed);
-
-
+    // ELSE - Spymasters have been assigned
     }else{
+
       console.log('Spymasters already assigned!');
+      // Make an embed to let the channel know both spymasters have been assigned
       const assEmbed = new MessageEmbed()
         // Set the title of the field
         .setTitle('Codenames Bot Help')
@@ -361,11 +415,17 @@ client.on('message', message => {
   */
   }else if (message.content === '!cn next'){
 
+    // The team have passed the turn over
+    // TO DO - make sure the current team have made
+    // AT LEAST ONE GUESS as per the game rules
+    // Swap teams
     changeTeam();
+    // Change the team colour for message embeds
     let thisCol = 0x0000ff;
     if (firstTeam === 'RED'){
       thisCol = 0xff0000;
     }
+    // Show the embed for the next team
     const nextEmbed = new MessageEmbed()
       // Set the title of the field
       .setTitle('Next turn...')
@@ -382,8 +442,13 @@ client.on('message', message => {
   */
   }else if (message.content === '!cn reset'){
 
+    // Reset game variables to defaults
     resetGame();
-    message.channel.bulkDelete(100);
+    // REMOVE 100 messages in the main channel to clean up
+    if (msgClearup){
+      message.channel.bulkDelete(100);
+    }
+    // Send a message to the channel confirming reset
     const resetEmbed = new MessageEmbed()
       // Set the title of the field
       .setTitle('Codenames Bot Reset')
@@ -400,7 +465,8 @@ client.on('message', message => {
   */
   }else if (message.content.indexOf('guess') > 0){
 
-    if (sm1 === ''){
+    // If a guess was made before a game is running
+    if (sm1 === '' || sm2 === ''){
       // No game running!
       message.channel.send('NO GAME RUNNING!\n\nRegister your spymasters using "!cn start" and then try again!');
       return;
@@ -419,14 +485,25 @@ client.on('message', message => {
       }
     }
 
+    // If the guess word was found in the word grid
     if (foundIndex !== -1){
-      
+
+      // Calculate the row and column it was found in
       let foundRow = Math.floor(foundIndex / GRID_ROWS);
       let foundCol = foundIndex % GRID_COLS;
+      // Get the team this word relates to (blue/red/assassin/innocent)
       let thisTeam = SPY_GRIDS[gridTemplate][foundRow + 1][foundCol];
+      // Prepare the message embed
       let thisTitle = '';
       let thisCol = 0x00ff00;
       let thisDesc = '';
+
+      /*
+        This bit gets messy. It basically checks what team this guess related to
+        This should be re-written for clarity as it's just ugly at the moment
+        It will take the appropriate action (changing team, showing game over)
+        Depending on if the guess was correct or incorrect etc
+      */
       if (thisTeam === 'a'){
         // GAME OVER
         updateWordGrid(foundIndex, '*ASSASSIN*');
@@ -439,7 +516,9 @@ client.on('message', message => {
         thisTitle = 'GAME OVER - ASSASSIN GUESSED - ' + winTeam + ' TEAM WINS!';
         thisDesc = 'Your guessed word - ' + guessWord + ' - was the assassin and you have lost the game!\n\n' + winTeam + ' TEAM WINS!\n\nUse "!cn start" to start a new game!\n\n' + thisCurrentWords;
         resetGame();
+
       }else if (thisTeam === 'i'){
+
         // INNOCENT
         updateWordGrid(foundIndex, '*INNOCENT*');
         thisTitle = 'INNOCENT GUESSED - ' + firstTeam + ' TEAM TURN ENDS!';
@@ -452,6 +531,7 @@ client.on('message', message => {
 
       }else if (thisTeam === 'r'){
 
+        // This word belonged to the red team, so check if RED are guessing...
         if (firstTeam === 'RED'){
           // CORRECT
           redToFind--;
@@ -497,6 +577,7 @@ client.on('message', message => {
 
       }else if (thisTeam === 'b'){
 
+        // This word belonged to the red team, so check if RED are guessing...
         if (firstTeam === 'BLUE'){
           // CORRECT
           blueToFind--;
@@ -540,6 +621,8 @@ client.on('message', message => {
           thisDesc = 'Your guessed word - ' + guessWord + ' - belonged to the other team!\n\nThey now have ' + blueToFind + ' words to guess!\n\nIt is now the ' + firstTeam + ' TEAM turn!\n\n' + thisCurrentWords;
         }
       }
+
+      // Now send the results of this guess to the channel
       const guessEmbed = new MessageEmbed()
         // Set the title of the field
         .setTitle(thisTitle)
@@ -552,6 +635,7 @@ client.on('message', message => {
 
     }else{
 
+      // The word was not found in the word grid!
       const notFoundEmbed = new MessageEmbed()
         // Set the title of the field
         .setTitle('Word Not Found - ' + guessWord)
@@ -562,11 +646,10 @@ client.on('message', message => {
       // Send the embed to the same channel as the message
       message.channel.send(notFoundEmbed);
     }
-    // If match - check if r/b/a/i
-      // if r and firstTeam = r
-    // If no match -
-  }
-});
+
+  } // End GUESS command
+
+}); // End channel.message function
 
 // Log our bot in using the token from https://discordapp.com/developers/applications/me
-client.login('YOUR_BOT_TOKEN_HERE');
+client.login('YOUR_BOT_TOKEN');
