@@ -4,6 +4,12 @@ This is a bot for running games of Codenames over Discord.
 
 The bot comes with all the features needed to play through games of Codenames, including generating the Spymaster grid and a random Word grid. It will also accept guesses and keep track of which team is guessing... and also winning or losing!
 
+## Done (implemented)
+
+* Functional game of Codenames, with simple commands, some help and rules explanation
+* Images for word grids, including a clear private view for Spymasters to see team words
+* All packs of words added - now 400 available for grids and 12 different layouts
+
 ## To Do (not yet implemented)
 
 * Public bot which handles concurrent game sessions
@@ -11,17 +17,12 @@ The bot comes with all the features needed to play through games of Codenames, i
 * Further randomisation of the Spymaster grids (rotate for more variety)
 * A timer function - so the other team can force a guess
 
-## Done (implemented)
-
-* Functional game of Codenames, with simple commands, some help and rules explanation
-* Images for word grids, including a clear private view for Spymasters to see team words
-* All packs of words added - now 400 available for grids and 12 different layouts
-
 ## Installing
 
 To install the bot, you will need to follow these steps:
 
-* Create a Discord application and create a bot and get the __token for your bot__, as well as the __Client ID for your application__ (https://discordapp.com/developers/applications/)
+* Create a Discord application and then create a bot (https://discordapp.com/developers/applications/)
+* Get the __token for your bot__, as well as the __Client ID for your application__
 * Authorise your bot to the Discord server where you want to run games of Codenames - note: you will need admin permissions on the Discord server you wish to add the bot (https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=8)
 * Setup a folder on a machine running Node.JS (v12.0 or higher) and you may need to install Microsoft Visual Basic Build Tools as part of the Node installation (https://nodejs.org/)
 * Add the *auth.json*, the *bot.js* and the *package.json* file to this folder (clone or copy from this repository)
@@ -42,7 +43,7 @@ The bot has a number of commands to manage games via discord, as follows:
 ### !cn help
 This gives a list of the main functions for the bot, which should be used in the main channel (not private messages)
 
-## !cn rules
+### !cn rules
 This gives an explanation of how to play the game Codenames and the rules for Spymasters and teams!
 
 ### !cn start
