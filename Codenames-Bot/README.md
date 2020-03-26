@@ -1,19 +1,26 @@
 # Codenames Bot (for Discord)
 
-This is a bot for running games of Codenames over Discord. 
+This is a bot for running games of Codenames over Discord (current version 1.2)
 
 The bot comes with all the features needed to play through games of Codenames, including generating the Spymaster grid and a random Word grid. It will also accept guesses and keep track of which team is guessing... and also winning or losing!
+
+## To Use The Bot
+**Simply use this invite link: https://bit.ly/2UlcdTf**
+
+You will be asked which Discord server you wish to add the Codenames Bot to.
+
+_NOTE: you must have admin permissions on that Discord server._
 
 ## Done (implemented)
 
 * Functional game of Codenames, with simple commands, some help and rules explanation
 * Images for word grids, including a clear private view for Spymasters to see team words
 * All packs of words added - now 400 available for grids and 12 different layouts
+* Public bot which handles concurrent game sessions
+* Set options for your games (duplicate Spymasters, clear messages on reset, clear command allowed)
 
 ## To Do (not yet implemented)
 
-* Public bot which handles concurrent game sessions
-* Customisation of some features
 * Further randomisation of the Spymaster grids (rotate for more variety)
 * A timer function - so the other team can force a guess
 
@@ -47,7 +54,11 @@ This gives a list of the main functions for the bot, which should be used in the
 This gives an explanation of how to play the game Codenames and the rules for Spymasters and teams!
 
 ### !cn start
-This registers the author as one of the Spymasters for this game of Codenames (the game will start once another player also registers themselves using !cn start). Once both players have registered using this command, the game will begin and the Spymasters will receive the Spy grid and the Word grid in a private message. The main channel will just see the Word grid and will be able to start guessing.
+This registers the author as one of the Spymasters for this game of Codenames (the game will start once another player also registers themselves using !cn start). 
+
+Once both players have registered using this command, the game will begin and the Spymasters will receive the Spy grid and the Word grid in a private message. 
+
+The main channel will just see the Word grid and will be able to start guessing.
 
 ### !cn guess GUESS_WORD(S)
 This allows players to guess one of the words in the grid. If the word is not found, they will be asked to try again. If the word is found, the bot will tell players whether the guess was correct or which team/character relates to that clue.
@@ -57,9 +68,24 @@ This allows players to pass the turn, allowing the other team to make a guess.
 
 ### !cn clear
 This allows players to clear the chat channel so they can clear the view.
+_NOTE: you must change the default setting to allow this command - see "!cn options" below_
 
 ### !cn reset
 This allows players to reset the game from the start in case something goes wrong! 
+**IMPORTANT: if "!cn options -m" is set to true, this will also clear the chat of the last 100 messages so that players don't get confused about old word grids!**
+_You can change the setting using "!cn options -m" if you DO want messages to be deleted!_
 
-**IMPORTANT: this will also clear the chat of the last 100 messages so that players don't get confused about old word grids!**
-**You can now use change the variable "msgClearup" to false if you DO NOT want messages to be deleted!**
+### !cn options SETTING
+This allows you to set a couple of options for games running in this channel, as follows:
+
+* **!cn options -d**
+ 
+  (default: true) Allows/prevents the same user to be BOTH Spymasters (for testing, or for 2-3 player games)
+ 
+* **!cn options -m**
+ 
+  (default: false) Changes the setting so that the channel's messages are deleted on "!cn reset" for clarity
+
+* **!cn options -c**
+  
+  (default: false) Allows players to use the "!cn clear" command to clear the channel messages
