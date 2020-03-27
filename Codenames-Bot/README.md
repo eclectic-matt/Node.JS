@@ -43,6 +43,13 @@ To install the bot, you will need to follow these steps:
 * Now make sure you have given the bot permission to read/send messages in the text channel you wish to play a game in (**don't use a your regular chat channel as the bot will delete messages to make things clear for players**)
 * Now it should all work!
 
+### Deploying the bot to Heroku
+If you want to deploy the bot to Heroku, use the "bot-heroku.js" code.
+
+For installation, you will need to add the "http" module using "npm install http". It doesn't strictly _use_ the http module, but Heroku insists that the port can be specified. That was a really pain in the butt to fix. 
+
+Finally, you may want to use the Heroku add-on "Heroku Scheduler" which keeps the bot alive by pinging it every 10 minutes. I use the command "npm -test" just to prevent it from going to sleep. Otherwise (on a free dyno) then Heroku will make the bot idle every 20 mins or so... and you will have to wait around 20 seconds for it to wake up after going idle. 
+
 ## Using the Codenames Bot
 
 The bot has a number of commands to manage games via discord, as follows:
