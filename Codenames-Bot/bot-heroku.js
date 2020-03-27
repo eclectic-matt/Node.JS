@@ -902,7 +902,7 @@ client.on('message', message => {
     if (guessWord === BLUE_GUESS || guessWord === RED_GUESS || guessWord === INNOCENT_GUESS || guessWord === ASSASSIN_GUESS){
       // You can't just guess a single letter!
     }else{
-      guessWord = guessWord.toTitleCase();
+      guessWord = toTitleCase(guessWord);
       //Loop through wordArr to check match
       let elCount = GRID_COLS * GRID_ROWS;
       //console.log('Checking for "' + guessWord + '"');
