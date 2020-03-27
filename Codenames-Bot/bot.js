@@ -504,6 +504,16 @@ function shuffle(a) {
     return a;
 }
 
+// https://stackoverflow.com/a/196991
+function toTitleCase(str) {
+  return str.replace(
+      /\w\S*/g,
+      function(txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      }
+  );
+}
+
 /**
  * The ready event is vital, it means that only _after_ this will your bot start reacting to information
  * received from Discord
@@ -870,6 +880,7 @@ client.on('message', message => {
     if (guessWord === BLUE_GUESS || guessWord === RED_GUESS || guessWord === INNOCENT_GUESS || guessWord === ASSASSIN_GUESS){
       // You can't just guess a single letter!
     }else{
+      guessWord = toTitleCase(guessWord);
       //Loop through wordArr to check match
       let elCount = GRID_COLS * GRID_ROWS;
       //console.log('Checking for "' + guessWord + '"');
