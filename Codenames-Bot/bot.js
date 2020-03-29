@@ -887,7 +887,7 @@ client.on('message', message => {
       for (let i = 0; i < elCount; i++){
         let thisWord = message.channel.game.grid.currentWords[i];
         //console.log('Check against "' + thisWord + '"');
-        if (thisWord.indexOf(guessWord) >= 0){
+        if (thisWord === guessWord){
           // WORD FOUND!
           //console.log('Match');
           foundIndex = i;
