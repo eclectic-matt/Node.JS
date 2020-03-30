@@ -9,6 +9,9 @@ const Discord = require('discord.js');
 const { Client, MessageEmbed } = require('discord.js');
 const Canvas = require('canvas');
 
+// Getting these ready for future updates
+const { prefix, token, name } = require('./config.json');
+
 // Create an instance of a Discord client
 const client = new Client();
 
@@ -17,6 +20,9 @@ const http = require('http');
 
 const hostname = '0.0.0.0';
 const port = process.env.PORT || 3000;
+
+// Removing this in favour of config.token
+//const YOUR_BOT_TOKEN = '';
 
 const server = http.createServer((req, res) => {
   //respondToRequest(req, res);
@@ -50,7 +56,12 @@ const COL_EMPTY = '#ffffff';      // WHITE
 //const COL_TEXT = '#ffffff';       // WHITE
 const COL_TEXT = '#000000';       // BLACK
 
-const TEXT_HELP = '**Game rules**\nTo learn the key rules for playing Codenames, use the command\n**!cn rules**\n\n**Starting the game**\nTo start a game, decide who will be the two Spymasters. They should each send a message saying\n**!cn start**\n\nThe bot will then send them the full grid for this game. The other players in the group will receive the word grid only, and should then make their guesses.\n\n**Making a guess**\nMake your guesses using the command\n**!cn guess <clue>**\n\n**Passing your turn**\nTo stop guessing, and allow the next team to take their turn, you should use the command\n**!cn pass**\n\n**Reset the game**\nIf you need to reset the game for any reason, use the command\n**!cn reset**\n\n**Set Options**\nAllows you to change options for your game session\n\n"!cn options -d" will allow/prevent the same player becoming both Spymasters (default: true)\n\n"!cn options -c" will allow players to use the "!cn clear" command (default: false, see below)\n\n"!cn options -m" will turn on/off message deleting when the game is reset (default: false)\n\n**Clear the channel**\nTo clear all the messages in this channel to clear the view for players, use the command\n**!cn clear**\n\nNote: if "!cn options -m" is set to true then the channel will be cleared of messages when you reset the game as well!';
+// The text for new updates - this should be amended when a new update is pushed!
+const TEXT_UPDATE = 'This update (30 March 2020) adds:\n\nThis new "!cn update" command, allowing users to quickly see any changes or new features added since the last update\n\nA new "!cn issue" command, which allows users to report issues or give feedback on the bot which will be logged for the developer (will try to fix these issues as soon as possible)\n\nA welcome message from the bot when added/active in the channel (will respond the first time a message is sent in a channel)\n\n';
+
+const TEXT_WELCOME = 'The Codenames Bot (Public) is now active in this channel!\n\nSend a message with the following command to learn how to use the bot:\n\n!cn help\n\nIf you are having issues, you can report them using the command:\n\n!cn issue <issue description>\n\nThis will be logged with the developer who will try to push out a fix as soon as possible!';
+
+const TEXT_HELP = '**Game rules**\nTo learn the key rules for playing Codenames, use the command\n**!cn rules**\n\n**Starting the game**\nTo start a game, decide who will be the two Spymasters. They should each send a message saying\n**!cn start**\n\nThe bot will then send them the full grid for this game. The other players in the group will receive the word grid only, and should then make their guesses.\n\n**Making a guess**\nMake your guesses using the command\n**!cn guess <clue>**\n\n**Passing your turn**\nTo stop guessing, and allow the next team to take their turn, you should use the command\n**!cn pass**\n\n**Reset the game**\nIf you need to reset the game for any reason, use the command\n**!cn reset**\n\n**Set Options**\nAllows you to change options for your game session\n\n"!cn options -d" will allow/prevent the same player becoming both Spymasters (default: true)\n\n"!cn options -c" will allow players to use the "!cn clear" command (default: false, see below)\n\n"!cn options -m" will turn on/off message deleting when the game is reset (default: false)\n\n**Clear the channel**\nTo clear all the messages in this channel to clear the view for players, use the command\n**!cn clear**\n\nNote: if "!cn options -m" is set to true then the channel will be cleared of messages when you reset the game as well!\n\n**Reporting Issues**\nTo report an issue or give feedback to the developer, send a message saying\n**!cn issue <issue description>**\n\nThis will be logged and the developer will try to fix issues as soon as possible!\n\n**Bot Updates**\nTo find out what has changed since the last update, send a message saying:\n**!cn update**\n\n';
 
 const TEXT_RULES_ONE = '**Game Flow**\n\nStarting with the Spymaster for the team which has been told to go first, the Spymasters should take it in turns giving a single clue to their teammates.\n\nA clue must be in the form "Word: number" and this should point their teammates towards a word or words in the grid, and how many words relate to this clue.\n\nSpymasters are **not allowed to give out any more information** (visual, audible or otherwise) but they can clarify the clue/number or spell out the clue for their teammates.\n\nThe clues should point their teammates towards the words in the grid of their team colour. **The first team to guess all their words will win!**\n\nIf they correctly guess the word, they can continue until they guess an incorrect word from the grid (they may guess up to 1 more word than the number from the Spymaster\'s clue)\n\nYour team **must guess at least 1 word during your turn**\n\nThe Spymasters should try not to give clues which relate to:\n\n+ **The "Innocent" words** - as this will end your team\'s turn\n\n+ **The other team\'s words** - as this will end your team\'s turn and put the other team one step closer to winning!\n\n+ **The "Assasin" word** - avoid this **at all costs as your team will lose the game** if your teammates guess the Assassin word!\n\nThe team who goes first will have 9 words in the grid to guess - the team who goes second will have 8 words.';
 
@@ -63,6 +74,7 @@ const TEXT_RESET = 'Game reset!\n\nNow decide who will be the two new spymasters
 var botStats = {};
 botStats.channelsAdded = 0;
 botStats.gamesLogged = -1;
+botStats.gamesActive = 0;
 
 class CodenamesGame {
 
@@ -82,7 +94,11 @@ class CodenamesGame {
     let minutes = ("0" + date_ob.getMinutes()).slice(-2);
     let seconds = date_ob.getSeconds();
     let dStr = hours + ":" + minutes + ":" + seconds + " " + date + "/" + month + "/" + year;
-    console.log(dStr,' New game added - games logged so far = ',botStats.channelsAdded);
+    console.log(dStr,' New Channel added - "' + channel.name + '"');
+    console.log('Total Channels added so far = ', botStats.channelsAdded);
+
+    // A NEW flag to detect if a welcome message was sent to the channel!
+    this.welcomeMessageSent = false;
 
     // Added the channel data for reference (not used)
     this.channel = channel;
@@ -214,7 +230,7 @@ class CodenamesGame {
 
     let wordIndex = 0;
 
-    //console.log('Using word grid', gridTemplate, thisSpyGrid);
+    //('Using word grid', gridTemplate, thisSpyGrid);
 
     // Loop to draw the boxes and add words
     for (var col = 0; col < GRID_COLS; col++){
@@ -251,7 +267,7 @@ class CodenamesGame {
       let y1 = col * GRID_WIDTH;
       let x2 = (row + 1) * GRID_HEIGHT;
       let y2 = (col + 1) * GRID_WIDTH;
-      //console.log('C' + col + 'R' + row,x1,y1,x2,y2);
+      //('C' + col + 'R' + row,x1,y1,x2,y2);
       ctx.rect(x1, y1, x2, y2);
       ctx.fill();
       ctx.stroke();
@@ -288,7 +304,7 @@ class CodenamesGame {
 
     let wordIndex = 0;
 
-    //console.log('Using spy grid', gridTemplate, thisSpyGrid);
+    //('Using spy grid', gridTemplate, thisSpyGrid);
 
     // Loop to draw the boxes and add words
     for (var col = 0; col < GRID_COLS; col++){
@@ -545,24 +561,27 @@ client.on('ready', () => {
   console.log(' ');
 });
 
-// Create an event listener for new guild members
-client.on('guildMemberAdd', member => {
-  // Send the message to a designated channel on a server:
-  const channel = member.guild.channels.cache.find(ch => ch.name === 'member-log');
-  // Do nothing if the channel wasn't found on this server
-  if (!channel) return;
-  // Send the message, mentioning the member
-  channel.send(`Welcome to the server, ${member}!\n\nYou are in a room with the Codenames bot!\n\nSend a message with the following command to learn how to use the bot\n\n**!cn help**`);
-});
-
-
 // Create an event listener for messages
 client.on('message', message => {
 
-  if (message.channel.game == undefined){
+  // Do not set up game for direct channels
+  if (message.channel.game == undefined && message.guild !== null){
     // Set up the game object in this channel
-    console.log('New game setup');
     message.channel.game = new CodenamesGame(message.channel);
+
+    if (message.channel.game.welcomeMessageSent === false){
+
+      console.log('Sending welcome message to channel "' + message.channel.name + '"');
+
+      message.channel.game.welcomeMessageSent = true;
+      let thisEmbed = new MessageEmbed()
+        .setTitle('Codenames Bot Active!')
+        .setColor(0x00ff00)
+        .setDescription(TEXT_WELCOME);
+      message.channel.send(thisEmbed);
+
+    }
+
   }
 
   /*
@@ -587,6 +606,10 @@ client.on('message', message => {
       //resetGame();
       message.channel.game.teams.gameOverFlag = false;
       botStats.gamesLogged++;
+      botStats.gamesActive++;
+      console.log('New game being logged in channel "' + message.channel.name + '"');
+      console.log('Active Games = ' + botStats.gamesActive);
+      console.log('Total Games logged so far = ' + botStats.gamesLogged);
 
       // No spymaster - so set them here
       message.channel.game.users.sm1 = message.author.id;
@@ -845,6 +868,42 @@ client.on('message', message => {
     // Send the embed to the same channel as the message
     message.channel.send(resetEmbed);
 
+  /*
+      --- ISSUES COMMAND
+  */
+  }else if (message.content.startsWith('!cn issue')){
+
+    let issueDesc = message.content.slice(9,1000);
+    console.error('New Issue raised by channel "' + message.channel.name + '"');
+    console.error('Issue description: "' + issueDesc + '"');
+
+    // Send a message to the channel confirming the issue log
+    const issueEmbed = new MessageEmbed()
+      // Set the title of the field
+      .setTitle('Codenames Bot Issue Logged')
+      // Set the color of the embed
+      .setColor(0x00ff00)
+      // Set the main content of the embed
+      .setDescription('Thank you for your feedback! Your issue has been logged with the developer, who will try to fix this as soon as possible!');
+    // Send the embed to the same channel as the message
+    message.channel.send(issueEmbed);
+
+  /*
+      --- UPDATE COMMAND
+  */
+  }else if (message.content === '!cn update'){
+
+    // Send a message to the channel with any changes since the last update
+    const updateEmbed = new MessageEmbed()
+      // Set the title of the field
+      .setTitle('Codenames Bot Updates')
+      // Set the color of the embed
+      .setColor(0x00ff00)
+      // Set the main content of the embed
+      .setDescription(TEXT_UPDATE);
+    // Send the embed to the same channel as the message
+    message.channel.send(updateEmbed);
+
   }else if (message.content.indexOf('!cn options') >= 0){
 
     // Get the remainder of the options string
@@ -887,7 +946,7 @@ client.on('message', message => {
   /*
       --- GUESS COMMAND
   */
-}else if (message.content.indexOf('!cn guess') >= 0){
+  }else if (message.content.indexOf('!cn guess') >= 0){
 
     // If a guess was made before a game is running
     if (message.channel.game.users.sm1 === '' || message.channel.game.users.sm2 === ''){
@@ -941,6 +1000,17 @@ client.on('message', message => {
         */
         if (thisTeam === ASSASSIN_GUESS){
 
+          botStats.gamesActive--;
+          let date_ob = new Date();
+          let date = ("0" + date_ob.getDate()).slice(-2);
+          let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+          let year = date_ob.getFullYear();
+          let hours = ("0" + date_ob.getHours()).slice(-2);
+          let minutes = ("0" + date_ob.getMinutes()).slice(-2);
+          let seconds = ("0" + date_ob.getSeconds()).slice(-2);
+          let dStr = hours + ":" + minutes + ":" + seconds + " " + date + "/" + month + "/" + year;
+          console.log(dStr,'Game Ended in Channel - "' + message.channel.name + '"');
+          console.log('Games Active Now = ' + botStats.gamesActive);
           // GAME OVER
           //console.log('Updating word grid at ', foundIndex,' to "a"');
           message.channel.game.updateWordGrid(foundIndex, ASSASSIN_GUESS);
@@ -1024,6 +1094,17 @@ client.on('message', message => {
 
             if (message.channel.game.teams.redToFind === 0){
 
+              botStats.gamesActive--;
+              let date_ob = new Date();
+              let date = ("0" + date_ob.getDate()).slice(-2);
+              let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+              let year = date_ob.getFullYear();
+              let hours = ("0" + date_ob.getHours()).slice(-2);
+              let minutes = ("0" + date_ob.getMinutes()).slice(-2);
+              let seconds = ("0" + date_ob.getSeconds()).slice(-2);
+              let dStr = hours + ":" + minutes + ":" + seconds + " " + date + "/" + month + "/" + year;
+              console.log(dStr,'Game Ended in Channel - "' + message.channel.name + '"');
+              console.log('Games Active Now = ' + botStats.gamesActive);
               // GAME OVER!
               const guessEmbed = new MessageEmbed()
                 // Set the title of the field
@@ -1062,6 +1143,17 @@ client.on('message', message => {
 
             if (message.channel.game.teams.redToFind === 0){
 
+              botStats.gamesActive--;
+              let date_ob = new Date();
+              let date = ("0" + date_ob.getDate()).slice(-2);
+              let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+              let year = date_ob.getFullYear();
+              let hours = ("0" + date_ob.getHours()).slice(-2);
+              let minutes = ("0" + date_ob.getMinutes()).slice(-2);
+              let seconds = ("0" + date_ob.getSeconds()).slice(-2);
+              let dStr = hours + ":" + minutes + ":" + seconds + " " + date + "/" + month + "/" + year;
+              console.log(dStr,'Game Ended in Channel - "' + message.channel.name + '"');
+              console.log('Games Active Now = ' + botStats.gamesActive);
               const guessEmbed = new MessageEmbed()
                 // Set the title of the field
                 .setTitle('GAME OVER - RED TEAM WINS')
@@ -1116,6 +1208,17 @@ client.on('message', message => {
 
             if (message.channel.game.teams.blueToFind === 0){
 
+              botStats.gamesActive--;
+              let date_ob = new Date();
+              let date = ("0" + date_ob.getDate()).slice(-2);
+              let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+              let year = date_ob.getFullYear();
+              let hours = ("0" + date_ob.getHours()).slice(-2);
+              let minutes = ("0" + date_ob.getMinutes()).slice(-2);
+              let seconds = ("0" + date_ob.getSeconds()).slice(-2);
+              let dStr = hours + ":" + minutes + ":" + seconds + " " + date + "/" + month + "/" + year;
+              console.log(dStr,'Game Ended in Channel - "' + message.channel.name + '"');
+              console.log('Games Active Now = ' + botStats.gamesActive);
               // GAME OVER!
               const guessEmbed = new MessageEmbed()
                 // Set the title of the field
@@ -1156,6 +1259,17 @@ client.on('message', message => {
 
           if (message.channel.game.teams.blueToFind === 0){
 
+            botStats.gamesActive--;
+            let date_ob = new Date();
+            let date = ("0" + date_ob.getDate()).slice(-2);
+            let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+            let year = date_ob.getFullYear();
+            let hours = ("0" + date_ob.getHours()).slice(-2);
+            let minutes = ("0" + date_ob.getMinutes()).slice(-2);
+            let seconds = ("0" + date_ob.getSeconds()).slice(-2);
+            let dStr = hours + ":" + minutes + ":" + seconds + " " + date + "/" + month + "/" + year;
+            console.log(dStr,'Game Ended in Channel - "' + message.channel.name + '"');
+            console.log('Games Active Now = ' + botStats.gamesActive);
             // GAME OVER!
             const guessEmbed = new MessageEmbed()
               // Set the title of the field
@@ -1213,4 +1327,6 @@ client.on('message', message => {
 }); // End channel.message function
 
 // Log our bot in using the token from https://discordapp.com/developers/applications/me
-client.login('YOUR_BOT_TOKEN');
+client.login(token);
+// Removing in favour of config.token
+//client.login(YOUR_BOT_TOKEN);
