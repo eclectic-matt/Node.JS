@@ -44,7 +44,7 @@ To install the bot, you will need to follow these steps:
 * Now it should all work!
 
 ### Deploying the bot to Heroku
-If you want to deploy the bot to Heroku, use the "bot-heroku.js" code.
+If you want to deploy the bot to Heroku, use the "bot-heroku.js" code. You will also need the "config.json" file.
 
 For installation, you will need to add the "http" module using "npm install http". It doesn't strictly _use_ the http module, but Heroku insists that the port can be specified. That was a really pain in the butt to fix. 
 
@@ -56,6 +56,12 @@ The bot has a number of commands to manage games via discord, as follows:
 
 ### !cn help
 This gives a list of the main functions for the bot, which should be used in the main channel (not private messages)
+
+### !cn update
+(NEW 30th March 2020) Shows users the changes since the last update to the bot
+
+### !cn issue <issue description>
+(NEW 30th March 2020) This allows users to give feedback or report issues, which are logged in the console (Heroku for the public bot deployment)
 
 ### !cn rules
 This gives an explanation of how to play the game Codenames and the rules for Spymasters and teams!
