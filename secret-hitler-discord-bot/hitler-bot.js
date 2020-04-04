@@ -72,7 +72,7 @@ const POLICIES_LIBERAL_COUNT = 6;
 const POLICIES_FASCIST_COUNT = 11;
 const BOARD_LIBERAL_COUNT = 5;
 const BOARD_FASCIST_COUNT = 6;
-const BOARD_FAIL_COUNT = 4;
+const BOARD_FAIL_COUNT = 3;
 
 const FAILURES_MAX = 3;
 
@@ -109,7 +109,12 @@ const TEXT_FIVESIX = '5 OR 6 PLAYERS: 1 FASCIST AND HITLER, HITLER KNOWS WHO THE
 const TEXT_SEVENEIGHT = '7 OR 8 PLAYERS: 2 FASCISTS AND HITLER, HITLER DOESN\'T KNOW WHO THE FASCISTS ARE.';
 const TEXT_NINETEN = '9 OR 10 PLAYERS: 3 FASCISTS AND HITLER, HITLER DOESN\'T KNOW WHO THE FASCISTS ARE.';
 
-const TEXT_HELP = '**Game rules**';
+/*
+// This has to be included in the main function body, as it will change based on bot prefixes etc
+const TEXT_HELP = 'The Bot works when you send messages - some of these messages should be sent in this channel, but some should be sent in private messages with the Bot.\n\n**To avoid the most common error, either change your settings to allow Direct/Private messages from Bots, OR send a Direct Message to the Bot before you start playing** (click the Bot name and send any message to the Bot, which will allow you to receive Direct Messages during the game)\n\nThe main commands (messages) to send during the game are as follows:\n\n' + theGame.botData.hitler + ' join\nSend this message in the main channel to register yourself as a player for the game.\n\n' + theGame.botData.hitler + ' start\nSend this message in the main channel to start the game once enough players have registered using the "join" command.\n\n' + theGame.botData.hitler + ' nominate @username\nThe ' + theGame.botData.president + ' should send this message in the main channel .\n\n';
+*/
+
+const TEXT_WELCOME = 'The Secret Hitler Bot is now active in this channel!\n\nSend a message with the following command to learn how to use the bot:\n\nhitler help\n\nIf you are having issues, you can report them using the command:\n\nhitler issue <issue description>\n\nThis will be logged with the developer who will try to push out a fix as soon as possible!\n\nVisit my site for more information and contact details:\n\nhttps://eclectic-matt.github.io/Isolation-Bots/';
 
 var botStats = {};
 botStats.channelsAdded = 0;
@@ -129,6 +134,9 @@ class SecretHitlerGame {
     // Added the channel data for reference (not used)
     this.channel = channel;
 
+    // A flag to show the channel an introduction
+    this.welcomeMessageSent = false;
+
     // The number of channels the bot gets added to
     botStats.channelsAdded++;
     console.log(getDateStamp(),' New channel added in "' + this.channel.name + '". Channels added so far = ',botStats.channelsAdded);
@@ -140,6 +148,7 @@ class SecretHitlerGame {
     this.status.investigating = false;
     this.status.pickCandidate = false;
 
+    // NOTE - these are not reset between games
     this.botData = {};
     // Setting bot values as variables so you can change the "theme"
     this.botData.prefix = PREFIX;
@@ -172,6 +181,7 @@ class SecretHitlerGame {
     this.players.hitler = '';
     // The array of fascist players (for other players)
     this.players.fascists = [];
+    this.players.killedPlayers = [];
 
     // The current board progess (lib/fas/fails recorded)
     this.boardProgress = {};
@@ -205,6 +215,7 @@ class SecretHitlerGame {
     this.government.nomPres = '';
     this.government.nomChan = '';
     this.government.vetoUnlocked = false;
+    this.government.vetoRequested = false;
 
     // The options for this channel's game
     this.options = {};
@@ -226,14 +237,18 @@ class SecretHitlerGame {
 
     this.status.gameOver = false;
     this.status.gameRunning = false;
+    this.status.investigating = false;
+    this.status.pickCandidate = false;
 
     this.players.idArr = [];
     this.players.nameArr = [];
+    this.players.secretRoles = [];
     this.players.votesArr = [];
     this.players.votesCount = 0;
     this.players.count = 0;
     this.players.hitler = '';
     this.players.fascists = [];
+    this.players.killedPlayers = [];
 
     this.boardProgress.liberal = 0;
     this.boardProgress.fascist = 0;
@@ -253,6 +268,7 @@ class SecretHitlerGame {
     this.government.nomPres = '';
     this.government.nomChan = '';
     this.government.vetoUnlocked = false;
+    this.government.vetoRequested = false;
 
   }
 
@@ -397,7 +413,7 @@ class SecretHitlerGame {
       thisEmbed = new MessageEmbed()
         .setTitle(this.botData.president + ' randomly assigned - ' + presNomineeName + '!')
         .setColor(COLOUR_HELP)
-        .setDescription('The first ' + this.botData.president + ' has been randomly assigned by the bot!\n\n**The first ' + this.botData.president + ' nominee is: ' + presNomineeName + '!**\n\nThis ' + this.botData.president + ' nominee should now nominate the first ' + this.botData.chancellor + ' by typing:\n\n**' + this.botData.prefix + ' nominate @username**\n\n(make sure the username has been mentioned/tagged in your message)');
+        .setDescription('The first ' + this.botData.president + ' has been randomly assigned by the bot!\n\n**The first ' + this.botData.president + ' nominee is: ' + presNomineeName + '!**\n\nThis ' + this.botData.president + ' nominee should now nominate the first ' + this.botData.chancellor + ' by sending a message in THIS CHANNEL:\n\n**' + this.botData.prefix + ' nominate @username**\n\n(make sure the username has been mentioned/tagged in your message)');
 
       this.channel.send(thisEmbed);
 
@@ -515,6 +531,47 @@ class SecretHitlerGame {
 
   // Used if the government fails 3 times in a row
   chaosPolicy(){
+    // Remove the top policy off the deck
+    let thePolicy = this.policyDeck.splice(0,1);
+    let chaosEmbed = new MessageEmbed()
+      .setTitle('3 Elections Failures - ' + thePolicy + ' policy enacted!')
+      .setColor(COLOUR_HELP)
+      .setDescription('There have now been 3 failed elections in a row!\n\nAs a result, the populace have decided to force a ' + thePolicy + ' policy to be enacted! The following special rules also apply:\n\n* Any board actions which would have been triggered are ignored for this policy.\n* All players are now eligible to be Chancellor.\n* The election failure tracker resets back to 0.');
+    this.channel.send(chaosEmbed);
+
+    // Push this on to the board & update
+    this.boardProgress.arr.push(thePolicy);
+    // Reset election tracker
+    this.boardProgress.failure = 0;
+
+    switch (thePolicy){
+
+      case this.botData.fascist:
+        this.boardProgress.fascist++;
+        break;
+
+      case this.botData.liberal:
+        this.boardProgress.liberal++;
+        break;
+    }
+
+    // Check if game over
+    if (this.boardProgress.liberal === BOARD_LIBERAL_COUNT){
+      this.gameOver(this.botData.liberal);
+      // Send the final game board if game over
+      this.channel.send(this.gameBoardCnv);
+    }else if (this.boardProgress.fascist === BOARD_FASCIST_COUNT){
+      this.gameOver(this.botData.fascist);
+      // Send the final game board if game over
+      this.channel.send(this.gameBoardCnv);
+    }else{
+      // Remove prevPres, prevChan
+      this.government.prevPres = '';
+      this.government.prevChan = '';
+      //this.generateGameBoard();
+      this.roundEnd();
+    }
+
 
   }
 
@@ -557,10 +614,14 @@ class SecretHitlerGame {
   // Send the remaining 2 policies to the Chancellor
   policyPhaseTwo(discardID){
 
-    // Note discardID is 1/2/3 but relates to policyOptions[id - 1];
-    console.log('Policy Phase 2 started',discardID);
-    // Now splice that index from the policyOptions
-    this.policyOptions.splice(discardID - 1, 1);
+    // Quick IF in case returning to this function from a DECLINED veto
+    if (discardID !== ''){
+      // Note discardID is 1/2/3 but relates to policyOptions[id - 1];
+      console.log('Policy Phase 2 started',discardID);
+      // Now splice that index from the policyOptions
+      this.policyOptions.splice(discardID - 1, 1);
+    }
+
     // Now send the remaining policies to the Chancellor
     console.log('Phase Two Policies ',this.policyOptions);
     let chanID = this.getUserIDfromUsername(this.government.currChan);
@@ -591,6 +652,7 @@ class SecretHitlerGame {
     let enactedPolicy = this.policyOptions[0];
     console.log('The enacted policy will be: ', enactedPolicy);
     this.boardProgress.arr.push(enactedPolicy);
+    this.boardProgress.failure = 0;
 
     // Get the board actions for this player count
     // Not needed for liberals but didn't want 3 nested switches
@@ -640,6 +702,14 @@ class SecretHitlerGame {
           */
         }else{
           console.log('No board action - straight to round end');
+          /*
+          if (this.boardProgress.fascist === BOARD_FASCIST_COUNT){
+            this.gameOver(this.botData.fascist);
+          }else{
+            this.roundEnd();
+          }
+          */
+          // In theory, the action on the board will be evalated if game over
           this.roundEnd();
         }
         break;
@@ -655,7 +725,12 @@ class SecretHitlerGame {
           .setColor(embedCol)
           .setDescription('**The elected government have enacted a ' + enactedPolicy + ' policy.**\n\nThe updated game board is shown below and any actions on this game board space will now be carried out.');
         this.channel.send(liberalEmbed);
-        this.roundEnd();
+        // Check if game over
+        if (this.boardProgress.liberal === BOARD_LIBERAL_COUNT){
+          this.gameOver(this.botData.liberal);
+        }else{
+          this.roundEnd();
+        }
         break;
     }
 
@@ -673,17 +748,22 @@ class SecretHitlerGame {
     this.channel.send(this.gameBoardCnv).then((newMessage) => {
 
       // Now the remainder of round end
-      console.log('Inside round end callback - expect "this" errors');
+      console.log('Inside round end callback');
 
-      // Increment the President index
-      this.government.presIndex++;
-      if (this.government.presIndex >= this.players.idArr.length){
-        this.government.presIndex = 0;
+      // Don't increment when pick candidate is active
+      if (!this.status.pickCandidate){
+        // Increment the President index
+        this.government.presIndex++;
+        if (this.government.presIndex >= this.players.idArr.length){
+          this.government.presIndex = 0;
+        }
+        let presNomineeID = this.players.idArr[this.government.presIndex];
+        let presNomineeName = this.players.nameArr[this.government.presIndex];
+        this.government.nomPres = presNomineeName;
+      }else{
+        // Don't increment, as the presIndex will be incremented next round
+        this.status.pickCandidate = false;
       }
-
-      let presNomineeID = this.players.idArr[this.government.presIndex];
-      let presNomineeName = this.players.nameArr[this.government.presIndex];
-      this.government.nomPres = presNomineeName;
 
       // Assign the previous president and chancellor (to prevent voting)
       this.government.prevPres = this.government.currPres;
@@ -691,9 +771,9 @@ class SecretHitlerGame {
 
       // Let the channel know
       let thisEmbed = new MessageEmbed()
-        .setTitle('The ' + this.botData.president + ' role has been passed to - ' + presNomineeName + '!')
+        .setTitle('The ' + this.botData.president + ' role has been passed to - ' + this.government.nomPres + '!')
         .setColor(COLOUR_HELP)
-        .setDescription('The first ' + this.botData.president + ' has been randomly assigned by the bot!\n\n**The first ' + this.botData.president + ' nominee is: ' + presNomineeName + '!**\n\nThis ' + this.botData.president + ' nominee should now nominate the first ' + this.botData.chancellor + ' by typing:\n\n**' + this.botData.prefix + ' nominate @username**\n\n(make sure the username has been mentioned/tagged in your message)');
+        .setDescription('The first ' + this.botData.president + ' has been randomly assigned by the bot!\n\n**The first ' + this.botData.president + ' nominee is: ' + this.government.nomPres + '!**\n\nThis ' + this.botData.president + ' nominee should now nominate the first ' + this.botData.chancellor + ' by typing:\n\n**' + this.botData.prefix + ' nominate @username**\n\n(make sure the username has been mentioned/tagged in your message)');
 
       this.channel.send(thisEmbed);
 
@@ -925,33 +1005,35 @@ class SecretHitlerGame {
     let pickEmbed = new MessageEmbed()
       .setTitle('Pick Presidential Candidate Power')
       .setColor(0x00ff00)
-      .setDescription('You must now pick the next Presidential candidate. There are no limits to who you choose to nominate for the Presidency. Choose a player from the list below.\n\nIt is easier to copy and paste your preferred response below to send it. If you are using the Discord app on mobile, just hold down on the message you want to send and then paste it into the "message" box below:');
+      .setDescription('You must now pick the next Presidential candidate. There are no limits to who you choose to nominate for the Presidency, i.e. even players who were Chancellor this turn can be nominated, however you cannot pick yourself. You are welcome to discuss your decision with the rest of the group. Choose a player from the list below.\n\nIt is easier to copy and paste your preferred response below to send it. If you are using the Discord app on mobile, just hold down on the message you want to send and then paste it into the "message" box below:');
     let presID = this.getUserIDfromUsername(this.government.currPres);
     let presUser = client.users.cache.get(presID);
     presUser.send(pickEmbed);
     let names = this.players.nameArr;
+    let pIDs = this.players.idArr;
     for (let i = 0; i < names.length; i++){
-      presUser.send('pick candidate ' + (i + 1) + ' - "' + names[i] + '" (' + this.channel.id + ')');
+      // Can't nominate themselves
+      if (pIDs[i] !== presID){
+        presUser.send('pick candidate ' + (i + 1) + ' - "' + names[i] + '" (' + this.channel.id + ')');
+      }
     }
   }
 
   // Get the selected player and process that result
   powerPickCandidateResult(playerName){
     console.log('Power - President pick candidate result');
-    this.status.pickCandidate = false;
+    // Turn this off in roundEnd
+    //this.status.pickCandidate = false;
     // Translate the player name into an index in the player array
     let thisID = this.getUserIDfromUsername(playerName);
     console.log('Candidate selected ', playerName,' which is index ',thisID);
     this.government.nomPres = playerName;
-    /*
-    This can just be output to the main channel announcing the new president
 
     let pickEmbed = new MessageEmbed()
-      .setTitle('')
+      .setTitle('New President Picked!')
       .setColor(0x00ff00)
-      .setDescription('The results of your investigation are here!\n\n**The Party Membership card for ' + playerName + ' shows they are a ' + thisRole + '**');
-
-    this.channel.send(pickEmbed);*/
+      .setDescription('The new President has been hand-picked by the outgoing President!');
+    this.channel.send(pickEmbed);
     this.roundEnd();
   }
 
@@ -961,12 +1043,64 @@ class SecretHitlerGame {
   // Ask the President which player to kill
   powerPresidentKillStart(){
     console.log('Power - President kill start');
+    this.status.killPower = true;
+    let killEmbed = new MessageEmbed()
+      .setTitle('Kill Player Power')
+      .setColor(0x00ff00)
+      .setDescription('You must now kill another player, whether you want to or not. You are welcome to discuss your decision with the rest of the group. Choose a player from the list below.\n\nIt is easier to copy and paste your preferred response below to send it. If you are using the Discord app on mobile, just hold down on the message you want to send and then paste it into the "message" box below:');
+    let presID = this.getUserIDfromUsername(this.government.currPres);
+    let presUser = client.users.cache.get(presID);
+    presUser.send(pickEmbed);
+    let names = this.players.nameArr;
+    let pIDs = this.players.idArr;
+    for (let i = 0; i < names.length; i++){
+      // Can't kill themselves
+      if (pIDs[i] !== presID){
+        presUser.send('kill player ' + (i + 1) + ' - "' + names[i] + '" (' + this.channel.id + ')');
+      }
+    }
+
   }
 
   // Get the selected player and kill them!
-  powerPresidentKillResult(playerIndex){
+  powerPresidentKillResult(playerName){
     console.log('Power - President kill result');
-    this.roundEnd();
+    this.status.killPower = false;
+    let killedID = this.getUserIDfromUsername(playerName);
+    let killedIndex = this.players.idArr.indexOf(killedID);
+    // Check if this player was Hitler
+    if (killedID === this.players.secretRoles[0]){
+      // This player was Hitler! Let the channel know
+      let killEmbed = new MessageEmbed()
+        .setTitle('Player Killed - ' + playerName)
+        .setColor(0xff0000)
+        .setDescription('The ' + this.botData.president + ' was forced to kill a player.\n\nThe unfortunate player who was out of the game is:\n\n**' + playerName + '**');
+      this.channel.send(killEmbed);
+      killEmbed = new MessageEmbed()
+        .setTitle('Surprise Surprise... they were ' + this.botData.hitler + '!')
+        .setColor(0x00ff00)
+        .setDescription('The killed player was ' + this.botData.hitler + '!');
+      this.channel.send(killEmbed);
+      // Then end the game!
+      this.gameOver(this.botData.liberal);
+    }else{
+      // Add this ID to a list of killed players
+      this.players.killedPlayers.push(killedID);
+      // Slice out of idArr, nameArr, secretRoles
+      this.players.idArr.splice(killedIndex, 1);
+      this.players.nameArr.splice(killedIndex, 1);
+      let secretIndex = this.players.secretRoles.indexOf(killedID);
+      this.players.secretRoles.splice(secretIndex, 1);
+      // Update players.count
+      this.players.count--;
+      let killEmbed = new MessageEmbed()
+        .setTitle('Player Killed - ' + playerName)
+        .setColor(0xff0000)
+        .setDescription('The ' + this.botData.president + ' was forced to kill a player.\n\nThe unfortunate player who was out of the game is:\n\n**' + playerName + '**');
+      this.channel.send(killEmbed);
+
+      this.roundEnd();
+    }
   }
 
   /*
@@ -988,6 +1122,8 @@ class SecretHitlerGame {
   */
   gameOver(winTeam){
 
+    this.status.gameOver = true;
+    this.status.gameRunning = false;
     botStats.activeGames--;
     let embedCol = 0x0000ff;
     if (winTeam === this.botData.fascist){
@@ -998,6 +1134,7 @@ class SecretHitlerGame {
       .setColor(embedCol)
       .setDescription('The ' + winTeam + ' were the winners!');
     this.channel.send(thisEmbed);
+    this.reset();
   }
 
   /* HELPER FUNCTIONS WITHIN GAME */
@@ -1159,7 +1296,7 @@ client.on('message', message => {
         })
         .catch(console.error);
 
-    }else if (message.startsWith('investigate')){
+    }else if (message.content.startsWith('investigate')){
 
       // Message format will be:
       // investigate player 1 - "EclecticMatt" (1039383829)
@@ -1191,7 +1328,168 @@ client.on('message', message => {
         })
         .catch(console.error);
 
-    } // END IF startsWith()
+    }else if (message.content.startsWith('pick candidate')){
+
+      // Message will be in the format
+      // pick candidate 1 - "EclecticMatt" (293840202818)
+      // 0    1         2 3 4              5
+      let split = message.content.split(/ +/);
+      let playerName = split[4].replace('"','');
+      let thisChannel = split[5].replace('(','').replace(')','');
+      console.log('Received candidate pick request from ',message.author.id,playerName);
+
+      client.channels.fetch(thisChannel)
+        .then(channel => {
+          // Before processing, check this message came from the president
+          let presID = channel.game.getUserIDfromUsername(channel.game.government.currPres);
+          let presUser = client.users.cache.get(presID);
+          console.log('Inside pick channel wrapper');
+          // Check if message came from the president
+          if (message.author.id === presID){
+            // Check if the investigation power is currently active
+            if (this.status.pickCandidate){
+              console.log('Valid candidate pick request');
+              this.powerPickCandidateResult(playerName);
+            }else{
+              console.log('Pick candidate requested but power not active');
+              presUser.send('You are not allowed to pick a candidate at this time');
+            }
+
+          }
+        })
+        .catch(console.error);
+
+      }else if (message.content.startsWith('kill player')){
+
+        // Message will be in format
+        // kill player 1 - "EclecticMatt" (371391239838)
+        // 0    1      2 3 4              5
+        let split = message.content.split(/ +/);
+        let playerName = split[4].replace('"','');
+        let thisChannel = split[5].replace('(','').replace(')','');
+        console.log('Received kill player request from ',message.author.id, playerName);
+
+        client.channels.fetch(thisChannel)
+          .then(channel => {
+            // Before processing, check this message came from the president
+            let presID = channel.game.getUserIDfromUsername(channel.game.government.currPres);
+            let presUser = client.users.cache.get(presID);
+            console.log('Inside kill channel wrapper');
+            // Check if message came from the president
+            if (message.author.id === presID){
+              // Check if the investigation power is currently active
+              if (this.status.killPlayer){
+                console.log('Valid kill player request');
+                this.powerPresidentKillResult(playerName);
+              }else{
+                console.log('Kill player requested but power not active');
+                presUser.send('You are not allowed to kill a player at this time');
+              }
+
+            }
+          })
+          .catch(console.error);
+
+      }else if (message.content.startsWith('veto request')){
+
+        // Message will be in format
+        // veto request 220202933030
+        let split = message.content.split(/ +/);
+        let thisChannel = split[2];
+        console.log('Received veto request from ',message.author.id);
+
+        client.channels.fetch(thisChannel)
+          .then(channel => {
+            // Before processing, check this message came from the chancellor
+            let presID = channel.game.getUserIDfromUsername(channel.game.government.currPres);
+            let presUser = client.users.cache.get(presID);
+            let chanID = channel.game.getUserIDfromUsername(channel.game.government.currChan);
+            let chanUser = client.users.cache.get(chanID);
+            console.log('Inside veto request channel wrapper');
+            // Check if message came from the chancellor
+            if (message.author.id === chanID){
+              // Check if the veto power is currently active and request not already submitted
+              if ( (this.government.vetoUnlocked) && (!this.government.vetoRequested) ){
+                console.log('Valid veto request');
+                this.government.vetoRequested = true;
+                let vetoEmbed = new MessageEmbed()
+                  .setTitle('Veto Requested')
+                  .setColor(0x00ff00)
+                  .setDescription('The ' + this.botData.chancellor + ' has requested that these policies are all vetoed, meaning that they will be discarded and none will be enacted.\n\n**Please note: this will count as a failed government and will move the election failure tracker one step.**\n\nYou should reply in this private message to indicate if you DECLINE or APPROVE this veto request.\n\nIt is easier to copy and paste your preferred response below to send it. If you are using the Discord app on mobile, just hold down on the message you want to send and then paste it into the "message" box below:');
+                presUser.send(vetoEmbed);
+                presUser.send('veto response DECLINE (' + this.channel.id + ')');
+                presUser.send('veto response APPROVE (' + this.channel.id + ')');
+
+              }else{
+                console.log('Veto requested but not active');
+                chanUser.send('You are not allowed to veto the policies at this time');
+              }
+
+            }
+          })
+          .catch(console.error);
+
+
+      }else if (message.content.startsWith('veto response')){
+
+        // Message will be in the format
+        // veto response DECLINE 230420349
+        let split = message.content.split(/ +/);
+        let thisResponse = split[2];
+        let thisChannel = split[3];
+        console.log('Received veto response from ',message.author.id);
+
+        client.channels.fetch(thisChannel)
+          .then(channel => {
+            // Before processing, check this message came from the president
+            let presID = channel.game.getUserIDfromUsername(channel.game.government.currPres);
+            let presUser = client.users.cache.get(presID);
+            let chanID = channel.game.getUserIDfromUsername(channel.game.government.currChan);
+            let chanUser = client.users.cache.get(chanID);
+            console.log('Inside veto response channel wrapper');
+            // Check if message came from the president
+            if (message.author.id === presID){
+              // Check if the veto was requested
+              if ( channel.game.government.vetoRequested ){
+                console.log('Valid veto response');
+                //this.government.vetoRequested = false;
+
+                // Process the response
+                if (thisResponse === 'DECLINE'){
+                  chanUser.send('The veto request was DECLINED. You must now pick from the 2 policies to enact one of these');
+                  // Use blank for the discarded policy
+                  channel.game.policyPhaseTwo('');
+                }else if (thisResponse === 'APPROVE'){
+                  // Veto APPROVED
+                  let vetoEmbed = new MessageEmbed()
+                    .setTitle('Veto Power Used')
+                    .setColor(0x00ff00)
+                    .setDescription('The ' + channel.game.botData.president + ' and the ' + channel.game.botData.chancellor + ' have agreed that these policies should be vetoed, meaning that they have been discarded and none will be enacted.\n\n**This counts as a failed government and has moved the election failure tracker one step.**');
+                  channel.send(vetoEmbed);
+                  // Discard policyOptions
+                  channel.game.policyOptions = '';
+                  channel.game.boardProgress.failure++;
+                  if (channel.game.boardProgress.failure === BOARD_FAIL_COUNT){
+                    channel.game.chaosPolicy();
+                  }
+                  channel.game.roundEnd();
+                }else{
+                  presUser.send('Veto response not recognised. Please try again using the responses above.');
+                }
+
+              }else{
+                console.log('Kill player requested but power not active');
+                presUser.send('You are not allowed to kill a player at this time');
+              }
+
+            }
+          })
+          .catch(console.error);
+
+
+
+
+      }// END IF startsWith()
 
   } // END IF message.guild === null
 
@@ -1200,6 +1498,20 @@ client.on('message', message => {
     // Set up the game object in this channel
     console.log(getDateStamp(),'New game setup');
     message.channel.game = new SecretHitlerGame(message.channel);
+
+    if (message.channel.game.welcomeMessageSent === false){
+
+      console.log('Sending welcome message to channel "' + message.channel.name + '"');
+
+      message.channel.game.welcomeMessageSent = true;
+      let thisEmbed = new MessageEmbed()
+        .setTitle(message.channel.game.botData.hitler + ' Bot Active!')
+        .setColor(0x00ff00)
+        .setDescription(TEXT_WELCOME);
+      message.channel.send(thisEmbed);
+
+    }
+
     botStats.channels.push(message.channel.id);
   }else if (message.channel.game === undefined){
     // Return false to prevent errors
@@ -1369,6 +1681,21 @@ client.on('message', message => {
     } // END IF user = nomPres & nomChan = ''
 
   } // END NOMINATE COMMAND
+
+  /*
+      --- HELP COMMAND
+  */
+  // If the message is "hitler help"
+  let helpCommand = theGame.botData.prefix + ' help';
+  if (message.content.startsWith(helpCommand)) {
+
+    let helpEmbed = new MessageEmbed()
+      .setTitle(theGame.botData.hitler + ' Bot Help')
+      .setColor(0x00ff00)
+      .setDescription('The Bot works when you send messages - some of these messages should be sent in this channel, but some should be sent in private messages with the Bot.\n\n**To avoid the most common error, either change your settings to allow Direct/Private messages from Bots, OR send a Direct Message to the Bot before you start playing** (click the Bot name and send any message to the Bot, which will allow you to receive Direct Messages during the game)\n\nThe main commands (messages) to send during the game are as follows:\n\n' + theGame.botData.hitler + ' join\nSend this message in the main channel to register yourself as a player for the game.\n\n' + theGame.botData.hitler + ' start\nSend this message in the main channel to start the game once enough players have registered using the "join" command.\n\n' + theGame.botData.hitler + ' nominate @username\nThe ' + theGame.botData.president + ' should send this message in the main channel and it will nominate the player tagged in the message as the new ' + theGame.botData.chancellor + '.\n**NOTE: this command only works when the user has been tagged (@username) so ensure that you have correctly tagged your chosen user in this message!**\n\n' + theGame.botData.hitler + ' vote\nThis command should be used in a private (direct) message to the Bot, and you will receive further instructions directly on how to correctly (and privately) vote - this is a democracy after all!');
+    message.reply(helpEmbed);
+
+  }
 
 
 }); // End channel.message function
