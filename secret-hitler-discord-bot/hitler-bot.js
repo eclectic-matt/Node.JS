@@ -11,7 +11,13 @@ const CLIENT_ID = 693209558272966686;
 // Import the discord.js module
 const Discord = require('discord.js');
 const { Client, MessageEmbed } = require('discord.js');
-const Canvas = require('canvas');
+//const Canvas = require('canvas');
+//https://github.com/Automattic/node-canvas/#registerfont
+const { registerFont, createCanvas } = require('canvas');
+/*  registerFont('farisea-dark.ttf', { family: 'Farisea'});
+  registerFont('germania.shadow.ttf', { family: 'Germania Shadow'});
+  registerFont('Germania.ttf', { family: 'Germania'});*/
+  registerFont('Eskapade.ttf', { family: 'Eskapade'});
 
 const { prefix, token, name } = require('./config.json');
 
@@ -56,12 +62,23 @@ const TEAM_HEIGHT = 300;
 const LIB_BORDER_WIDTH = 75;
 const FAS_BORDER_WIDTH = 10;
 const FAIL_BORDER_WIDTH = 140;
+const CARD_BORDER = 15;
+const STRIP_MARGIN = 5;
+const STRIP_WIDTH = 2;
+const BORDER_LINES_WIDTH = 1;
 
-const CTX_COL_TEXT = '#000000'; // BLACK
-const CTX_COL_FASC = '#bd1e21'; // RED
-const CTX_COL_LIBS = '#1e4ebd'; // BLUE
-const CTX_COL_BG = '#bdb586';   // CREAM
 
+const CTX_COL_TEXT = '#000000';     // BLACK
+const CTX_COL_BG = '#f0d0a1';       // CREAM
+
+const CTX_COL_FASC = '#e3612f';     // RED
+const CTX_COL_FASC_BG = '#f08b5d';  // ORANGE
+//const CTX_COL_FASC_BOR = '#d5431e'; // DARK RED
+const CTX_COL_FASC_BOR = '#ab2b0a'; // DARK RED
+
+const CTX_COL_LIBS = '#7c8c8c';     // BLUE
+const CTX_COL_LIBS_BG = '#639cba';  // LIGHT BLUE
+const CTX_COL_LIBS_BOR = '#464c62'; // DARK BLUE
 
 /*
   GAME CONSTANTS
@@ -108,11 +125,6 @@ const BOARD_ACTIONS = [
 const TEXT_FIVESIX = '5 OR 6 PLAYERS: 1 FASCIST AND HITLER, HITLER KNOWS WHO THE FASCIST IS.';
 const TEXT_SEVENEIGHT = '7 OR 8 PLAYERS: 2 FASCISTS AND HITLER, HITLER DOESN\'T KNOW WHO THE FASCISTS ARE.';
 const TEXT_NINETEN = '9 OR 10 PLAYERS: 3 FASCISTS AND HITLER, HITLER DOESN\'T KNOW WHO THE FASCISTS ARE.';
-
-/*
-// This has to be included in the main function body, as it will change based on bot prefixes etc
-const TEXT_HELP = 'The Bot works when you send messages - some of these messages should be sent in this channel, but some should be sent in private messages with the Bot.\n\n**To avoid the most common error, either change your settings to allow Direct/Private messages from Bots, OR send a Direct Message to the Bot before you start playing** (click the Bot name and send any message to the Bot, which will allow you to receive Direct Messages during the game)\n\nThe main commands (messages) to send during the game are as follows:\n\n' + theGame.botData.hitler + ' join\nSend this message in the main channel to register yourself as a player for the game.\n\n' + theGame.botData.hitler + ' start\nSend this message in the main channel to start the game once enough players have registered using the "join" command.\n\n' + theGame.botData.hitler + ' nominate @username\nThe ' + theGame.botData.president + ' should send this message in the main channel .\n\n';
-*/
 
 const TEXT_WELCOME = 'The Secret Hitler Bot is now active in this channel!\n\nSend a message with the following command to learn how to use the bot:\n\nhitler help\n\nIf you are having issues, you can report them using the command:\n\nhitler issue <issue description>\n\nThis will be logged with the developer who will try to push out a fix as soon as possible!\n\nVisit my site for more information and contact details:\n\nhttps://eclectic-matt.github.io/Isolation-Bots/';
 
@@ -773,7 +785,7 @@ class SecretHitlerGame {
       let thisEmbed = new MessageEmbed()
         .setTitle('The ' + this.botData.president + ' role has been passed to - ' + this.government.nomPres + '!')
         .setColor(COLOUR_HELP)
-        .setDescription('The first ' + this.botData.president + ' has been randomly assigned by the bot!\n\n**The first ' + this.botData.president + ' nominee is: ' + this.government.nomPres + '!**\n\nThis ' + this.botData.president + ' nominee should now nominate the first ' + this.botData.chancellor + ' by typing:\n\n**' + this.botData.prefix + ' nominate @username**\n\n(make sure the username has been mentioned/tagged in your message)');
+        .setDescription('The ' + this.botData.president + ' role has been passed on!\n\n**The new ' + this.botData.president + ' nominee is: ' + this.government.nomPres + '!**\n\nThis ' + this.botData.president + ' nominee should now nominate the first ' + this.botData.chancellor + ' by typing:\n\n**' + this.botData.prefix + ' nominate @username**\n\n(make sure the username has been mentioned/tagged in your message)');
 
       this.channel.send(thisEmbed);
 
@@ -784,16 +796,60 @@ class SecretHitlerGame {
   // Outputs the visual game board
   generateGameBoard(){
 
-    const canvas = Canvas.createCanvas(CNV_WIDTH, CNV_HEIGHT);
+    /*
+    testing
+
+    this.players.count = 5;
+    this.boardProgress.liberal = 4;
+    this.boardProgress.fascist = 5;
+    this.boardProgress.failure = 3;
+    */
+
+    const canvas = createCanvas(CNV_WIDTH, CNV_HEIGHT);
   	const ctx = canvas.getContext('2d');
 
-  	ctx.strokeStyle = CTX_COL_TEXT;
-    ctx.fillStyle = CTX_COL_BG;
-
-    ctx.fillRect(0, 0, CNV_WIDTH, CNV_HEIGHT);
+    // Liberal BG
+    ctx.fillStyle = CTX_COL_LIBS_BG;
+    ctx.fillRect(0, 0, CNV_WIDTH, CNV_HEIGHT / 2);
+    // Liberal Title Blocks
+    ctx.fillStyle = CTX_COL_LIBS_BOR;
+    ctx.fillRect(0, 0, CNV_WIDTH / 3, HEADER_HEIGHT);
+    ctx.fillRect((2 * CNV_WIDTH) / 3, 0, CNV_WIDTH / 3, HEADER_HEIGHT);
+    // Liberal Side Blocks
+    ctx.fillRect(0, 0, LIB_BORDER_WIDTH, CNV_HEIGHT / 2);
+    ctx.fillRect(LIB_BORDER_WIDTH + (5 * SLOT_WIDTH), 0, LIB_BORDER_WIDTH, CNV_HEIGHT / 2);
+    // Liberal Fail Blocks
+    ctx.fillRect(0, HEADER_HEIGHT + SLOT_HEIGHT, FAIL_BORDER_WIDTH, HEADER_HEIGHT);
+    ctx.fillRect(FAIL_BORDER_WIDTH + (4 * SLOT_WIDTH), HEADER_HEIGHT + SLOT_HEIGHT, FAIL_BORDER_WIDTH, HEADER_HEIGHT);
+    // Liberal strip
     ctx.beginPath();
+    ctx.strokeStyle = CTX_COL_LIBS;
+    ctx.lineWidth = STRIP_WIDTH;
+    ctx.rect(STRIP_MARGIN, STRIP_MARGIN, CNV_WIDTH - (2 * STRIP_MARGIN), (CNV_HEIGHT / 2) - (2 * STRIP_MARGIN));
+    ctx.stroke();
+
+    // Fascist BG
+    ctx.fillStyle = CTX_COL_FASC_BG;
+    ctx.fillRect(0, CNV_HEIGHT / 2, CNV_WIDTH, CNV_HEIGHT / 2);
+    // Fascist Title Blocks
+    ctx.fillStyle = CTX_COL_FASC_BOR;
+    ctx.fillRect(0, CNV_HEIGHT / 2, CNV_WIDTH / 3, HEADER_HEIGHT);
+    ctx.fillRect((2 * CNV_WIDTH) / 3, CNV_HEIGHT / 2, CNV_WIDTH / 3, HEADER_HEIGHT);
+    // Fascist Side Blocks
+    ctx.fillRect(0, CNV_HEIGHT / 2, FAS_BORDER_WIDTH, CNV_HEIGHT / 2);
+    ctx.fillRect(FAS_BORDER_WIDTH + (6 * SLOT_WIDTH), CNV_HEIGHT / 2, FAS_BORDER_WIDTH, CNV_HEIGHT / 2);
+    // Fascist Hitler Info Text Block
+    ctx.fillRect(0, CNV_HEIGHT / 2 + HEADER_HEIGHT + SLOT_HEIGHT, CNV_WIDTH, HEADER_HEIGHT);
+    // Fascist strip
+    ctx.beginPath();
+    ctx.strokeStyle = CTX_COL_FASC;
+    ctx.rect(STRIP_MARGIN, (CNV_HEIGHT / 2) + STRIP_MARGIN, CNV_WIDTH - (2 * STRIP_MARGIN), (CNV_HEIGHT / 2) - (2 * STRIP_MARGIN));
+    ctx.stroke();
 
     // Draw the borders
+    ctx.beginPath();
+    ctx.strokeStyle = CTX_COL_TEXT;
+    ctx.lineWidth = BORDER_LINES_WIDTH;
     // LIBERAL SLOT BORDER
     ctx.rect(0, HEADER_HEIGHT, CNV_WIDTH, (SLOT_HEIGHT + HEADER_HEIGHT) );
     // FAILURE TRACK BORDER
@@ -806,35 +862,100 @@ class SecretHitlerGame {
     ctx.closePath();
 
     // Output Team Headings
-    ctx.font = '40px serif';
+    ctx.font = '40px "Eskapade"';
     ctx.textAlign = "center";
     ctx.fillStyle = CTX_COL_TEXT;
-    ctx.fillText(this.botData.liberal, CNV_WIDTH / 2, HEADER_HEIGHT - 10);
-    ctx.fillText(this.botData.fascist, CNV_WIDTH / 2, TEAM_HEIGHT + HEADER_HEIGHT - 10);
+    ctx.fillText(this.botData.liberal.toUpperCase(), CNV_WIDTH / 2, HEADER_HEIGHT - 10);
+    ctx.fillText(this.botData.fascist.toUpperCase(), CNV_WIDTH / 2, TEAM_HEIGHT + HEADER_HEIGHT - 10);
+
 
     let boardActions = GAME_BOARD[0];
     // Output liberal slots
     let xStart = LIB_BORDER_WIDTH;
     // Heights always the same
     let y1 = HEADER_HEIGHT;
-    ctx.font = '16px sans-serif';
+    ctx.font = 'bold 14px sans-serif';
     for (let i = 0; i < BOARD_LIBERAL_COUNT; i++){
       let x1 = xStart + (SLOT_WIDTH * i);
       ctx.beginPath();
       ctx.rect(x1, y1, SLOT_WIDTH, SLOT_HEIGHT);
       ctx.stroke();
       ctx.closePath();
-      wrapText(ctx, boardActions[i], x1 + Math.floor(SLOT_WIDTH / 2), y1 + 50, SLOT_WIDTH - 10, 20);
+      wrapText(ctx, boardActions[i].toUpperCase(), x1 + Math.floor(SLOT_WIDTH / 2), y1 + 50, SLOT_WIDTH - 15, 20);
     }
 
     // Output cards over the filled slots
     let libSlots = this.boardProgress.liberal;
-    ctx.fillStyle = CTX_COL_LIBS;
     // Nowt to do if no slots filled
     if (libSlots !== 0){
       for (let i = 0; i < libSlots; i++){
         let x1 = xStart + (SLOT_WIDTH * i) + 1;
+        // Clear card BG
+        ctx.fillStyle = CTX_COL_BG;
         ctx.fillRect(x1, y1 + 1, SLOT_WIDTH - 2, SLOT_HEIGHT - 2);
+        // Liberal Colour Strip
+        ctx.fillStyle = CTX_COL_LIBS;
+        ctx.fillRect(x1 + (2 * STRIP_WIDTH), y1 + 1 + (2 * STRIP_WIDTH), SLOT_WIDTH - 2 - (4 * STRIP_WIDTH), SLOT_HEIGHT - 2 - (4 * STRIP_WIDTH));
+        // Clear rect over the top
+        ctx.fillStyle = CTX_COL_BG;
+        ctx.fillRect(x1 + CARD_BORDER, y1 + CARD_BORDER, SLOT_WIDTH - (2 * CARD_BORDER), SLOT_HEIGHT - (2 * CARD_BORDER));
+        // Bird icon
+        ctx.fillStyle = CTX_COL_LIBS;
+        let xLogo = x1 + (SLOT_WIDTH / 3);
+        let yLogo = y1 + CARD_BORDER + 5;
+        // Main wings/outline
+        ctx.beginPath();
+        ctx.moveTo(xLogo, yLogo);
+        ctx.lineTo(xLogo + 10, yLogo + 10);   // 1
+        ctx.lineTo(xLogo + 15, yLogo + 25);   // 2
+        ctx.lineTo(xLogo + 30, yLogo + 10);   // 3
+        ctx.lineTo(xLogo + 40, yLogo - 3);    // 4
+        ctx.lineTo(xLogo + 20, yLogo + 50);   // 5
+        ctx.lineTo(xLogo + 40, yLogo + 65);   // 6
+        ctx.lineTo(xLogo + 20, yLogo + 70);   // 7
+        ctx.lineTo(xLogo + 15, yLogo + 50);   // 8
+        ctx.lineTo(xLogo + 10, yLogo + 25);   // 9
+        ctx.lineTo(xLogo + 5, yLogo + 10);    // 10
+        ctx.lineTo(xLogo, yLogo);             // 11
+        ctx.fill();
+        ctx.closePath();
+        // Body circle
+        ctx.arc(xLogo + 10, yLogo + 40, 14, 0, 2 * Math.PI);
+        // Head circle
+        ctx.arc(xLogo - 3, yLogo + 32, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
+        // Card text (center aligned)
+        ctx.fillStyle = CTX_COL_LIBS;
+        //ctx.font = 'small-caps bold 18px serif';
+        ctx.font = 'bold 26px "Eskapade"';
+        ctx.fillText('LIBERAL', x1 + (SLOT_WIDTH / 2), y1 + (SLOT_HEIGHT / 2) + 17);
+        // Dashed line
+        ctx.beginPath();
+        ctx.strokeStyle = CTX_COL_LIBS;
+        ctx.setLineDash([2, 10]);
+        ctx.moveTo( x1 + CARD_BORDER, y1 + (SLOT_HEIGHT / 2) + 20);
+        ctx.lineTo( x1 + SLOT_WIDTH - CARD_BORDER, y1 + (SLOT_HEIGHT / 2) + 20);
+        ctx.stroke();
+        ctx.closePath();
+        // Article
+        ctx.font = '14px serif';
+        ctx.fillText('ARTICLE', x1 + (SLOT_WIDTH / 3) + 5, y1 + (SLOT_HEIGHT / 2) + 40);
+        // Text lines
+        ctx.beginPath();
+        ctx.setLineDash([]);
+        // Line next to article
+        ctx.moveTo( x1 + (SLOT_WIDTH / 2) + 20, y1 + (SLOT_HEIGHT / 2) + 35);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 35);
+        // Lines underneath
+        ctx.moveTo( x1 + CARD_BORDER + 5, y1 + (SLOT_HEIGHT / 2) + 50);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 50);
+        ctx.moveTo( x1 + CARD_BORDER + 5, y1 + (SLOT_HEIGHT / 2) + 65);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 65);
+        ctx.moveTo( x1 + CARD_BORDER + 5, y1 + (SLOT_HEIGHT / 2) + 80);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 80);
+        ctx.stroke();
+        ctx.closePath();
       }
     }
 
@@ -842,30 +963,45 @@ class SecretHitlerGame {
     xStart = FAIL_BORDER_WIDTH;
     // Heights always the same
     y1 = SLOT_HEIGHT + HEADER_HEIGHT;
-    ctx.font = '30px sans-serif';
+    //ctx.font = '30px sans-serif';
     ctx.fillStyle = CTX_COL_TEXT;
-    for (let i = 0; i < BOARD_FAIL_COUNT; i++){
+    for (let i = 0; i <= BOARD_FAIL_COUNT; i++){
       let x1 = xStart + (SLOT_WIDTH * i);
       ctx.beginPath();
       ctx.rect(x1, y1, SLOT_WIDTH, HEADER_HEIGHT);
       ctx.stroke();
       ctx.closePath();
+      ctx.strokeStyle = CTX_COL_TEXT;
       // Put the slot number in the box
       if (i === 0){
-        ctx.fillText('Fails->', x1 + Math.floor(SLOT_WIDTH / 2), y1 + 35 );
+        // wrapText(context, text, x, y, maxWidth, lineHeight)
+        ctx.font = 'bold 12px sans-serif';
+        wrapText(ctx, 'ELECTION TRACKER', x1 + Math.floor(SLOT_WIDTH / 2), y1 + 21, SLOT_WIDTH - 20, 12);
+      }else if (i === BOARD_FAIL_COUNT){
+        ctx.font = 'bold 12px sans-serif';
+        ctx.beginPath();
+        ctx.arc(x1 + (SLOT_WIDTH / 4), y1 + (HEADER_HEIGHT / 2), (HEADER_HEIGHT / 2) - 10, 0, 2 * Math.PI);
+        ctx.stroke();
+        wrapText(ctx, 'REVEAL & ENACT TOP POLICY', x1 + Math.floor(2 * SLOT_WIDTH / 3) + 5, y1 + 15, 2 * SLOT_WIDTH / 3, 12);
       }else{
-        ctx.fillText( String('Fail ' + i), x1 + Math.floor(SLOT_WIDTH / 2), y1 + 35 );
+        ctx.font = 'bold 12px sans-serif';
+        ctx.beginPath();
+        ctx.arc(x1 + (SLOT_WIDTH / 4), y1 + (HEADER_HEIGHT / 2), (HEADER_HEIGHT / 2) - 10, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fillText( String('FAIL'), x1 + Math.floor( 3 * SLOT_WIDTH / 4), y1 + 27);
       }
 
     }
 
     // Output cards over failure track slots
     let failSlots = this.boardProgress.failure;
-    ctx.fillStyle = CTX_COL_FASC;
     if (failSlots !== 0){
       for (let i = 0; i < failSlots; i++){
         let x1 = xStart + (SLOT_WIDTH * (i + 1) ) + 1;
-        ctx.fillRect(x1, y1 + 1, SLOT_WIDTH - 2, HEADER_HEIGHT - 2);
+        ctx.fillStyle = CTX_COL_LIBS_BOR;
+        ctx.beginPath();
+        ctx.arc(x1 + (SLOT_WIDTH / 4), y1 + (HEADER_HEIGHT / 2), (HEADER_HEIGHT / 2) - 10, 0, 2 * Math.PI);
+        ctx.fill();
       }
     }
 
@@ -893,7 +1029,7 @@ class SecretHitlerGame {
     xStart = FAS_BORDER_WIDTH;
     // Heights always the same
     y1 = TEAM_HEIGHT + HEADER_HEIGHT;
-    ctx.font = '16px sans-serif';
+    ctx.font = 'bold 14px sans-serif';
     ctx.fillStyle = CTX_COL_TEXT;
     for (let i = 0; i < BOARD_FASCIST_COUNT; i++){
       let x1 = xStart + (SLOT_WIDTH * i);
@@ -901,29 +1037,99 @@ class SecretHitlerGame {
       ctx.rect(x1, y1, SLOT_WIDTH, SLOT_HEIGHT);
       ctx.stroke();
       ctx.closePath();
-      wrapText(ctx, boardActions[i], x1 + Math.floor(SLOT_WIDTH / 2), y1 + 50, SLOT_WIDTH - 10, 20);
+      wrapText(ctx, boardActions[i].toUpperCase(), x1 + Math.floor(SLOT_WIDTH / 2), y1 + 50, SLOT_WIDTH - 15, 20);
     }
 
     // Output cards over the filled slots
     let fascSlots = this.boardProgress.fascist;
-    ctx.fillStyle = CTX_COL_FASC;
     // Nowt to do if no slots filled
     if (fascSlots !== 0){
       for (let i = 0; i < fascSlots; i++){
+        ctx.fillStyle = CTX_COL_FASC;
+        ctx.beginPath();
         let x1 = xStart + (SLOT_WIDTH * i) + 1;
+        // Clear card BG
+        ctx.fillStyle = CTX_COL_BG;
         ctx.fillRect(x1, y1 + 1, SLOT_WIDTH - 2, SLOT_HEIGHT - 2);
+        // Liberal Colour Strip
+        ctx.fillStyle = CTX_COL_FASC;
+        ctx.fillRect(x1 + (2 * STRIP_WIDTH), y1 + 1 + (2 * STRIP_WIDTH), SLOT_WIDTH - 2 - (4 * STRIP_WIDTH), SLOT_HEIGHT - 2 - (4 * STRIP_WIDTH));
+        // Clear rect over the top
+        ctx.fillStyle = CTX_COL_BG;
+        ctx.fillRect(x1 + CARD_BORDER, y1 + CARD_BORDER, SLOT_WIDTH - (2 * CARD_BORDER), SLOT_HEIGHT - (2 * CARD_BORDER));
+        // Skull icon
+        ctx.fillStyle = CTX_COL_FASC;
+        // Main circle
+        let xCirc = x1 + (SLOT_WIDTH / 2);
+        let yCirc = y1 + (SLOT_HEIGHT / 4);
+        let rCirc = (SLOT_WIDTH / 4);
+        ctx.beginPath();
+        ctx.arc(xCirc, yCirc, rCirc, 0 , 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
+        // Jaw
+        ctx.fillRect(xCirc - (rCirc / 2), yCirc + (rCirc / 2), rCirc, rCirc - 5);
+        // Eyes
+        ctx.fillStyle = CTX_COL_BG;
+        ctx.beginPath();
+        ctx.arc(xCirc - 18, yCirc, 9, 0 , 2 * Math.PI);
+        ctx.fill();
+        ctx.arc(xCirc + 18, yCirc, 9, 0 , 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
+        // Nose
+        ctx.beginPath();
+        ctx.moveTo(xCirc, yCirc);
+        ctx.lineTo(xCirc + 5, yCirc + 10);
+        ctx.lineTo(xCirc - 5, yCirc + 10);
+        ctx.lineTo(xCirc, yCirc);
+        ctx.fill();
+        ctx.closePath();
+        // Card text (center aligned)
+        ctx.fillStyle = CTX_COL_FASC;
+        ctx.font = 'bold 26px "Eskapade"';
+        ctx.fillText('FASCIST', x1 + (SLOT_WIDTH / 2), y1 + (SLOT_HEIGHT / 2) + 17);
+        // Dashed line
+        ctx.beginPath();
+        ctx.strokeStyle = CTX_COL_FASC;
+        ctx.setLineDash([2, 10]);
+        ctx.moveTo( x1 + CARD_BORDER, y1 + (SLOT_HEIGHT / 2) + 20);
+        ctx.lineTo( x1 + SLOT_WIDTH - CARD_BORDER, y1 + (SLOT_HEIGHT / 2) + 20);
+        ctx.stroke();
+        ctx.closePath();
+        // Article
+        ctx.font = '14px serif';
+        ctx.fillText('ARTICLE', x1 + (SLOT_WIDTH / 3) + 5, y1 + (SLOT_HEIGHT / 2) + 40);
+        // Text lines
+        ctx.beginPath();
+        ctx.setLineDash([]);
+        // Line next to article
+        ctx.moveTo( x1 + (SLOT_WIDTH / 2) + 20, y1 + (SLOT_HEIGHT / 2) + 35);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 35);
+        // Lines underneath
+        ctx.moveTo( x1 + CARD_BORDER + 5, y1 + (SLOT_HEIGHT / 2) + 50);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 50);
+        ctx.moveTo( x1 + CARD_BORDER + 5, y1 + (SLOT_HEIGHT / 2) + 65);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 65);
+        ctx.moveTo( x1 + CARD_BORDER + 5, y1 + (SLOT_HEIGHT / 2) + 80);
+        ctx.lineTo( x1 + SLOT_WIDTH - (CARD_BORDER + 5), y1 + (SLOT_HEIGHT / 2) + 80);
+        ctx.stroke();
+        ctx.closePath();
+
       }
     }
 
-    ctx.font = 'italic 16px serif';
+    // Fascist Hitler Info Inner Block
+    ctx.fillStyle = CTX_COL_FASC_BG;
+    ctx.font = '16px serif';
+    let infoWid = ctx.measureText(fascistText).width + 10;
+    ctx.fillRect((CNV_WIDTH - infoWid) / 2, CNV_HEIGHT / 2 + HEADER_HEIGHT + SLOT_HEIGHT + 7, infoWid, HEADER_HEIGHT - 20);
     ctx.fillStyle = CTX_COL_TEXT;
-    ctx.fillText(fascistText, Math.floor(CNV_WIDTH / 2), TEAM_HEIGHT + HEADER_HEIGHT + SLOT_HEIGHT + 30);
+    ctx.fillText(fascistText, Math.floor(CNV_WIDTH / 2), TEAM_HEIGHT + HEADER_HEIGHT + SLOT_HEIGHT + 27);
 
   	let attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'game-board.png');
 
     this.gameBoardCnv = attachment;
-    // Not outputting yet, do this in round end so messages stay together
-    //this.channel.send(this.gameBoardCnv);
 
   }
 
@@ -1520,6 +1726,11 @@ client.on('message', message => {
 
   // Make a shallow copy of the game for easy referencing
   let theGame = message.channel.game;
+  /*
+    testing
+  */
+  theGame.generateGameBoard();
+  message.channel.send(theGame.gameBoardCnv);
 
   /*
       --- JOIN COMMAND
