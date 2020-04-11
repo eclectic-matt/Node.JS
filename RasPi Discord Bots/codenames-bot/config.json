@@ -1,0 +1,6 @@
+{
+  "name": "Codenames Bot",
+  "token": "YOUR_BOT_SECRET_TOKEN",
+  "prefix": "!cn",
+  "issuesChannelID": "ISSUES_LOG_CHANNEL_ID"
+}
