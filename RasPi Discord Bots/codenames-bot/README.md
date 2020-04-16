@@ -32,19 +32,19 @@ To install the bot, you will need to follow these steps:
 * Get the __token for your bot__, as well as the __Client ID for your application__
 * Authorise your bot to the Discord server where you want to run games of Codenames - note: you will need admin permissions on the Discord server you wish to add the bot (https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=8)
 * Setup a folder on a machine running Node.JS (v12.0 or higher) and you may need to install Microsoft Visual Basic Build Tools as part of the Node installation (https://nodejs.org/)
-* Add the *auth.json*, the *bot.js* and the *package.json* file to this folder (clone or copy from this repository)
-* Add __your bot's token__ to the *auth.json* file and the very bottom of the *bot.js* file (YOUR_TOKEN_HERE)
+* Add the *config.json*, the *codenames-bot-public.js* and the *package.json* file to this folder (clone or copy from this repository)
+* Add __your bot's token__ to the *config.json* file
 * Navigate to the folder and install the following packages by command line using:
   * npm install discord.io winston –save
   * npm install canvas
   * npm install https://github.com/woor/discord.io/tarball/gateway_v6
   * npm install discord.js
-* Finally, run the command *node bot.js*
+* Finally, run the command *node codenames-bot-public.js*
 * Now make sure you have given the bot permission to read/send messages in the text channel you wish to play a game in (**don't use a your regular chat channel as the bot will delete messages to make things clear for players**)
 * Now it should all work!
 
 ### Deploying the bot to Heroku
-If you want to deploy the bot to Heroku, use the "bot-heroku.js" code. You will also need the "config.json" file.
+If you want to deploy the bot to Heroku, use the "codenames-bot-public.js" code. You will also need the "config.json" file.
 
 For installation, you will need to add the "http" module using "npm install http". It doesn't strictly _use_ the http module, but Heroku insists that the port can be specified. That was a really pain in the butt to fix. 
 
