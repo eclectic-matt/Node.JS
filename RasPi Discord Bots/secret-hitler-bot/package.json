@@ -1,0 +1,19 @@
+{
+  "name": "secret-hitler-discord-bot",
+  "version": "1.0.0",
+  "description": "A bot to run games of Secret Hitler via Discord",
+  "main": "hitler-bot.js",
+  "dependencies": {
+    "canvas": "^2.6.1",
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "discord.js": "^12.0.2",
+    "fs": "0.0.1-security",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "-test"
+  },
+  "author": "Matt Tiernan (EclecticMatt)",
+  "license": "ISC"
+}
