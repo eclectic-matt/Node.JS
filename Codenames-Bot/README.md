@@ -1,5 +1,11 @@
 # Codenames Bot (for Discord)
 
+NOTE: the main folder for this bot is now: https://github.com/eclectic-matt/Node.JS/tree/master/RasPi%20Discord%20Bots/codenames-bot
+
+*This folder will no longer be updated - please use the files from the linked folder above for the Codenames Bot*
+
+
+# OLD BOT INFORMATION 
 This is a bot for running games of Codenames over Discord (current version 1.2)
 
 The bot comes with all the features needed to play through games of Codenames, including generating the Spymaster grid and a random Word grid. It will also accept guesses and keep track of which team is guessing... and also winning or losing!
