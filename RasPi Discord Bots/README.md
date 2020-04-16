@@ -1,4 +1,8 @@
-# The New Codenames Bot for Discord
+# The New Bots for Discord
+
+## Current (Live) Bots
+* Codenames Bot
+* Secret Roles Bot
 
 ## New Version
 The entire code base has been refactored into modules for easier updating, logging and consistency. 
@@ -13,5 +17,5 @@ The core tools file (sitting above the structure for the Codenames Bot) is a set
 These have been stress tested for a reasonable load (synchronous file read/writes) but should cope with the expected number of concurrent operations for the Bots.
 
 ## Ready for the next bots
-These have all been put into place to make deploying the next bot (Secret Hitler Bot) even easier. 
+These have all been put into place to make deploying the next bot - *now live - the Secret Roles Bot* even easier. 
 The code is working, but needs to be refactored for the new core tools and logging used in Codenames Bot.
