@@ -1,0 +1,29 @@
+{
+  "name": "codenames-bot",
+  "version": "1.0.0",
+  "description": "A Discord Bot for playing games of Codenames remotely",
+  "main": "codenames-bot-public.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "discord-bot",
+    "node.js",
+    "board",
+    "games",
+    "party",
+    "games"
+  ],
+  "author": "EclecticMatt",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^2.6.1",
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "discord.js": "^12.1.1",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "winston": "^3.2.1"
+  }
+}
