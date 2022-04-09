@@ -5,6 +5,17 @@
 * Allows for digital testing, including automated playtesting to generate data
 * Very simple interface options, can be extended and modified as required by the user
 
+# Tech
+
+* The engine is built on Javascript to be deployable on a variety of platforms such as Node.JS, web hosting, mobile web app
+* Flexible engine allows you to deploy fully-realised versions of your games using our scripting tools and templates
+* Entire game code, including the rules, resources and descriptions, can be bundled into a JSON file for sharing (including hosting to provide frequent updates)
+* Allows the realisation of anything from simple card game to rich tabletop wargaming experiences with a few simple rules
+
+
+
+
+
 # Concepts
 
 ## Game

@@ -4,11 +4,18 @@ const DeckType = require('../class/deckType.js');
 const Player = require('../class/player.js');
 const CardEffects = require('./card_effects.js');
 
+/* https://stackoverflow.com/a/2392888/16384571 */
+
 module.exports = class Shithead extends Game {
 	
 	ERROR_INCORRECT_TURN = 10;
 	ERROR_INVALID_CARD = 20;
 	ERROR_MULTIPLE_NOT_MATCHING = 30;
+	ERROR_NAMES = {
+		10: "It is not your turn!",
+		20: "You have played a card which is not allowed!",
+		30: "You have played multiple cards which are not the same value!"
+	};
 
 	setup(){
 
@@ -136,7 +143,8 @@ module.exports = class Shithead extends Game {
 			//CHECK THEY CAN PLAY THIS CARD - GET THE EFFECT FROM THE CARD
 			let effect = deck.cards[0].callback;
 			//TEST THE OUTCOME
-			outcome = eval(effect + '(this, deck, cards[0]);');
+			//outcome = eval(effect + '(this, deck, cards[0]);');
+			outcome = effect(this, deck, cards[0]);
 			console.log('Card Outcome = ' + outcome);
 		}
 

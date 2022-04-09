@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+
+// Setup team and grid variables
+const GRID_ROWS = 5;
+const GRID_COLS = 5;
+// Example HiddenGrid array
+// First row is a single element
+const SPY_GRIDS = [
+  [
+    "red",
+    ["r","i","r","r","b"],
+    ["i","a","b","r","b"],
+    ["r","i","b","b","i"],
+    ["b","i","r","r","i"],
+    ["r","r","b","i","b"]
+  ],
+  [
+    "blue",
+    ["i","r","b","b","b"],
+    ["b","i","a","i","r"],
+    ["r","r","r","b","b"],
+    ["b","b","r","i","b"],
+    ["r","i","i","r","i"]
+  ],
+  [
+    "red",
+    ["i","r","i","b","r"],
+    ["b","r","r","i","r"],
+    ["b","r","r","i","b"],
+    ["a","r","b","b","i"],
+    ["b","i","r","i","b"]
+  ],
+  [
+    "blue",
+    ["r","b","i","r","i"],
+    ["r","r","i","b","r"],
+    ["b","r","a","i","b"],
+    ["i","b","b","r","i"],
+    ["b","r","i","b","b"]
+  ]
+];
+
+
+gridTemplate = Math.floor(Math.random() * SPY_GRIDS.length);
+console.log(gridTemplate);
+thisSpyGrid = gridArrToMarkdown(SPY_GRIDS[gridTemplate]);
+thisMsg = 'OK, you are the BLUE spymaster and here is the grid for this game:' + thisSpyGrid + '\n\nThe first team should be: ' + firstTeam;
+console.log(thisMsg);
+
+function gridArrToMarkdown(arr){
+  let output = '';
+  firstTeam = arr[0];
+  for (let i = 1; i <= GRID_ROWS; i++){
+    let thisRow = arr[i];
+    for (let j = 0; j < GRID_COLS; j++){
+      let thisEl = thisRow[j];
+      switch (thisEl){
+        case "r":
+          output += '| red ';
+          break;
+        case "b":
+          output += '| blue ';
+          break;
+        case "i":
+          output += '| innocent ';
+          break;
+        case "a":
+          output += '| assassin ';
+          break;
+      } //End Switch
+    }   //End j loop
+    output += '|\n';
+  }     //End i loop
+
+  console.log('First team is ',firstTeam);
+  console.log(output);
+  return output;
+}
+
+let checkStr = '!cn guess Ice Cream';
+console.log(checkStr.slice(10,20));
+
+
+</script>
+</head>
+<body>
+</body>
+</html>

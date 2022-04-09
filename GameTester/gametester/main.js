@@ -10,6 +10,16 @@ const Shithead = require ('./shithead/shithead.js');
 const CardEffects = require ('./shithead/card_effects.js');
 const e = require('cors');
 
+//PARSE DATA
+var shitheadData = JSON.parse('./shithead/shithead.json');
+//
+var shitheadFunctions = shitheadData.functions;
+for(thisFn of shitheadFunctions){
+	window[thisFn.name] = new Function(thisFn.arguments, thisFn.body);
+}
+
+
+
 //CREATE THE GAME OBJECT (EXTENDED BY Shithead)
 var shithead = new Shithead('Shithead', 4);
 //console.log(shithead);
@@ -47,7 +57,7 @@ for(let i = 0; i < turnsToSim; i++){
 	let cardToPlay = 0;
 	let turnOutcome = shithead.playerTurn(activePlayer, discardPile, activePlayer.decks[0].cards[cardToPlay]);
 	if (turnOutcome !== true){
-		console.log(turnOutcome);
+		console.log(shithead.ERROR_NAMES[turnOutcome]);
 	}else{
 		console.log('Turn Successful');
 		cardToPlay++;
