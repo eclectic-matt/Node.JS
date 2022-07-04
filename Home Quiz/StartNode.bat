@@ -1,4 +1,5 @@
-k:
+S:
 cd Development\Node.JS\Home Quiz
 node view.js
-explorer "192.168.2.137:8080"
+#pause
+open "192.168.2.137:8080"
