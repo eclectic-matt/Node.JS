@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Games List</title>
+		<style>
+		body { margin: 0; padding-bottom: 3rem; font-size: 2em; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+		button { background: #008000; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; font-size: 2em; }
+
+		</style>
+	</head>
+	<body>
+		<h1>Games List</h1>
+		<em>Click a game to start!</em>
+		<ul id="games">
+			<li><button onclick="openLobby('master-word')">Master Word</button></li>
+		</ul>
+		
+		
+
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io();
+
+			//SEND: instruction to open a lobby
+			function openLobby(game){
+				socket.emit('open-lobby', game);
+			}
+
+			//RECEIVE: lobby id to join game
+			socket.on('lobby-open', function(game, lobbyId){
+				console.log(game,lobbyId);
+				window.location.href = 'lobby.html/game/' + game + '/id/' + lobbyId;
+			});
+
+			//var messages = document.getElementById('messages');
+			//var form = document.getElementById('form');
+			//var input = document.getElementById('input');
+
+			/*form.addEventListener('submit', function(e) {
+				e.preventDefault();
+				if (input.value) {
+					socket.emit('chat message', input.value);
+					input.value = '';
+				}
+			});*/
+
+			/*socket.on('chat message', function(msg) {
+				var item = document.createElement('li');
+				item.textContent = msg;
+				messages.appendChild(item);
+				window.scrollTo(0, document.body.scrollHeight);
+			});*/
+
+			
+		</script>
+	</body>
+</html>

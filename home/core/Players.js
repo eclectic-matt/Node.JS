@@ -1,94 +1,11 @@
-/*
-Multiplayer-Core
-Allows multiple players to join a Node.JS game
-Includes core functionality
-	- adding players
-	- managing IPs
-	- displaying individual player views
-But all further functionality built up
-From this core code in other games
-*/
-
-'use strict';
-
-// Needed to serve pages via HTTP
-var http = require('http');
-// Needed to show template files
-var fs = require('fs');
-// Needed to get player paths
-var url = require('url');
-// Use npm install ip (see https://github.com/indutny/node-ip)
-// Needed to get the admin view local IP address
-var ip = require('ip');
-var myLocalIP = ip.address();
-// Needed to hook events into the code (new player joined)
-var events = require('events');
-const { createHash } = require('crypto');
-var mp_event_emitter = new events.EventEmitter();
-
-// The IP being checked (global)
-var currentIP = '';
-// The list of players
-var players =  {};
-//List of ips for checking
-players.IPs = [];
-players.data = [];
-players.names = [];
-players.secretRoles = [];
-players.governmentRole = [];
-
-var config = {
-	// If you want to set a limit on the number of players
-	playerLimit: null,
-	// If you want to set a limit on how long players can join
-	joinTimeLimit: null
-}
-
-/**
- * The generic player class
- * @param data An object containing the following properties:
- * 	- ip		The IP address of the client (used for checking)
- * 	- name		(optional) The name of the player
- */
-class Player{
-	constructor(data){
-		//Assign the IP
-		this.ip = data.ip;
-		//Assign the user-input name
-		this.name = data.name || 'Player';
-		//MOVE THIS TO EXTENDED CLASS
-		//this.role = data.role || 'Player';
-		//Build a string to create a unique player ID (for rejoining on a different device)
-		let idStr = this.ip;
-		//Generate an md5 hash
-		let hash = idStr.createHash('md5');
-		//Assign this (hex format) as the ID
-		this.id = hash.digest('hex');
-	}
-}
-
-//Alternative Handle
-class DuplicateIPPlayer extends Player{
-	
-	constructor(data){
-		//Assign the IP
-		this.ip = data.ip;
-		//Assign the user-input name
-		this.name = data.name || 'Player';
-		//Includes name, allowing multiple players with different names on the same IP
-		let idStr = this.ip + this.name;
-		//Generate an md5 hash
-		let hash = idStr.createHash('md5');
-		//Assign this (hex format) as the ID
-		this.id = hash.digest('hex');
-	}
-}
+//module.exports(Players);
+export const players = Players;
 
 /**
  * The Players class.
  * Consider how to implement player count limits etc.
  */
-class Players{
+ class Players{
 
 	constructor(data = null){
 
@@ -176,11 +93,5 @@ class Players{
 			console.log('PLAYERS: Player ID ' + player.id + ' removed');
 			return true;
 		}
-	}
-}
-
-class Game{
-	constructor(data){
-		this.name = data.name || 'Game';
 	}
 }
