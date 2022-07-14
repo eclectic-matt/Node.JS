@@ -277,7 +277,10 @@ function removeSocket(sockets, id){
 function getPlayerNamesArray(players){
 	let arrNames = [];
 	for(let i = 0; i < players.length; i++){
-		arrNames.push(players[i].name);
+		let player = {};
+		player.id = players[i].id;
+		player.name = players[i].name;
+		arrNames.push(player);
 	}
 	return arrNames;
 }
