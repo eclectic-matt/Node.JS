@@ -1,0 +1,77 @@
+{
+	"title": "Generic Word Lists",
+	"date": "2022-07-14",
+	"categories": {
+
+		"famous-people": {
+			"title": "Famous People",
+			"description": "Famous people from recent history",
+			"list": [
+				"Marilyn Munroe",
+				"Bob Marley",
+				"Lady Gaga",
+				"Robert De Niro",
+				"Billie Eilish",
+				"Albert Einstein",
+				"Osama Bin Laden",
+				"Donald Trump",
+				"Arnold Schwarzenegger",
+				"Burt Reynolds"
+			]
+		},
+
+		"historic-figures": {
+			"title": "Historical Figures",
+			"description": "Famous people from history",
+			"list": [
+				"Abraham Lincoln",
+				"George Washington",
+				"Napoleon Bonaparte",
+				"Adolf Hitler",
+				"Mahatma Gandhi",
+				"Queen Victoria",
+				"Julius Caesar",
+				"Queen Cleopatra",
+				"Ghenghis Khan",
+				"Joan of Arc"
+			]
+		},
+
+		"famous-places": {
+			"title": "Famous Places",
+			"description": "Famous places from around the world",
+			"list": [
+				"Taj Mahal",
+				"Eiffel Tower",
+				"Empire State Building",
+				"Statue of Liberty",
+				"Golden Gate Bridge",
+				"Machu Picchu",
+				"Tower of London",
+				"Buckingham Palace",
+				"Grand Canyon",
+				"Mount Everest",
+				"Burj Khalifa"
+			]
+		},
+
+		"brand-names": {
+			"title": "Brand Names",
+			"description": "Famous brand and company names",
+			"list": [
+				"Coca Cola",
+				"Nestle",
+				"Cadbury",
+				"Levi's Jeans",
+				"Calvin Klein",
+				"Samsung",
+				"Apple",
+				"Google",
+				"McDonalds",
+				"Budweiser"
+			]
+		}
+
+	}
+
+}
