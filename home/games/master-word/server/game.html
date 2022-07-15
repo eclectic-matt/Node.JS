@@ -30,23 +30,28 @@
 			<em>Lobby ID: <span id="lobbyIdSpan"></span></em>
 			<br>
 			<img id="qrCodeImg" width="100" height="100" src=""/>
-			<ul id="playersUL">
-				
-			</ul>
+			<ul className="playersUL"></ul>
 			<button onclick="startGame()">Start Game</button>
 		</div>
 
 		<!-- STEP 3 = PLAY GAME -->
 		<div id="gameAreaDiv" class="sectionDiv">
+			<h2 id="wordDisplayHeader">The Master Word is: <span id="wordDisplaySpan"></span></h2>
+			<br>
+			<h3 id="categoryDisplayHeader">The Category is: <span id="categoryDisplaySpan"></span></h2>
+			<br>
+			<ul className="playersUL"></ul>
+			<br>
+			<h3>Guesses:</h3>
 		</div>
 
 		<!-- STEP 4A = BE A SEEKER -->
-		<div id="seekerAreaDiv" class="sectionDiv">
-		</div>
+		<!--div id="seekerAreaDiv" class="sectionDiv">
+		</div-->
 
 		<!-- STEP 4B = BE A GUIDE -->
-		<div id="guideAreaDiv" class="sectionDiv">
-		</div>
+		<!--div id="guideAreaDiv" class="sectionDiv">
+		</div-->
 
 		<!-- STEP 5 = GAME ENDS, GO TO STEP 2 -->
 		<div id="gameOverAreaDiv" class="sectionDiv">
@@ -74,10 +79,13 @@
 
 			socket.on('assign-roles', function(roles){
 				console.log(roles);
+				updatePlayerList(gamePlayers, roles);
 			});
 
+			var gamePlayers = [];
 			socket.on('player-join', function(players){
-				let playerList = document.getElementById('playersUL');
+				gamePlayers = players;
+				/*let playerList = document.getElementById('playersUL');
 				playerList.innerHTML = '';
 				for (let i = 0; i < players.length; i++){
 					let li = document.createElement('li');
@@ -88,7 +96,8 @@
 					}
 					li.innerHTML = players[i].name;
 					playerList.appendChild(li);
-				}
+				}*/
+				updatePlayerList(gamePlayers);
 				//KEEP IMG UPDATED
 				game = 'master-word';
 				lobbyId = 'un1qu3';
@@ -98,6 +107,11 @@
 
 			socket.on('setup-round', function(info){
 				console.log(info.category, info.word);
+				collapseSections('gameAreaDiv');
+				let catSpan = document.getElementById('categoryDisplaySpan');
+				catSpan.innerHTML = toTitleCase(info.category.replace('-',' '));
+				let wordSpan = document.getElementById('wordDisplaySpan');
+				wordSpan.innerHTML = info.word;
 			});
 
 
@@ -158,6 +172,43 @@
 				}
 			}
 
+			//https://stackoverflow.com/a/196991/16384571
+			function toTitleCase(str) {
+				return str.replace(
+					/\w\S*/g,
+					function(txt) {
+					return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+					}
+				);
+			}
+
+			function updatePlayerList(players, roles=null){
+				console.log('Updating player list' + (roles ? ' with roles' : ''));
+				let playerLists = document.getElementsByClassName('playersUL');
+				for(let i = 0; i < playerLists.length; i++){
+					playerLists[i].innerHTML = '';
+					for (let i = 0; i < players.length; i++){
+						let li = document.createElement('li');
+						li.key = i;
+						let role = '';
+						//IF THIS IS THE GUIDE
+						if(roles){
+							if (roles.guide === socket.name){
+								role = ' (Guide)';
+							}else{
+								role = ' (Seeker)'
+							}
+						}
+						li.innerHTML = players[i].name + role;
+						if(players[i].id === socket.id){
+							li.style.fontWeight = 'bolder';
+							li.style.color = '#FF0000';
+						}
+						
+						playerLists[i].appendChild(li);
+					}
+				}
+			}
 			//var messages = document.getElementById('messages');
 			//var form = document.getElementById('form');
 			//var input = document.getElementById('input');
