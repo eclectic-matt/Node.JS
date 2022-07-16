@@ -60,6 +60,14 @@
 				<button onclick="submitGuess()">Submit Guess</button>
 			</div>
 
+			<div id="thumbsInputDiv" style="display: none;">
+				<label for="thumbInput">Input the number of thumbs here: </label>
+				<input id="thumbInput" type="integer" min="0" max="4" value="0"></input>
+				<button onclick="submitThumbs()">Submit Thumbs</button>
+			</div>
+
+
+
 			<ul class="playersUL"></ul>
 
 			<h3>Guesses <span id="guessInfoSpan"></span></h3>
@@ -127,6 +135,11 @@
 
 			// UPDATE PLAYER ROLES LIST
 			socket.on('assign-roles', function(roles){
+				if (roles.guide === socket.name){
+					socket.role = 'Guide';
+				}else{
+					socket.role = 'Seeker';
+				}
 				console.log(roles);
 				updatePlayerList(gamePlayers, roles);
 			});
@@ -143,7 +156,6 @@
 
 			// UPDATE ROUND INFORMATION (WORD, CATEGORY)
 			socket.on('setup-round', function(info){
-
 
 				//UPDATE LOCAL COPY
 				gameInfo = JSON.parse(JSON.stringify(info));
@@ -172,6 +184,7 @@
 				gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
 				updateGuessList(guesses);
 				updateGuessInfoSpan();
+				updateThumbsInput(socket);
 			});
 
 
@@ -181,16 +194,19 @@
 
 			//SEND: instruction to open a lobby
 			function openLobby(game){
+
 				socket.emit('open-lobby', game);
 			}
 
 			//SEND: start the game
 			function startGame(){
+
 				socket.emit('start-game');
 			}
 
 			//SEND: set player's name
 			function playerJoin(){
+
 				let nameInput = document.getElementById('playerNameInput');
 				let name = nameInput.value;
 				socket.name = name;
@@ -202,6 +218,7 @@
 
 			//SEND: guess
 			function submitGuess(){
+
 				//CHECK IF ALL GUESSES SUBMITTED FOR THE ROUND FIRST
 				let guessInput = document.getElementById('guessInput');
 				let guess = guessInput.value;
@@ -211,6 +228,11 @@
 				guessInput.value = '';
 			}
 
+			function submitThumbs(){
+
+				let thumbInput = document.getElementById('thumbInput');
+				socket.emit('thumbs-submitted', thumbInput.value);
+			}
 
 
 			//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -220,6 +242,7 @@
 			//CONVERT INTO Proper/TitleCase
 			//https://stackoverflow.com/a/196991/16384571
 			function toTitleCase(str) {
+
 				return str.replace(
 					/\w\S*/g,
 					function(txt) {
@@ -230,6 +253,7 @@
 
 			//UPDATE THE LIST OF PLAYERS (WITH OPTIONAL ROLES INFO)
 			function updatePlayerList(players, roles=null){
+
 				console.log('Updating player list' + (roles ? ' with roles' : ''));
 				console.log(players);
 				let playerLists = document.getElementsByClassName('playersUL');
@@ -244,8 +268,10 @@
 						if(roles){
 							if (roles.guide === players[i].name){
 								role = ' (Guide)';
+								players[i].role = 'Guide';
 							}else{
-								role = ' (Seeker)'
+								role = ' (Seeker)';
+								players[i].role = 'Seeker';
 							}
 						}
 						li.innerHTML = players[i].name + role;
@@ -260,6 +286,7 @@
 			}
 
 			function updateGuessList(guesses){
+
 				let guessList = document.getElementById('guessesUL');
 				guessList.innerHTML = '';
 				for(let i = 0; i < guesses.length; i++){
@@ -271,6 +298,7 @@
 			}
 
 			function updateGuessInfoSpan(){
+
 				let guessInfoSpan = document.getElementById('guessInfoSpan');
 				let guessesRemaining = gameInfo.cluesPerRound - gameInfo.rounds[gameInfo.currentRound - 1].clues.length;
 				guessInfoSpan.innerHTML = '(' + gameInfo.cluesPerRound + ' guesses, ' + guessesRemaining + ' left)';
@@ -278,10 +306,25 @@
 					//HIDE GUESSES INPUT
 					document.getElementById('guessInputDiv').style.display = 'none';
 				}
+
+				//UPDATE THUMB INPUT 
+				let thumbInput = document.getElementById('thumbInput');
+				thumbInput.max = gameInfo.cluesPerRound;
+			}
+
+			function updateThumbsInput(socket){
+
+				let guessesRemaining = gameInfo.cluesPerRound - gameInfo.rounds[gameInfo.currentRound - 1].clues.length;
+
+				if(socket.role === 'Guide' && guessesRemaining === 0){
+					let thumbInputDiv = document.getElementById('thumbsInputDiv');
+					thumbInputDiv.style.display = 'block';
+				}
 			}
 
 			//COLLAPSE ALL PANELS EXCEPT THE openSection
 			function collapseSections(openSection){
+
 				let sections = document.getElementsByClassName('sectionDiv');
 				for(let i = 0; i < sections.length; i++){
 					if(sections[i].id !== openSection){
