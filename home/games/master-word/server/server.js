@@ -77,11 +77,14 @@ var gamesAvailable = [
 //ON CONNECTION (BEFORE SETTING NAME)
 io.on('connection', (socket) => {
 
-	//INITIALIZE NAME TO ID
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// INITIALIZE
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+
+	//INITIALIZE NAME TO SOCKET (DEFAULT ID)
 	socket.name = socket.id;
 
 	//COUNT OF CONNECTED
-	//socket.client.conn.server.clientsCount 
 	if(socket.client.conn.server.clientsCount === 1){
 
 		//NO OTHER PLAYERS - PROMOTE TO ADMIN!
@@ -112,17 +115,20 @@ io.on('connection', (socket) => {
 
 	//ALWAYS ADD ALL PLAYERS TO THE GAME.PLAYERS ARRAY
 	game.players.push(socket);
-	//game.sockets.push(socket);
 
-	//ALWAYS EMIT THE PLAYERS LIST AFTER A CONNECTION
-	//console.log(game.players);
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// EMIT: PLAYER NAMES (OR IDS)
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	io.emit('player-join', getPlayerNamesArray(game.players));
 
-	//GAME WILL DEFAULT TO MASTER WORD
-	//COULD EMIT THE AVAILABLE GAMES HERE
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// EMIT: AVAILABLE GAMES (NOT USED)
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	io.emit('games-available', gamesAvailable);
 
-	//PLAYER ADDED (OPENED LINK, SET NAME)
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// PLAYER INPUT: SET NAME
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('player-add', (name) => {
 
 		//SET THE NAME ON THE SOCKET
@@ -134,13 +140,18 @@ io.on('connection', (socket) => {
 		//PUSH THE SOCKET INTO THE PLAYERS ARRAY
 		//game.players.push(name);
 
-		//EMIT THE PLAYER NAMES ONLY
+		//#-#-#-#-#-#-#-#-#-#-#-#-#
+		// EMIT: PLAYER NAMES
+		//#-#-#-#-#-#-#-#-#-#-#-#-#
 		io.emit('player-join', getPlayerNamesArray(game.players));
 
 		//LOG THE PLAYERS
 		console.log('Players: ', getPlayerNamesArray(game.players));
 	});
 
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// PLAYER INPUT: START GAME
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('start-game', () => {
 
 		//BUILD ROLES OBJECT (PUBLIC, EMITTED)
@@ -158,12 +169,6 @@ io.on('connection', (socket) => {
 		//let guideSocketId = game.players[guideIndex].id;
 		console.log('GUIDE ASSIGNED TO',game.players[guideIndex].name);
 
-		//let guide = game.players[guideIndex].name;
-		//let seekers = game.players.slice(guideIndex, guideIndex + 1);
-		//let seekers = [...game.players.slice(0, guideIndex).name, ...game.players.slice(guideIndex + 1).name];
-		//let seekers = removeSocket(game.players,guideSocketId);
-		//game.players = game.players.push(guide);
-
 		//NOW ROLES ASSIGNED, ADD SOCKETS TO ROOMS
 		for(let i = 0; i < game.players.length; i++){
 			if(i === guideIndex){
@@ -175,33 +180,34 @@ io.on('connection', (socket) => {
 			}
 		}
 
-		/*
-		//https://stackoverflow.com/a/57293784/16384571
-		var sockets = io.sockets.sockets;
-		for(var socketId in sockets) {
-			//GET SOCKETS TO LEAVE EXISTING ROOMS
-			//socket.leave('guideRoom');
-			//socket.leave('seekerRoom');
-			//IF THIS SOCKET IS THE GUIDE
-			if (sockets[socketId].id === guideSocketId){
-				sockets[socketId].join('guideRoom');
-				roles.guide = sockets[socketId].name;
-			}else{
-				sockets[socketId].join('seekerRoom');
-				roles.seekers.push(sockets[socketId].name)
-			}
-		}*/
-
+		//#-#-#-#-#-#-#-#-#-#-#-#-#
+		// EMIT: ROLES
+		//#-#-#-#-#-#-#-#-#-#-#-#-#
 		io.emit('assign-roles', roles);
 
-		//console.log(io.in('guideRoom'));
-		//console.log(io.in('seekerRoom'));
-
 		console.log(roles);
-		//console.log(game.players);
 
+		//SET UP KEY VARIABLES FOR THIS GAME
 		let theWord = '';
 		let theCategory = '';
+
+		game.rounds = Array(7).fill({"clues":[],"thumbs":-1});
+		game.currentRound = 1;
+
+		//MAKE AN OBJECT TO TRANSMIT GAME INFO
+		let setupObject = {};
+		//THE MAX NUMBER OF ROUNDS
+		setupObject.roundCount = 7;
+		//THE MAX NUMBER OF SOLUTIONS
+		setupObject.solutionCardCount = 3;
+		//THE NUMBER OF SEEKERS IN THIS GAME
+		setupObject.seekerCount = roles.seekers.length;
+		//THE NUMBER OF CLUES REQUIRED PER ROUND
+		setupObject.cluesPerRound = Math.max(4, setupObject.seekerCount);
+		//THE CURRENT ROUND
+		setupObject.currentRound = game.currentRound;
+		//THE ROUNDS (CLUES, THUMBS)
+		setupObject.rounds = game.rounds;
 
 		//GET THE WORD LIST
 		fs.readFile('../../words/wordlist.json', 'utf8', (err, data) => {
@@ -232,9 +238,21 @@ io.on('connection', (socket) => {
 
 			console.log('The category is:',theCategory);
 			console.log('The word is:',theWord);
-			//io.emit('setup-round',{"word": theWord, "category": theCategory});
-			io.to('guideRoom').emit('setup-round',{"word": theWord, "category": theCategory});
-			io.to('seekerRoom').emit('setup-round',{"word": "________", "category": theCategory});
+
+			//THE SETUP OBJECT IS PUBLIC, HIDE MASTER WORD
+			setupObject.word = '_____';
+			setupObject.category = theCategory;
+
+			//THE GUIDE SETUP OBJECT IS A COPY
+			let guideSetupObject = JSON.parse(JSON.stringify(setupObject));
+			//WITH THE ACTUAL MASTER WORD SHOWN!
+			guideSetupObject.word = theWord;
+
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+			// EMIT: ROUND INFO
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+			io.to('guideRoom').emit('setup-round',guideSetupObject);
+			io.to('seekerRoom').emit('setup-round',setupObject);
 		});
 
 		//	:GAME SETUP:
@@ -244,16 +262,36 @@ io.on('connection', (socket) => {
 		//io.emit(setup-round)
 	});
 
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// PLAYER INPUT: SUBMIT GUESS
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	socket.on('guess-submitted', (guess) => {
 
+		//GET THE GAME DATA FOR THIS ROUND
+		let thisRound = game.rounds[game.currentRound - 1];
+
+		//REJECT IDENTICAL? OPTION?
+		/*for(let i = 0; i < thisRound.clues.length; i++){
+
+			if(thisRound.clues[i] === guess){
+				//REJECT IDENTICAL GUESSES?
+				return false;
+			}
+		}*/
+		//ADD TO CLUES ARRAY FOR THIS ROUND
+		thisRound.clues.push(guess);
+		//EMIT THIS ROUND'S GUESSES
+		io.emit('update-guesses', thisRound.clues);
+	});
+
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// PLAYER INPUT: CLOSE TAB
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('disconnect', () => {
+
 		console.log('Player ' + socket.name + ' disconnected');
 		//REMOVE USER FROM USERS ARRAY
 		game.players = removeSocket(game.players, socket.id);
-		/*const userIndex = game.players.indexOf(socket.id);
-		if(userIndex !== false){
-			game.players.splice(userIndex, 1);
-		}*/
-		//console.log('PLAYERS: ', game.players);
 		io.emit('player-join', getPlayerNamesArray(game.players));
 	});
 
@@ -285,63 +323,23 @@ function getPlayerNamesArray(players){
 	return arrNames;
 }
 
-/*
-	//RECEIVE: open a lobby
-	socket.on('open-lobby', (game) => {
-		
-		console.log('open lobby now - ' + game + ' selected!');
-		io.emit('lobby-open', 'master-word', 'un1qu3');
-	});
+//#-#-#-#-#-#-#-#-#-#-#-#-#
+// INITIALIZE SERVER
+//#-#-#-#-#-#-#-#-#-#-#-#-#
+var port = 3000;
+server.listen(port, () => {
 
-	socket.on('player-add', (name) => {
-		socket.name = name;
-		game.players.push(name);
-		io.emit('player-join', game.players);
-	});
-	
-	//https://stackoverflow.com/questions/24378272/node-js-how-to-get-the-ip-address-of-http-server-listening-on-a-specific-port
-	//console.log('REMOTE',socket.conn.remoteAddress);
-	//console.log('LOCAL',socket.conn.localAddress);
-
-	console.log('Socket ID ' + socket.id + ' connected');
-	if(socket.name !== null){
-		console.log('Name: ' + socket.name);
-	}
-
-	//THIS DOES NOT WORK - GIVES A UNIQUE SOCKET.ID ON EACH REFRESH
-	if (users.includes(socket.id)){
-		//REJOIN
-		//console.log('Existing user with ID ' + socket.id + ' REconnected');
-	}else{
-		//ADD
-		//users.push(socket.id);
-		//console.log('New user with ID ' + socket.id + ' connected');
-		//console.log('USERS: ',users);
-
-
-		//EMIT PLAYER-JOIN EVENT!
-		//io.emit('player-join', users);
-	}
-
-	socket.on('disconnect', () => {
-		console.log('user disconnected');
-		//REMOVE USER FROM USERS ARRAY
-		/*const userIndex = users.indexOf(socket.id);
-		if(userIndex !== false){
-			users.splice(userIndex, 1);
+	//GET LOCAL IP ADDRESS
+	var os = require('os');
+	var networkInterfaces = os.networkInterfaces();
+	let wifi = networkInterfaces.WiFi;
+	//ITERATE WIFI INTERFACES
+	for(let i = 0; i < wifi.length; i++){
+		//UNTIL YOU FIND ONE WITH IPv4
+		if(wifi[i].family === 'IPv4'){
+			//THEN OUTPUT TO THE CONSOLE
+			console.log('listening on: ');
+			console.log(wifi[i].address + ':' + port);
 		}
-		console.log('USERS: ',users);
-		const userIndex = game.players.indexOf(socket.name);
-		if(userIndex !== false){
-			game.players.splice(userIndex, 1);
-		}
-		console.log('PLAYERS: ', game.players);
-		io.emit('player-join', game.players);
-	});
-});
-*/
-
-server.listen(3000, () => {
-
-	console.log('listening on ' + server.address().address + '*:' + server.address().port);
+	}
 });

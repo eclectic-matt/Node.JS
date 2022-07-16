@@ -7,6 +7,13 @@
 		button { width: 100%; background: #008000; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; font-size: 2em; }
 		input { font-size: 3em; }
 		img { position: absolute; bottom: 50px; right: 50px; }
+		.secretWord {
+			background-color: black;
+			color: black;
+		}
+		.secretWord:hover{
+			background-color: white;
+		}
 		</style>
 	</head>
 	<body onload="init()">
@@ -30,28 +37,35 @@
 			<em>Lobby ID: <span id="lobbyIdSpan"></span></em>
 			<br>
 			<img id="qrCodeImg" width="100" height="100" src=""/>
-			<ul className="playersUL"></ul>
+			<ul class="playersUL"></ul>
 			<button onclick="startGame()">Start Game</button>
 		</div>
 
 		<!-- STEP 3 = PLAY GAME -->
 		<div id="gameAreaDiv" class="sectionDiv">
-			<h2 id="wordDisplayHeader">The Master Word is: <span id="wordDisplaySpan"></span></h2>
-			<br>
-			<h3 id="categoryDisplayHeader">The Category is: <span id="categoryDisplaySpan"></span></h2>
-			<br>
-			<ul className="playersUL"></ul>
-			<br>
-			<h3>Guesses:</h3>
+			
+			<h2 id="wordDisplayHeader">The Master Word is: 
+				<br>
+				<span id="wordDisplaySpan"></span>
+			</h2>
+
+			<h3 id="categoryDisplayHeader">The Category is: 
+				<br>
+				<span id="categoryDisplaySpan"></span>
+			</h2>
+
+			<div id="guessInputDiv" style="display: none;">
+				<label for="guessInput">Input your guess here: </label>
+				<input id="guessInput" type="text" maxlength="50"></input>
+				<button onclick="submitGuess()">Submit Guess</button>
+			</div>
+
+			<ul class="playersUL"></ul>
+
+			<h3>Guesses <span id="guessInfoSpan"></span></h3>
+
+			<ul id="guessesUL"></ul>
 		</div>
-
-		<!-- STEP 4A = BE A SEEKER -->
-		<!--div id="seekerAreaDiv" class="sectionDiv">
-		</div-->
-
-		<!-- STEP 4B = BE A GUIDE -->
-		<!--div id="guideAreaDiv" class="sectionDiv">
-		</div-->
 
 		<!-- STEP 5 = GAME ENDS, GO TO STEP 2 -->
 		<div id="gameOverAreaDiv" class="sectionDiv">
@@ -59,106 +73,26 @@
 
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
+
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+			// INITIALIZE
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+			
+			//SOCKET (SERVER WILL PICK UP CONNECTION)
 			var socket = io();
 
-			//NEW LOBBY OPENED
-			socket.on('new-lobby', function(lobbyId){
-				document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
-				//UPDATE QR CODE
-
-			});
-
-			//SEND: instruction to open a lobby
-			function openLobby(game){
-				socket.emit('open-lobby', game);
-			}
-
-			function startGame(){
-				socket.emit('start-game');
-			}
-
-			socket.on('assign-roles', function(roles){
-				console.log(roles);
-				updatePlayerList(gamePlayers, roles);
-			});
-
+			//PLAYERS ARRAY (LOCAL)
 			var gamePlayers = [];
-			socket.on('player-join', function(players){
-				gamePlayers = players;
-				/*let playerList = document.getElementById('playersUL');
-				playerList.innerHTML = '';
-				for (let i = 0; i < players.length; i++){
-					let li = document.createElement('li');
-					li.key = i;
-					if(players[i].id === socket.id){
-						li.style.fontWeight = 'bolder';
-						li.style.color = '#FF0000';
-					}
-					li.innerHTML = players[i].name;
-					playerList.appendChild(li);
-				}*/
-				updatePlayerList(gamePlayers);
-				//KEEP IMG UPDATED
-				game = 'master-word';
-				lobbyId = 'un1qu3';
-				let img = document.getElementById('qrCodeImg');
-				img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.15:3000/game.html/game/' + game + '/id/' + lobbyId;
-			});
+			//GAME INFO (LOCAL)
+			var gameInfo = {};
 
-			socket.on('setup-round', function(info){
-				console.log(info.category, info.word);
-				collapseSections('gameAreaDiv');
-				let catSpan = document.getElementById('categoryDisplaySpan');
-				catSpan.innerHTML = toTitleCase(info.category.replace('-',' '));
-				let wordSpan = document.getElementById('wordDisplaySpan');
-				wordSpan.innerHTML = info.word;
-			});
-
-
-
-
-
-
-
-
-			//RECEIVE: lobby id to join game
-			socket.on('lobby-open', function(game, lobbyId){
-				console.log(game,lobbyId);
-				window.location.href = 'game.html/game/' + game + '/id/' + lobbyId;
-				//let img = document.createElement('img');
-				let img = document.getElementById('qrCodeImg');
-				img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.15:3000/game.html/game/' + game + '/id/' + lobbyId;
-				//body.appendChild(img);
-
-				//https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.15:3000/lobby/game/master-word/id/lobbyId
-				//https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.15:3000/lobby.html/game/master-word/id/un1qu3
-			});
-
-			function playerJoin(){
-				let nameInput = document.getElementById('playerNameInput');
-				let name = nameInput.value;
-				socket.name = name;
-				socket.emit('player-add', name);
-				collapseSections('lobbyAreaDiv');
-			}
-
-			function collapseSections(openSection){
-				let sections = document.getElementsByClassName('sectionDiv');
-				for(let i = 0; i < sections.length; i++){
-					if(sections[i].id !== openSection){
-						sections[i].style.display = 'none';
-					}else{
-						sections[i].style.display = 'block';
-					}
-				}
-			}
-
+			//INIT PANELS AND INFO
 			function init(){
 
 				//COLLAPSE SECTIONS
 				collapseSections('nameAreaDiv');
 
-				const queryString = window.location.pathname.replace('/lobby.html/','');
+				const queryString = window.location.pathname.replace('/game.html/','');
 				const params = queryString.split('/');
 				let game = 'Game Error';
 				if(params[0] === 'game'){
@@ -172,6 +106,118 @@
 				}
 			}
 
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+			// SERVER UPDATES
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+
+			// NEW LOBBY OPENED
+			socket.on('new-lobby', function(lobbyId){
+
+				document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
+				//UPDATE QR CODE?
+			});
+
+			//RECEIVE: lobby id to join game
+			socket.on('lobby-open', function(game, lobbyId){
+				console.log(game,lobbyId);
+				//PULL CLIENT INTO LOBBY ROOM?
+				window.location.href = 'game.html/game/' + game + '/id/' + lobbyId;
+			});
+
+
+			// UPDATE PLAYER ROLES LIST
+			socket.on('assign-roles', function(roles){
+				console.log(roles);
+				updatePlayerList(gamePlayers, roles);
+			});
+
+			// UPDATE PLAYERS LIST
+			socket.on('player-join', function(players){
+
+				//SET LOCAL PLAYERS ARRAY
+				gamePlayers = JSON.parse(JSON.stringify(players));
+
+				//GET LIST OF NAMES AND UPDATE
+				updatePlayerList(gamePlayers);
+			});
+
+			// UPDATE ROUND INFORMATION (WORD, CATEGORY)
+			socket.on('setup-round', function(info){
+
+
+				//UPDATE LOCAL COPY
+				gameInfo = JSON.parse(JSON.stringify(info));
+				//console.log(info.category, info.word);
+
+				collapseSections('gameAreaDiv');
+				let catSpan = document.getElementById('categoryDisplaySpan');
+				catSpan.innerHTML = toTitleCase(info.category.replace('-',' '));
+				let wordSpan = document.getElementById('wordDisplaySpan');
+				wordSpan.innerHTML = info.word;
+				if(info.word === '_____'){
+					wordSpan.classList.remove('secretWord');
+					//SHOW GUESS INPUT PANEL
+					document.getElementById('guessInputDiv').style.display = 'block';
+				}else{
+					wordSpan.classList.add('secretWord');
+					//HIDE GUESSES INPUT
+					document.getElementById('guessInputDiv').style.display = 'none';
+				}
+				updateGuessInfoSpan();
+			});
+
+			// UPDATE PLAYER GUESSES LIST
+			socket.on('update-guesses', function(guesses){
+
+				gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
+				updateGuessList(guesses);
+				updateGuessInfoSpan();
+			});
+
+
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+			// CLIENT UPDATES
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+
+			//SEND: instruction to open a lobby
+			function openLobby(game){
+				socket.emit('open-lobby', game);
+			}
+
+			//SEND: start the game
+			function startGame(){
+				socket.emit('start-game');
+			}
+
+			//SEND: set player's name
+			function playerJoin(){
+				let nameInput = document.getElementById('playerNameInput');
+				let name = nameInput.value;
+				socket.name = name;
+				socket.emit('player-add', name);
+				let img = document.getElementById('qrCodeImg');
+				img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + window.location.href;
+				collapseSections('lobbyAreaDiv');
+			}
+
+			//SEND: guess
+			function submitGuess(){
+				//CHECK IF ALL GUESSES SUBMITTED FOR THE ROUND FIRST
+				let guessInput = document.getElementById('guessInput');
+				let guess = guessInput.value;
+				//IGNORE BLANK GUESSES
+				if(guess === '') return;
+				socket.emit('guess-submitted', guess);
+				guessInput.value = '';
+			}
+
+
+
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+			// UTILITY FUNCTIONS
+			//#-#-#-#-#-#-#-#-#-#-#-#-#
+
+			//CONVERT INTO Proper/TitleCase
 			//https://stackoverflow.com/a/196991/16384571
 			function toTitleCase(str) {
 				return str.replace(
@@ -182,18 +228,21 @@
 				);
 			}
 
+			//UPDATE THE LIST OF PLAYERS (WITH OPTIONAL ROLES INFO)
 			function updatePlayerList(players, roles=null){
 				console.log('Updating player list' + (roles ? ' with roles' : ''));
+				console.log(players);
 				let playerLists = document.getElementsByClassName('playersUL');
-				for(let i = 0; i < playerLists.length; i++){
-					playerLists[i].innerHTML = '';
+				console.log(playerLists);
+				for(let listId = 0; listId < playerLists.length; listId++){
+					playerLists[listId].innerHTML = '';
 					for (let i = 0; i < players.length; i++){
 						let li = document.createElement('li');
 						li.key = i;
 						let role = '';
 						//IF THIS IS THE GUIDE
 						if(roles){
-							if (roles.guide === socket.name){
+							if (roles.guide === players[i].name){
 								role = ' (Guide)';
 							}else{
 								role = ' (Seeker)'
@@ -205,29 +254,43 @@
 							li.style.color = '#FF0000';
 						}
 						
-						playerLists[i].appendChild(li);
+						playerLists[listId].appendChild(li);
 					}
 				}
 			}
-			//var messages = document.getElementById('messages');
-			//var form = document.getElementById('form');
-			//var input = document.getElementById('input');
 
-			/*form.addEventListener('submit', function(e) {
-				e.preventDefault();
-				if (input.value) {
-					socket.emit('chat message', input.value);
-					input.value = '';
+			function updateGuessList(guesses){
+				let guessList = document.getElementById('guessesUL');
+				guessList.innerHTML = '';
+				for(let i = 0; i < guesses.length; i++){
+					let li = document.createElement('li');
+					li.key = i;
+					li.innerHTML = guesses[i];
+					guessList.appendChild(li);
 				}
-			});*/
+			}
 
-			/*socket.on('chat message', function(msg) {
-				var item = document.createElement('li');
-				item.textContent = msg;
-				messages.appendChild(item);
-				window.scrollTo(0, document.body.scrollHeight);
-			});*/
+			function updateGuessInfoSpan(){
+				let guessInfoSpan = document.getElementById('guessInfoSpan');
+				let guessesRemaining = gameInfo.cluesPerRound - gameInfo.rounds[gameInfo.currentRound - 1].clues.length;
+				guessInfoSpan.innerHTML = '(' + gameInfo.cluesPerRound + ' guesses, ' + guessesRemaining + ' left)';
+				if(guessesRemaining === 0){
+					//HIDE GUESSES INPUT
+					document.getElementById('guessInputDiv').style.display = 'none';
+				}
+			}
 
+			//COLLAPSE ALL PANELS EXCEPT THE openSection
+			function collapseSections(openSection){
+				let sections = document.getElementsByClassName('sectionDiv');
+				for(let i = 0; i < sections.length; i++){
+					if(sections[i].id !== openSection){
+						sections[i].style.display = 'none';
+					}else{
+						sections[i].style.display = 'block';
+					}
+				}
+			}
 			
 		</script>
 	</body>
