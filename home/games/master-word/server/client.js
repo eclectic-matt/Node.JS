@@ -2,6 +2,8 @@
 // INITIALIZE
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 
+//const { text } = require("express");
+
 //SOCKET (SERVER WILL PICK UP CONNECTION)
 var socket = io();
 
@@ -21,14 +23,42 @@ function init(){
 	let game = 'Game Error';
 	if(params[0] === 'game'){
 		game = (params[1]) ? params[1] : 'Game Error!';
-		document.getElementById('lobbyGameSpan').innerHTML = game;
+		//document.getElementById('lobbyGameSpan').innerHTML = game;
 	}
 	let lobbyId = 'Lobby ID Error';
 	if(params[2] === 'id'){
 		lobbyId = (params[3]) ? params[3] : 'Lobby ID Error!';
-		document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
+		//document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
+	}
+
+	//SET LISTENERS ON INPUTS TO SUBMIT ON ENTER
+	applyInputSubmit('guessInput', 'guessSubmitButton');
+	applyInputSubmit('thumbInput', 'thumbSubmitButton');
+	applyInputSubmit('playerNameInput', 'playerNameSubmitButton');
+
+	/*if(document.cookie.includes('name=')){
+		console.log('Cookie found! Joining as player!');
+		joinAsName(document.cookie.replace('name=',''));
+		collapseSections('lobbyAreaDiv');
+	}*/
+	if(document.cookie.includes('name=')){
+		document.getElementById('playerNameInput').value = document.cookie.replace('name=','');
 	}
 }
+
+function applyInputSubmit(inputId, btnId){
+	var input = document.getElementById(inputId);
+	input.addEventListener("keypress", function(event) {
+		// If the user presses the "Enter" key on the keyboard
+		if (event.key === "Enter") {
+			// Cancel the default action, if needed
+			event.preventDefault();
+			// Trigger the button element with a click
+			document.getElementById(btnId).click();
+		}
+	});
+}
+
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 // SERVER UPDATES
@@ -47,7 +77,6 @@ socket.on('lobby-open', function(game, lobbyId){
 	//PULL CLIENT INTO LOBBY ROOM?
 	window.location.href = 'game.html/game/' + game + '/id/' + lobbyId;
 });
-
 
 // UPDATE PLAYER ROLES LIST
 socket.on('assign-roles', function(roles){
@@ -77,22 +106,40 @@ socket.on('setup-round', function(info){
 	gameInfo = JSON.parse(JSON.stringify(info));
 	//console.log(info.category, info.word);
 
+	updateWordAndCategory(info.word, info.category);
+
 	collapseSections('gameAreaDiv');
+
+	updateVisibleInputs(info.word);
+
+	updateGuessInfoSpan();
+});
+
+socket.on('debug-output', (output) => {
+	console.log(output);
+})
+
+
+function updateWordAndCategory(word, category){
+
 	let catSpan = document.getElementById('categoryDisplaySpan');
-	catSpan.innerHTML = toTitleCase(info.category.replace('-',' '));
+	catSpan.innerHTML = toTitleCase(category.replace('-',' '));
 	let wordSpan = document.getElementById('wordDisplaySpan');
-	wordSpan.innerHTML = info.word;
-	if(info.word === '_____'){
-		wordSpan.classList.remove('secretWord');
+	wordSpan.innerHTML = word;
+}
+
+function updateVisibleInputs(word){
+	
+	if(word === '_____'){
+		document.getElementById('wordDisplaySpan').classList.remove('secretWord');
 		//SHOW GUESS INPUT PANEL
 		document.getElementById('guessInputDiv').style.display = 'block';
 	}else{
-		wordSpan.classList.add('secretWord');
+		document.getElementById('wordDisplaySpan').classList.add('secretWord');
 		//HIDE GUESSES INPUT
 		document.getElementById('guessInputDiv').style.display = 'none';
 	}
-	updateGuessInfoSpan();
-});
+}
 
 // UPDATE PLAYER GUESSES LIST
 socket.on('update-guesses', function(guesses){
@@ -108,7 +155,33 @@ socket.on('update-thumbs', function(thumbs){
 	//console.log('Received ' + thumbs + ' thumbs!');
 	gameInfo.rounds[gameInfo.currentRound - 1].thumbs = thumbs;
 	updateThumbsList(thumbs);
+	startNextRound();
 });
+
+function startNextRound(){
+
+	//INCREMENT CURRENT ROUND
+	gameInfo.currentRound += 1;
+	console.log('Starting round',gameInfo.currentRound);
+	//SHOW GAME AREA DIV (IF NOT ALREADY VISIBLE)
+	collapseSections('gameAreaDiv');
+	//SHOW/HIDE INPUTS (GUESS/THUMBS)
+	updateVisibleInputs(gameInfo.word);
+
+	//GENERATE A NEW BLANK GUESSES ROW
+	let tr = document.createElement('tr');
+	let tdRound = document.createElement('td');
+	tdRound.innerHTML = '' + gameInfo.currentRound;
+	tr.appendChild(tdRound);
+	let tdGuess = document.createElement('td');
+	tr.appendChild(tdGuess);
+	let tdThumbs = document.createElement('td');
+	tdRound.innerHTML = 0;
+	tr.appendChild(tdThumbs);
+
+	//APPEND NEW ROW TO TABLE
+	document.getElementById('guessesTable').children[0].appendChild(tr);
+}
 
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -132,11 +205,16 @@ function playerJoin(){
 
 	let nameInput = document.getElementById('playerNameInput');
 	let name = nameInput.value;
-	socket.name = name;
-	socket.emit('player-add', name);
 	let img = document.getElementById('qrCodeImg');
 	img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + window.location.href;
 	collapseSections('lobbyAreaDiv');
+	document.cookie = "name=" + name;
+	joinAsName(name);
+}
+
+function joinAsName(name){
+	socket.name = name;
+	socket.emit('player-add', name);
 }
 
 //SEND: guess
@@ -160,6 +238,8 @@ function submitThumbs(){
 	//IF THE NUMBER OF THUMBS IS WITHIN ALLOWED LIMITS
 	if(	(thumbs <= gameInfo.cluesPerRound) && (thumbs >= 0) ){
 		socket.emit('thumbs-submitted', thumbs);
+		thumbInput.value = 0;
+		document.getElementById('thumbsInputDiv').style.display = 'none';
 	}else{
 		alert('Invalid amount of thumb tokens to award! Must be between 0 and ' + gameInfo.cluesPerRound);
 	}
@@ -292,4 +372,8 @@ function collapseSections(openSection){
 			sections[i].style.display = 'block';
 		}
 	}
+}
+
+function showNameArea(){
+	collapseSections('nameAreaDiv');
 }

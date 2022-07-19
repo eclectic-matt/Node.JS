@@ -1,12 +1,19 @@
+//EXPRESS (ROUTING)
 const e = require('express');
 const express = require('express');
 const app = express();
+//HTTP AND SERVER (RESPOND)
 const http = require('http');
 const server = http.createServer(app);
+//DEFINE SOCKET AND INSTANCE (IO) SERVER
 const { Server } = require("socket.io");
 const io = new Server(server);
+//CRYPTO FOR GENERATING LOBBY IDs
 const crypto = require('crypto');
+//FILE SYSTEM FOR READING THE WORD LIST
 const fs = require('fs');
+//JOIN - NOPE, NOT NEEDED
+//const { join } = require('path');
 
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -52,29 +59,36 @@ app.get('/game.html(/game/:game/id/:id)?', (req, res) => {
 });
 
 
+function init(){
 
+	console.log('Initializing game variables');
+	game.name = 'Master Word';
+	//SET LIMITS
+	game.playerLimits = {};
+	game.playerLimits.min = 2;
+	game.playerLimits.max = 10;
+	//NO INITIAL ADMIN
+	game.admin = null;
+	//NO INITIAL LOBBY
+	game.lobby = null;
+	game.players = [];
+	users = [];
+	roles = {};
+}
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // GAME OBJECT
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 //THE GAME OBJECT
 var game = {};
-game.name = 'Master Word';
-//SET LIMITS
-game.playerLimits = {};
-game.playerLimits.min = 2;
-game.playerLimits.max = 10;
-//NO INITIAL ADMIN
-game.admin = null;
-//NO INITIAL LOBBY
-game.lobby = null;
-game.players = [];
-game.sockets = [];
 var users = [];
+var roles = {};
 
 var gamesAvailable = [
 	'master-word'
 ];
+
+init();
 
 
 //https://socket.io/get-started/chat
@@ -139,9 +153,12 @@ io.on('connection', (socket) => {
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('player-add', (name) => {
 
+		let prevId = socket.name;
+
 		//SET THE NAME ON THE SOCKET
 		socket.name = name;
 
+		console.log(prevId,'has been renamed to',socket.name);
 		//REMOVE THIS SOCKET ID FROM THE PLAYERS ARRAY
 		//game.players = removeSocket(game.players, socket.id);
 
@@ -154,7 +171,7 @@ io.on('connection', (socket) => {
 		io.emit('player-join', getPlayerNamesArray(game.players));
 
 		//LOG THE PLAYERS
-		console.log('Players: ', getPlayerNamesArray(game.players));
+		//console.log('Players: ', getPlayerNamesArray(game.players));
 	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -199,7 +216,13 @@ io.on('connection', (socket) => {
 		let theWord = '';
 		let theCategory = '';
 
-		game.rounds = Array(7).fill({"clues":[],"thumbs":-1});
+		//LEAVING THIS LINE IN HERE - THIS APPARENTLY FILLS THE ARRAY WITH DUPLICATE OBJECTS (SHALLOW COPY!)
+		//game.rounds = Array(7).fill({"clues":[],"thumbs":-1});
+
+		//REPLACEMENT LINE WHICH DEEP COPIES THE "FILL" OBJECT AT INSTANTIATION
+		//game.rounds = Array(7).fill(JSON.parse(JSON.stringify({"clues":[],"thumbs":-1})));
+
+		game.rounds = [];
 		game.currentRound = 1;
 
 		//MAKE AN OBJECT TO TRANSMIT GAME INFO
@@ -214,8 +237,23 @@ io.on('connection', (socket) => {
 		setupObject.cluesPerRound = Math.max(4, setupObject.seekerCount);
 		//THE CURRENT ROUND
 		setupObject.currentRound = game.currentRound;
+
+		//ITERATE TO BUILD SAFE ROUNDS ARRAY
+		for(let i = 0; i < setupObject.roundCount; i++){
+
+			let obj = {};
+			obj.clues = [];
+			obj.thumbs = -1;
+			game.rounds[i] = JSON.parse(JSON.stringify(obj));
+		}
+
 		//THE ROUNDS (CLUES, THUMBS)
 		setupObject.rounds = game.rounds;
+
+			//	:GAME SETUP:
+		//	-> SELECT HINT/MASTER WORD FROM CATEGORIES
+		//	-> CONFIRM CLUE CARD COUNTS (6 EACH) = THUMB TOKEN COUNT
+		//	-> CONFIRM SOLUTION CARD COUNTS (3 TOTAL)
 
 		//GET THE WORD LIST
 		fs.readFile('../../words/wordlist.json', 'utf8', (err, data) => {
@@ -261,13 +299,9 @@ io.on('connection', (socket) => {
 			//#-#-#-#-#-#-#-#-#-#-#-#-#
 			io.to('guideRoom').emit('setup-round',guideSetupObject);
 			io.to('seekerRoom').emit('setup-round',setupObject);
+			io.emit('debug-output',game.rounds);
 		});
-
-		//	:GAME SETUP:
-			//	-> SELECT HINT/MASTER WORD FROM CATEGORIES
-			//	-> CONFIRM CLUE CARD COUNTS (6 EACH) = THUMB TOKEN COUNT
-			//	-> CONFIRM SOLUTION CARD COUNTS (3 TOTAL)
-		//io.emit(setup-round)
+		console.log('setup complete!');
 	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -276,7 +310,7 @@ io.on('connection', (socket) => {
 	socket.on('guess-submitted', (guess) => {
 
 		//GET THE GAME DATA FOR THIS ROUND
-		let thisRound = game.rounds[game.currentRound - 1];
+		//let thisRound = game.rounds[game.currentRound - 1];
 
 		//REJECT IDENTICAL? OPTION?
 		/*for(let i = 0; i < thisRound.clues.length; i++){
@@ -286,10 +320,14 @@ io.on('connection', (socket) => {
 				return false;
 			}
 		}*/
+		console.log('Round',game.currentRound,'Clues BEFORE: "',game.rounds[game.currentRound - 1].clues.join(', '),'"');
 		//ADD TO CLUES ARRAY FOR THIS ROUND
-		thisRound.clues.push(guess);
+		//game.rounds[game.currentRound - 1].clues = game.rounds[game.currentRound - 1].clues.push(guess);
+		game.rounds[game.currentRound - 1].clues.push(guess);
+		console.log('Round',game.currentRound,'Clues AFTER: ' + game.rounds[game.currentRound - 1].clues.join(', '));
 		//EMIT THIS ROUND'S GUESSES
-		io.emit('update-guesses', thisRound.clues);
+		io.emit('update-guesses', game.rounds[game.currentRound - 1].clues);
+		io.emit('debug-output',game.rounds);
 	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -297,13 +335,13 @@ io.on('connection', (socket) => {
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('thumbs-submitted', (thumbs) => {
 		
-		console.log('Round ' + game.currentRound + ' thumbs submitted!');
+		console.log('Round ' + game.currentRound + ' thumbs submitted! (' + thumbs + ')');
 
 		//GET THE CURRENT ROUND DATA
-		let thisRound = game.rounds[game.currentRound - 1];
+		//let thisRound = game.rounds[game.currentRound - 1];
 		
 		//CHECK THUMBS ALREADY SUBMITTED?
-		if(thisRound.thumbs !== -1){
+		if(game.rounds[game.currentRound - 1].thumbs !== -1){
 
 			console.log('Thumbs for round ' + game.currentRound + ' already submitted!');
 			return false;
@@ -317,9 +355,13 @@ io.on('connection', (socket) => {
 		}
 
 		//ADD TO THUMBS TO ARRAY FOR THIS ROUND
-		thisRound.thumbs = thumbs;
+		game.rounds[game.currentRound - 1].thumbs = thumbs;
+		
+		//UPDATE CURRENT ROUND
+		game.currentRound += 1;
+
 		//EMIT THIS ROUND'S GUESSES
-		io.emit('update-thumbs', thisRound.thumbs);
+		io.emit('update-thumbs', thumbs);
 	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -331,8 +373,11 @@ io.on('connection', (socket) => {
 		//REMOVE USER FROM USERS ARRAY
 		game.players = removeSocket(game.players, socket.id);
 		io.emit('player-join', getPlayerNamesArray(game.players));
+		console.log('Remaining Player Count: ',game.players.length);
+		if(game.players.length === 0){
+			init();
+		}
 	});
-
 });
 
 //REMOVE SOCKET WITH ID FROM A SOCKETS ARRAY

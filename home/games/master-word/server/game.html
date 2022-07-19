@@ -21,6 +21,7 @@
 				<section class="w3-col s8 l8">
 					<h2>Players/IDs:</h2>
 					<ul class="playersUL"></ul>
+					<button id="changePlayerNameButton" class="w3-button w3-yellow" onclick="showNameArea()">Change player name</button>
 				</section>
 				<section class="w3-col s4 l4">
 					<img id="qrCodeImg" width="100" height="100" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.4:3000/game.html'"/>
@@ -32,9 +33,9 @@
 		<div id="nameAreaDiv" class="sectionDiv">
 
 			<label for="playerNameInput">Enter your name: </label>
-			<input id="playerNameInput" type="text" onchange="playerJoin()"></input>
+			<input id="playerNameInput" type="text"></input>
 			<br><br>
-			<button class="w3-button w3-block w3-green" onclick="playerJoin()">Join Game</button>
+			<button id="playerNameSubmitButton" class="w3-button w3-block w3-green" onclick="playerJoin()">Join Game</button>
 		</div>
 
 		<!-- STEP 2 = WAIT IN LOBBY -->
@@ -71,7 +72,7 @@
 					<br>
 					<label for="guessInput">Input your guess here: </label>
 					<input id="guessInput" class="w3-input w3-block" type="text" maxlength="50"></input>
-					<button class="w3-btn w3-block w3-green" onclick="submitGuess()">Submit Guess</button>
+					<button id="guessSubmitButton" class="w3-btn w3-block w3-green" onclick="submitGuess()">Submit Guess</button>
 					<br><br>
 				</div>
 
@@ -79,7 +80,7 @@
 					<br>
 					<label for="thumbInput">Input the number of thumbs here: </label>
 					<input id="thumbInput" class="w3-input w3-block" type="number" min="0" max="4" value="0"></input>
-					<button class="w3-btn w3-block w3-green" onclick="submitThumbs()">Submit Thumbs</button>
+					<button id="thumbSubmitButton" class="w3-btn w3-block w3-green" onclick="submitThumbs()">Submit Thumbs</button>
 					<br><br>
 				</div>
 
