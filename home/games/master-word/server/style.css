@@ -31,14 +31,16 @@ input {
 	margin: 10px;
 }
 
+/*
 img {
 	position: absolute;
 	bottom: 50px;
 	right: 50px;
 }
+*/
 
 .sectionDiv {
-	padding: 10px;
+	padding: 20px 10px;
 }
 
 .secretWord {
@@ -48,4 +50,54 @@ img {
 
 .secretWord:hover {
 	background-color: white;
+}
+
+#wordDisplayHeader{
+	background-color: firebrick;
+	color: white;
+	padding: 10px;
+	border: 1px solid white;
+	border-radius: 5%;
+	text-align: center;
+}
+
+#categoryDisplayHeader{
+	background-color: firebrick;
+	color: white;
+	padding: 10px;
+	border: 1px solid white;
+	border-radius: 5%;
+	text-align: center;
+}
+
+#guessCountHeader{
+	text-align: center;
+}
+
+#guessesTable{
+	border: 1px solid white;
+	border-collapse: collapse;
+	text-align: center;
+	width: 100%;
+}
+
+#guessesTable tr, th, td{
+	border: 1px solid white;
+}
+
+thead tr th:first-child,
+tbody tr td:first-child,
+thead tr th:last-child,
+tbody tr td:last-child
+{
+	width: 5%;
+	min-width: 5%;
+	max-width: 5%;
+}
+
+input:invalid {
+	background-color: ivory;
+	border: none;
+	outline: 2px solid red;
+	border-radius: 5px;
 }

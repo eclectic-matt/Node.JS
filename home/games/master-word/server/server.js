@@ -293,6 +293,36 @@ io.on('connection', (socket) => {
 	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// PLAYER INPUT: SUBMIT THUMBS
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	socket.on('thumbs-submitted', (thumbs) => {
+		
+		console.log('Round ' + game.currentRound + ' thumbs submitted!');
+
+		//GET THE CURRENT ROUND DATA
+		let thisRound = game.rounds[game.currentRound - 1];
+		
+		//CHECK THUMBS ALREADY SUBMITTED?
+		if(thisRound.thumbs !== -1){
+
+			console.log('Thumbs for round ' + game.currentRound + ' already submitted!');
+			return false;
+		}
+
+		//CHECK SOCKET IS THE GUIDE? UNNECESSARY SAFETY CHECK?
+		if(roles.guide !== socket.name){
+
+			console.log('Thumbs can only be submitted by the Guide!');
+			return false;
+		}
+
+		//ADD TO THUMBS TO ARRAY FOR THIS ROUND
+		thisRound.thumbs = thumbs;
+		//EMIT THIS ROUND'S GUESSES
+		io.emit('update-thumbs', thisRound.thumbs);
+	});
+
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// PLAYER INPUT: CLOSE TAB
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('disconnect', () => {

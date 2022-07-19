@@ -4,18 +4,27 @@
 		<title>Game Lobby</title>
 		<link rel="stylesheet" type="text/css" href="/style.css" />
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body onload="init()">
 
-		<header class="w3-row">
-			<section class="w3-col s12 l4">
-				<h1>Game: Master Word</h1>
+		<header>
+			<section class="w3-row">
+				<section class="w3-col s12 l6">
+					<h1>Game: Master Word</h1>
+				</section>
+				<!--section class="w3-col s12 l6">
+					<h2>Lobby ID: <span id="lobbyIdSpan"></span></h2>
+				</section-->
 			</section>
-			<section class="w3-col s12 l4">
-				<h2>Lobby ID: <span id="lobbyIdSpan"></span></h2>
-			</section>
-			<section class="w3-col s12 l4">
-				<ul class="playersUL"></ul>
+			<section class="w3-row">
+				<section class="w3-col s8 l8">
+					<h2>Players/IDs:</h2>
+					<ul class="playersUL"></ul>
+				</section>
+				<section class="w3-col s4 l4">
+					<img id="qrCodeImg" width="100" height="100" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.4:3000/game.html'"/>
+				</section>
 			</section>
 		</header>
 
@@ -32,13 +41,15 @@
 		<div id="lobbyAreaDiv" class="sectionDiv">
 			<h3>Wait until all others players have joined</h3>
 			<h3>... then click that Start Game button</h3>
-			<img id="qrCodeImg" width="100" height="100" src=""/>
+			<!--img id="qrCodeImg" width="100" height="100" src=""/-->
 			<!--ul class="playersUL"></ul-->
 			<button class="w3-button w3-block w3-green" onclick="startGame()">Start Game</button>
 		</div>
 
 		<!-- STEP 3 = PLAY GAME -->
-		<div id="gameAreaDiv" class="sectionDiv w3-row w3-container w3-red">
+		<div id="gameAreaDiv" class="sectionDiv w3-blue">
+
+			<section class="w3-row w3-red w3-container">
 
 				<section class="w3-col s12 l6">
 					<h2 id="wordDisplayHeader">The Master Word is: 
@@ -47,31 +58,58 @@
 					</h2>
 				</section>
 				<section class="w3-col s12 l6">
-					<h3 id="categoryDisplayHeader">The Category is: 
+					<h2 id="categoryDisplayHeader">The Category is: 
 						<br>
 						<span id="categoryDisplaySpan"></span>
 					</h2>
 				</section>
+			</section>
 
-			<div id="guessInputDiv" style="display: none;" class="w3-col s12">
-				<label for="guessInput">Input your guess here: </label>
-				<input id="guessInput" class="w3-input w3-block" type="text" maxlength="50"></input>
-				<button class="w3-btn w3-green" onclick="submitGuess()">Submit Guess</button>
-			</div>
+			<section class="w3-row w3-orange w3-container">
 
-			<div id="thumbsInputDiv" style="display: none;" class="w3-col s12">
-				<label for="thumbInput">Input the number of thumbs here: </label>
-				<input id="thumbInput" class="w3-input w3-block" type="number" min="0" max="4" value="0"></input>
-				<button class="w3-btn w3-block w3-green" onclick="submitThumbs()">Submit Thumbs</button>
-			</div>
+				<div id="guessInputDiv" style="display: none;" class="w3-col s12">
+					<br>
+					<label for="guessInput">Input your guess here: </label>
+					<input id="guessInput" class="w3-input w3-block" type="text" maxlength="50"></input>
+					<button class="w3-btn w3-block w3-green" onclick="submitGuess()">Submit Guess</button>
+					<br><br>
+				</div>
+
+				<div id="thumbsInputDiv" style="display: none;" class="w3-col s12">
+					<br>
+					<label for="thumbInput">Input the number of thumbs here: </label>
+					<input id="thumbInput" class="w3-input w3-block" type="number" min="0" max="4" value="0"></input>
+					<button class="w3-btn w3-block w3-green" onclick="submitThumbs()">Submit Thumbs</button>
+					<br><br>
+				</div>
+
+			</section>
 
 
 
 			<!--ul class="playersUL"></ul-->
 
-			<h3>Guesses <span id="guessInfoSpan"></span></h3>
+			<h3 id="guessCountHeader">Guesses <span id="guessInfoSpan"></span></h3>
 
-			<ul id="guessesUL"></ul>
+			<!--ul id="guessesUL"></ul-->
+
+			<table id="guessesTable">
+				<tr>
+					<th>Round</th>
+					<th>Guesses</th>
+					<th>Thumbs</th>
+				</tr>
+				<tr>
+					<td id="round1numberTd">1</td>
+					<!--td>Bigger than a shark, older than Jesus, female, colourful</td-->
+					<td id="round1guessesTd"></td>
+					<td id="round1thumbsTd">0</td>
+				</tr>
+			</table>
+
+			<!-- PADDING BELOW GUESS TABLE-->
+			<br><br>
+
 		</div>
 
 		<!-- STEP 5 = GAME ENDS, GO TO STEP 2 -->

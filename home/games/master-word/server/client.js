@@ -43,7 +43,7 @@ socket.on('new-lobby', function(lobbyId){
 
 //RECEIVE: lobby id to join game
 socket.on('lobby-open', function(game, lobbyId){
-	console.log(game,lobbyId);
+	//console.log(game,lobbyId);
 	//PULL CLIENT INTO LOBBY ROOM?
 	window.location.href = 'game.html/game/' + game + '/id/' + lobbyId;
 });
@@ -56,7 +56,7 @@ socket.on('assign-roles', function(roles){
 	}else{
 		socket.role = 'Seeker';
 	}
-	console.log(roles);
+	//console.log(roles);
 	updatePlayerList(gamePlayers, roles);
 });
 
@@ -103,6 +103,13 @@ socket.on('update-guesses', function(guesses){
 	updateThumbsInput(socket);
 });
 
+socket.on('update-thumbs', function(thumbs){
+
+	//console.log('Received ' + thumbs + ' thumbs!');
+	gameInfo.rounds[gameInfo.currentRound - 1].thumbs = thumbs;
+	updateThumbsList(thumbs);
+});
+
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 // CLIENT UPDATES
@@ -147,7 +154,15 @@ function submitGuess(){
 function submitThumbs(){
 
 	let thumbInput = document.getElementById('thumbInput');
-	socket.emit('thumbs-submitted', thumbInput.value);
+	let thumbs = thumbInput.value;
+	//console.log('Submitting ' + thumbInput.value + ' thumbs!');
+
+	//IF THE NUMBER OF THUMBS IS WITHIN ALLOWED LIMITS
+	if(	(thumbs <= gameInfo.cluesPerRound) && (thumbs >= 0) ){
+		socket.emit('thumbs-submitted', thumbs);
+	}else{
+		alert('Invalid amount of thumb tokens to award! Must be between 0 and ' + gameInfo.cluesPerRound);
+	}
 }
 
 
@@ -170,10 +185,10 @@ function toTitleCase(str) {
 //UPDATE THE LIST OF PLAYERS (WITH OPTIONAL ROLES INFO)
 function updatePlayerList(players, roles=null){
 
-	console.log('Updating player list' + (roles ? ' with roles' : ''));
-	console.log(players);
+	//console.log('Updating player list' + (roles ? ' with roles' : ''));
+	//console.log(players);
 	let playerLists = document.getElementsByClassName('playersUL');
-	console.log(playerLists);
+	//console.log(playerLists);
 	for(let listId = 0; listId < playerLists.length; listId++){
 		playerLists[listId].innerHTML = '';
 		for (let i = 0; i < players.length; i++){
@@ -201,8 +216,36 @@ function updatePlayerList(players, roles=null){
 	}
 }
 
+/**
+ * Update the guesses table with a received number of thumb tokens.
+ * @param {integer} thumbs 
+ */
+function updateThumbsList(thumbs){
+
+	let guessTable = document.getElementById('guessesTable');
+	let guessTableRows = document.getElementsByTagName('tr');
+	//console.log(guessTableRows);
+	let thumbsTd = guessTableRows[gameInfo.currentRound].children[2];
+	thumbsTd.innerHTML = thumbs;
+}
+
+
 function updateGuessList(guesses){
 
+	let guessTable = document.getElementById('guessesTable');
+	let guessTableRows = document.getElementsByTagName('tr');
+	//console.log(guessTableRows);
+	let guessTd = guessTableRows[gameInfo.currentRound].children[1];
+	//console.log(guessTd.innerHTML);
+	let thisRoundGuesses = [];
+	for(let i = 0; i < guesses.length; i++){
+		thisRoundGuesses.push(guesses[i]);
+	}
+	guessTd.innerHTML = thisRoundGuesses.join(', ');
+
+
+	/*
+	//OLD VERSION - BASIC UL/LIs
 	let guessList = document.getElementById('guessesUL');
 	guessList.innerHTML = '';
 	for(let i = 0; i < guesses.length; i++){
@@ -210,7 +253,7 @@ function updateGuessList(guesses){
 		li.key = i;
 		li.innerHTML = guesses[i];
 		guessList.appendChild(li);
-	}
+	}*/
 }
 
 function updateGuessInfoSpan(){
@@ -250,4 +293,3 @@ function collapseSections(openSection){
 		}
 	}
 }
-			
