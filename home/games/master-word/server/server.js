@@ -21,6 +21,14 @@ app.get('/', (req, res) => {
 	console.log('Connection to: ' + req.connection.localAddress);
 });
 
+app.get('/style.css', (req, res) => {
+	res.sendFile(__dirname + '/style.css');
+});
+
+app.get('/client.js', (req, res) => {
+	res.sendFile(__dirname + '/client.js');
+});
+
 /*
 //OPEN A LOBBY (SPECIFY GAME AND ID)
 app.get('/lobby.html/game/:game/id/:id', (req, res) => {
