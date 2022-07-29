@@ -41,8 +41,11 @@ function init(){
 		joinAsName(document.cookie.replace('name=',''));
 		collapseSections('lobbyAreaDiv');
 	}*/
-	if(document.cookie.includes('name=')){
+	/*if(document.cookie.includes('name=')){
 		document.getElementById('playerNameInput').value = document.cookie.replace('name=','');
+	}*/
+	if(localStorage.getItem('RiverdaleRoadPlayerName') !== null){
+		document.getElementById('playerNameInput').value = localStorage.getItem('RiverdaleRoadPlayerName');
 	}
 }
 
@@ -67,7 +70,8 @@ function applyInputSubmit(inputId, btnId){
 // NEW LOBBY OPENED
 socket.on('new-lobby', function(lobbyId){
 
-	document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
+	//NOT USED AT PRESENT
+	//document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
 	//UPDATE QR CODE?
 });
 
@@ -117,7 +121,30 @@ socket.on('setup-round', function(info){
 
 socket.on('debug-output', (output) => {
 	console.log(output);
-})
+});
+
+// UPDATE PLAYER GUESSES LIST
+socket.on('update-guesses', function(guesses){
+
+	gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
+	updateGuessList(guesses);
+	updateGuessInfoSpan();
+	updateThumbsInput(socket);
+});
+
+socket.on('update-thumbs', function(thumbs){
+
+	//console.log('Received ' + thumbs + ' thumbs!');
+	gameInfo.rounds[gameInfo.currentRound - 1].thumbs = thumbs;
+	updateThumbsList(thumbs);
+	startNextRound();
+});
+
+
+
+
+
+
 
 
 function updateWordAndCategory(word, category){
@@ -140,23 +167,6 @@ function updateVisibleInputs(word){
 		document.getElementById('guessInputDiv').style.display = 'none';
 	}
 }
-
-// UPDATE PLAYER GUESSES LIST
-socket.on('update-guesses', function(guesses){
-
-	gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
-	updateGuessList(guesses);
-	updateGuessInfoSpan();
-	updateThumbsInput(socket);
-});
-
-socket.on('update-thumbs', function(thumbs){
-
-	//console.log('Received ' + thumbs + ' thumbs!');
-	gameInfo.rounds[gameInfo.currentRound - 1].thumbs = thumbs;
-	updateThumbsList(thumbs);
-	startNextRound();
-});
 
 function startNextRound(){
 
@@ -208,7 +218,8 @@ function playerJoin(){
 	let img = document.getElementById('qrCodeImg');
 	img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + window.location.href;
 	collapseSections('lobbyAreaDiv');
-	document.cookie = "name=" + name;
+	//document.cookie = "name=" + name;
+	localStorage.setItem('RiverdaleRoadPlayerName',name);
 	joinAsName(name);
 }
 
@@ -312,28 +323,16 @@ function updateThumbsList(thumbs){
 
 function updateGuessList(guesses){
 
-	let guessTable = document.getElementById('guessesTable');
+	//let guessTable = document.getElementById('guessesTable');
 	let guessTableRows = document.getElementsByTagName('tr');
 	//console.log(guessTableRows);
 	let guessTd = guessTableRows[gameInfo.currentRound].children[1];
 	//console.log(guessTd.innerHTML);
 	let thisRoundGuesses = [];
 	for(let i = 0; i < guesses.length; i++){
-		thisRoundGuesses.push(guesses[i]);
+		thisRoundGuesses.push('<b class="guessBold">' + guesses[i] + '</b>');
 	}
 	guessTd.innerHTML = thisRoundGuesses.join(', ');
-
-
-	/*
-	//OLD VERSION - BASIC UL/LIs
-	let guessList = document.getElementById('guessesUL');
-	guessList.innerHTML = '';
-	for(let i = 0; i < guesses.length; i++){
-		let li = document.createElement('li');
-		li.key = i;
-		li.innerHTML = guesses[i];
-		guessList.appendChild(li);
-	}*/
 }
 
 function updateGuessInfoSpan(){

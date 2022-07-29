@@ -1,5 +1,4 @@
 //EXPRESS (ROUTING)
-const e = require('express');
 const express = require('express');
 const app = express();
 //HTTP AND SERVER (RESPOND)
@@ -22,18 +21,32 @@ const fs = require('fs');
 //INIT - SHOW GAMES LIST
 app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/gamesList.html');
-
 	//https://stackoverflow.com/questions/6458083/get-the-clients-ip-address-in-socket-io
 	//https://stackoverflow.com/questions/10275667/socket-io-connected-user-count
 	console.log('Connection to: ' + req.connection.localAddress);
 });
 
+//GAME: HTML
+app.get('/game.html(/game/:game/id/:id)?', (req, res) => {
+	//PASS TO LOBBY, PARAMS SET UP
+	res.sendFile(__dirname + '/client/game.html');
+});
+//GAME: CSS
 app.get('/style.css', (req, res) => {
-	res.sendFile(__dirname + '/style.css');
+	res.sendFile(__dirname + '/client/style.css');
+});
+//GAME: JS
+app.get('/player.js', (req, res) => {
+	res.sendFile(__dirname + '/client/player.js');
 });
 
-app.get('/client.js', (req, res) => {
-	res.sendFile(__dirname + '/client.js');
+//DISPLAY: HTML
+app.get('/display.html', (req, res) => {
+	res.sendFile(__dirname + '/client/display.html');
+});
+//DISPLAY: JS
+app.get('/display.js', (req, res) => {
+	res.sendFile(__dirname + '/client/display.js');
 });
 
 /*
@@ -51,14 +64,23 @@ app.get('/lobby.html/game/:game/id/:id', (req, res) => {
 });
 */
 
-//SINGLE PAGE? OPTIONAL ROUTING PARAMS?
-app.get('/game.html(/game/:game/id/:id)?', (req, res) => {
+//#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+// INITIALIZE
+//#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-	//PASS TO LOBBY, PARAMS SET UP
-	res.sendFile(__dirname + '/game.html');
-});
+//THE GAME OBJECT
+var game = {};
+var users = [];
+var roles = {};
 
+var gamesAvailable = [
+	'master-word'
+];
 
+//RUN RESET FUNCTION
+init();
+
+//RESET GAME OBJECT BACK TO INIT STATE
 function init(){
 
 	console.log('Initializing game variables');
@@ -75,20 +97,6 @@ function init(){
 	users = [];
 	roles = {};
 }
-
-//#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-// GAME OBJECT
-//#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-//THE GAME OBJECT
-var game = {};
-var users = [];
-var roles = {};
-
-var gamesAvailable = [
-	'master-word'
-];
-
-init();
 
 
 //https://socket.io/get-started/chat
@@ -299,6 +307,7 @@ io.on('connection', (socket) => {
 			//#-#-#-#-#-#-#-#-#-#-#-#-#
 			io.to('guideRoom').emit('setup-round',guideSetupObject);
 			io.to('seekerRoom').emit('setup-round',setupObject);
+			io.to('displayRoom').emit('setup-round',setupObject);
 			io.emit('debug-output',game.rounds);
 		});
 		console.log('setup complete!');
@@ -327,7 +336,7 @@ io.on('connection', (socket) => {
 		console.log('Round',game.currentRound,'Clues AFTER: ' + game.rounds[game.currentRound - 1].clues.join(', '));
 		//EMIT THIS ROUND'S GUESSES
 		io.emit('update-guesses', game.rounds[game.currentRound - 1].clues);
-		io.emit('debug-output',game.rounds);
+		//io.emit('debug-output',game.rounds);
 	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -362,6 +371,15 @@ io.on('connection', (socket) => {
 
 		//EMIT THIS ROUND'S GUESSES
 		io.emit('update-thumbs', thumbs);
+	});
+
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// DISPLAY: REMOVE FROM PLAYERS
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	socket.on('display-connected', (ip) => {
+		console.log('Display Connected at ',ip);
+		socket.join('displayRoom');
+		game.players = removeSocket(game.players, socket.id);
 	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -422,7 +440,7 @@ server.listen(port, () => {
 		if(wifi[i].family === 'IPv4'){
 			//THEN OUTPUT TO THE CONSOLE
 			console.log('listening on: ');
-			console.log(wifi[i].address + ':' + port);
+			console.log(wifi[i].address + ':' + port + '/game.html');
 		}
 	}
 });
