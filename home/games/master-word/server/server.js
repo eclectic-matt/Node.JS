@@ -49,29 +49,12 @@ app.get('/display.js', (req, res) => {
 	res.sendFile(__dirname + '/client/display.js');
 });
 
-/*
-//OPEN A LOBBY (SPECIFY GAME AND ID)
-app.get('/lobby.html/game/:game/id/:id', (req, res) => {
-	//https://expressjs.com/en/guide/routing.html
-	res.sendFile(__dirname + '/lobby.html');
-	/*res.params = {
-		"game": req.params.game,
-		"id": req.params.id
-	};
-	console.log(res.params);
-	//res.sendFile(__dirname + '/lobby.html');//?game=' + req.params.game + '&id=' + req.params.id);
-	res.send(req.params);
-});
-*/
-
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // INITIALIZE
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 //THE GAME OBJECT
 var game = {};
-var users = [];
-var roles = {};
 
 var gamesAvailable = [
 	'master-word'
@@ -90,12 +73,12 @@ function init(){
 	game.playerLimits.min = 2;
 	game.playerLimits.max = 10;
 	//NO INITIAL ADMIN
-	game.admin = null;
+	//game.admin = null;
 	//NO INITIAL LOBBY
 	game.lobby = null;
 	game.players = [];
-	users = [];
-	roles = {};
+	game.roles = {};
+	game.running = false;
 }
 
 
@@ -113,13 +96,14 @@ io.on('connection', (socket) => {
 
 	//INITIALIZE NAME TO SOCKET (DEFAULT ID)
 	socket.name = socket.id;
+	socket.role = '';
 
 	//COUNT OF CONNECTED
 	if(socket.client.conn.server.clientsCount === 1){
 
 		//NO OTHER PLAYERS - PROMOTE TO ADMIN!
-		game.admin = socket;
-		console.log('Admin Joined with ID:' + socket.id);
+		//game.admin = socket;
+		//console.log('Admin Joined with ID:' + socket.id);
 		
 		//DEFAULT LOBBY ID
 		let lobbyId = 'A1B2';
@@ -167,11 +151,12 @@ io.on('connection', (socket) => {
 		socket.name = name;
 
 		console.log(prevId,'has been renamed to',socket.name);
-		//REMOVE THIS SOCKET ID FROM THE PLAYERS ARRAY
-		//game.players = removeSocket(game.players, socket.id);
 
-		//PUSH THE SOCKET INTO THE PLAYERS ARRAY
-		//game.players.push(name);
+		if(game.running){
+			//ASSIGN AS SEEKER AND ADD TO PLAYERS
+			addSeeker(socket);
+			socket.emit('setup-round',game.setupObject);
+		}
 
 		//#-#-#-#-#-#-#-#-#-#-#-#-#
 		// EMIT: PLAYER NAMES
@@ -188,9 +173,9 @@ io.on('connection', (socket) => {
 	socket.on('start-game', () => {
 
 		//BUILD ROLES OBJECT (PUBLIC, EMITTED)
-		roles = {};
-		roles.guide = null;
-		roles.seekers = [];
+		game.roles = {};
+		game.roles.guide = null;
+		game.roles.seekers = [];
 		//ADMIN STARTS GAME
 			//	:ASSIGNMENTS:
 			//	-> ASSIGN GUIDE
@@ -205,20 +190,25 @@ io.on('connection', (socket) => {
 		//NOW ROLES ASSIGNED, ADD SOCKETS TO ROOMS
 		for(let i = 0; i < game.players.length; i++){
 			if(i === guideIndex){
-				game.players[i].join('guideRoom');
-				roles.guide = game.players[i].name;
+				addGuide(game.players[i]);
+				//game.players[i].join('guideRoom');
+				//game.roles.guide = game.players[i].name;
 			}else{
-				game.players[i].join('seekerRoom');
-				roles.seekers.push(game.players[i].name);
+				addSeeker(game.players[i]);
+				//game.players[i].join('seekerRoom');
+				//game.roles.seekers.push(game.players[i].name);
 			}
 		}
 
 		//#-#-#-#-#-#-#-#-#-#-#-#-#
 		// EMIT: ROLES
 		//#-#-#-#-#-#-#-#-#-#-#-#-#
-		io.emit('assign-roles', roles);
+		io.emit('assign-roles', game.roles);
 
-		console.log(roles);
+		console.log(game.roles);
+
+		//ROLES ASSIGNED - ANY LATE PLAYER-JOINS ARE SEEKERS
+		game.running = true;
 
 		//SET UP KEY VARIABLES FOR THIS GAME
 		let theWord = '';
@@ -240,7 +230,7 @@ io.on('connection', (socket) => {
 		//THE MAX NUMBER OF SOLUTIONS
 		setupObject.solutionCardCount = 3;
 		//THE NUMBER OF SEEKERS IN THIS GAME
-		setupObject.seekerCount = roles.seekers.length;
+		setupObject.seekerCount = game.roles.seekers.length;
 		//THE NUMBER OF CLUES REQUIRED PER ROUND
 		setupObject.cluesPerRound = Math.max(4, setupObject.seekerCount);
 		//THE CURRENT ROUND
@@ -302,6 +292,9 @@ io.on('connection', (socket) => {
 			//WITH THE ACTUAL MASTER WORD SHOWN!
 			guideSetupObject.word = theWord;
 
+			//game.guideSetupObject = guideSetupObject;
+			game.setupObject = setupObject;
+
 			//#-#-#-#-#-#-#-#-#-#-#-#-#
 			// EMIT: ROUND INFO
 			//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -357,7 +350,7 @@ io.on('connection', (socket) => {
 		}
 
 		//CHECK SOCKET IS THE GUIDE? UNNECESSARY SAFETY CHECK?
-		if(roles.guide !== socket.name){
+		if(game.roles.guide !== socket.name){
 
 			console.log('Thumbs can only be submitted by the Guide!');
 			return false;
@@ -410,6 +403,18 @@ function removeSocket(sockets, id){
 		sockets.splice(userIndex, 1);
 	}
 	return sockets;
+}
+
+function addSeeker(player){
+	player.join('seekerRoom');
+	game.roles.seekers.push(player.name);
+	player.role = 'Seeker';
+}
+
+function addGuide(player){
+	player.join('guideRoom');
+	game.roles.guide = player.name;
+	player.role = 'Guide';
 }
 
 //ITERATE OVER THE PLAYER SOCKETS AND GET AN ARRAY OF NAMES ONLY

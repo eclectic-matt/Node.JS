@@ -1,3 +1,7 @@
+/**
+**	BODY / BLOCK ELEMENTS 
+**/
+
 body {
 	margin: 0;
 	padding-bottom: 3rem;
@@ -6,20 +10,13 @@ body {
 }
 
 header {
-	background-color: #400080;
+	background-color: #2e015b;
 	color: #fff;
 	/*margin: 0px;*/
 	padding: 10px;
 	width: 100%;
 	border: 1px solid white;
-	border-radius: 5%;
-}
-
-input {
-	font-size: 3em;
-	width: 100%;
-	padding: 10px;
-	margin: 10px;
+	border-radius: 5px;
 }
 
 .sectionDiv {
@@ -31,12 +28,41 @@ section.w3-row {
 	margin: 5px;
 }
 
+
+/**
+**	INPUT ELEMENTS
+**/
+
+input {
+	border: 1px solid black;
+	border-radius: 5px;
+	font-size: 3em;
+	width: 100%;
+	padding: 10px;
+	margin: 10px;
+}
+
+input[type="text"] {
+	border: 1px solid black;
+}
+
+/**
+**	OTHER ELEMENTS
+**/
+
+
 table {
 	max-width: 99%;
 	min-width: 99%;
 	width: 99%;
 	margin: 5px;
 }
+
+
+/**
+**	CLASSES
+**/
+
 .secretWord {
 	background-color: black;
 	color: black;
@@ -46,16 +72,10 @@ table {
 	background-color: white;
 }
 
-/*#wordDisplayHeader{
-	background-color: #400080;
-	color: white;
-	padding: 10px;
-	border: 1px solid white;
-	border-radius: 5%;
-	text-align: center;
-	box-shadow: #353535 5px 5px;
-	line-height: 2.25em;
-}*/
+/**
+**	IDS
+**/
+
 
 #wordDisplaySpan {
 	font-weight: bolder;
@@ -64,15 +84,6 @@ table {
 	border: 1px solid white;
 	border-radius: 5%;
 }
-
-/*#categoryDisplayHeader{
-	background-color: rgb(120, 34, 178);
-	color: white;
-	padding: 10px;
-	border: 1px solid white;
-	border-radius: 5%;
-	text-align: center;
-}*/
 
 #categoryDisplaySpan {
 	font-weight: bolder;
@@ -84,14 +95,14 @@ table {
 }
 
 #guessesTable{
-	border: 1px solid white;
+	border: 1px solid black;
 	border-collapse: collapse;
 	text-align: center;
 	width: 100%;
 }
 
 #guessesTable tr, th, td{
-	border: 1px solid white;
+	border: 1px solid black;
 }
 
 #guessesTablet td {
@@ -113,4 +124,8 @@ input:invalid {
 	border: none;
 	outline: 2px solid red;
 	border-radius: 5px;
+}
+
+input:hover{
+	filter: brightness(75%);
 }
