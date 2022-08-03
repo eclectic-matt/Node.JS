@@ -15,6 +15,14 @@ const fs = require('fs');
 //const { join } = require('path');
 
 
+//CONSTANTS
+const GAME_STAGE_LOBBY = 0;		//PLAYERS JOIN
+const GAME_STAGE_SEEKER = 1;	//SEEKERS GUESS
+const GAME_STAGE_GUIDE = 2;		//GUIDE THUMBS/WINS
+const GAME_STAGE_OVER = 3;		//GAME OVER
+const HIDDEN_SECRET_WORD = '__________';
+
+
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // ROUTING (EXPRESS)
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -32,8 +40,8 @@ app.get('/game.html(/game/:game/id/:id)?', (req, res) => {
 	res.sendFile(__dirname + '/client/game.html');
 });
 //GAME: CSS
-app.get('/style.css', (req, res) => {
-	res.sendFile(__dirname + '/client/style.css');
+app.get('/player.css', (req, res) => {
+	res.sendFile(__dirname + '/client/player.css');
 });
 //GAME: JS
 app.get('/player.js', (req, res) => {
@@ -48,6 +56,15 @@ app.get('/display.html', (req, res) => {
 app.get('/display.js', (req, res) => {
 	res.sendFile(__dirname + '/client/display.js');
 });
+//DISPLAY: CSS
+app.get('/display.css', (req, res) => {
+	res.sendFile(__dirname + '/client/display.css');
+});
+
+app.get('/mickey.png', (req, res) => {
+	res.sendFile(__dirname + '/client/mickey.png');
+});
+
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // INITIALIZE
@@ -55,34 +72,102 @@ app.get('/display.js', (req, res) => {
 
 //THE GAME OBJECT
 var game = {};
+//EXAMPLE
 
-var gamesAvailable = [
-	'master-word'
-];
+//FIXED (FOR ALL GAMES)
+game.info = {};
+	game.info.name = 'Master Word';
+	game.info.lobbyId = 'A1B2';
+game.limits = {};
+	game.limits.playerLimits = {};
+		game.limits.playerLimits.min = 2;
+		game.limits.playerLimits.max = 10;
+	game.limits.cardLimits = {};
+		game.limits.cardLimits.guessesPerRound = 4;
+		game.limits.cardLimits.cluesPerGame = 3;
+
+//PERSISTENT (BETWEEN GAMES)
+game.stats = {};
+	game.stats.plays = 0;
+	game.stats.wins = 0;
+	game.stats.losses = 0;
+game.players = [];
+
+//RESET (CLEARED EACH GAME)
+game.rounds = {};
+	game.rounds = [];
+game.roles = {};
+	game.roles.guide = undefined;
+	game.roles.seekers = [];
+	//game.roles.observers = [];	//TO BE ADDED INTO THE NEXT GAME?
+game.status = {};
+	game.status.running = false;
+	game.status.currentRound = 0;
+	game.status.stage = GAME_STAGE_LOBBY;
+game.secrets = {};
+	game.secrets.word = HIDDEN_SECRET_WORD;
+	game.secrets.category = 'CATEGORY';
+
+//INITIALIZE SERVER
+initServer();
 
 //RUN RESET FUNCTION
-init();
+reset();
+
+
+//io.emit('game-update',game.rounds, getPlayerNamesArray(game.players));
+
+/*class Game{
+	__constructor(){
+		this.lobby = null;
+		this.players = [];
+		this.roles = {};
+		this.running = false;
+		this.stage = GAME_STAGE_LOBBY;
+	}
+
+	getPlayerNamesArray(){
+		return this.players.map(function(val, index, arr){
+			arr.push(val.name);
+		});
+	}
+}*/
+
+function initServer(){
+
+	//RESET PERSISTENT
+	game.stats = {};
+	game.stats.plays = 0;
+	game.stats.wins = 0;
+	game.stats.losses = 0;
+}
+
 
 //RESET GAME OBJECT BACK TO INIT STATE
-function init(){
+function reset(){
 
+	//RESET PER GAME VARS
 	console.log('Initializing game variables');
-	game.name = 'Master Word';
-	//SET LIMITS
-	game.playerLimits = {};
-	game.playerLimits.min = 2;
-	game.playerLimits.max = 10;
-	//NO INITIAL ADMIN
-	//game.admin = null;
-	//NO INITIAL LOBBY
-	game.lobby = null;
-	game.players = [];
+
+	game.rounds = [];
+	
+	//CLEAR ROLES
 	game.roles = {};
-	game.running = false;
+	game.roles.guide = undefined;
+	game.roles.seekers = [];
+
+	game.status.running = false;
+	game.status.stage = GAME_STAGE_LOBBY;
+
+	game.secrets = {};
+	game.secrets.word = HIDDEN_SECRET_WORD;
+	game.secrets.category = 'CATEGORY';
 }
 
 
 //https://socket.io/get-started/chat
+//https://socket.io/docs/v3/emit-cheatsheet/
+
 //https://expressjs.com/en/guide/routing.html
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // CONNECTIONS (SOCKET.IO)
@@ -112,19 +197,18 @@ io.on('connection', (socket) => {
 		crypto.randomBytes(2, (err, buffer) => {
 
 			//GENERATE BYTES AS HEX STRING, UPPER CASE
-			lobbyId = buffer.toString('hex').toUpperCase();
-			//SET AS THE GAME LOBBY ID
-			game.lobby = lobbyId;
-			console.log('New Lobby ID generated: ' + lobbyId);
+			game.info.lobbyId = buffer.toString('hex').toUpperCase();
+			//LOG THE LOBBY ID
+			console.log('New Lobby ID generated: ' + game.info.lobbyId);
 			//EMIT TO PLAYERS
-			io.emit('new-lobby', lobbyId);
+			io.emit('new-lobby', game.info.lobbyId);
 			//JOIN THE ROOM WITH lobbyId
-			socket.join(lobbyId);
+			socket.join(game.info.lobbyId);
 		});
 	}else{
 		console.log('Player Joined with ID:' + socket.id);
 		//JOIN THE ROOM WITH lobbyId
-		socket.join(game.lobby);
+		socket.join(game.info.lobbyId);
 	}
 
 	//ALWAYS ADD ALL PLAYERS TO THE GAME.PLAYERS ARRAY
@@ -138,7 +222,7 @@ io.on('connection', (socket) => {
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// EMIT: AVAILABLE GAMES (NOT USED)
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	io.emit('games-available', gamesAvailable);
+	//io.emit('games-available', gamesAvailable);
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// PLAYER INPUT: SET NAME
@@ -152,10 +236,14 @@ io.on('connection', (socket) => {
 
 		console.log(prevId,'has been renamed to',socket.name);
 
-		if(game.running){
+		if(game.status.running){
 			//ASSIGN AS SEEKER AND ADD TO PLAYERS
 			addSeeker(socket);
-			socket.emit('setup-round',game.setupObject);
+			//socket.emit('setup-round',game.setupObject);
+			//io.to(socket).emit('setup-round',game.setupObject);
+			io.to(socket.id).emit('setup-round',game.setupObject);
+			io.emit('game-update', game.status, game.roles, playersArray, game.rounds);
+
 		}
 
 		//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -183,20 +271,16 @@ io.on('connection', (socket) => {
 		
 		//ASSIGN A RANDOM GUIDE
 		let guideIndex = Math.floor(Math.random() * game.players.length);
+		
 		//GET THE SOCKET ID
-		//let guideSocketId = game.players[guideIndex].id;
 		console.log('GUIDE ASSIGNED TO',game.players[guideIndex].name);
 
 		//NOW ROLES ASSIGNED, ADD SOCKETS TO ROOMS
 		for(let i = 0; i < game.players.length; i++){
 			if(i === guideIndex){
 				addGuide(game.players[i]);
-				//game.players[i].join('guideRoom');
-				//game.roles.guide = game.players[i].name;
 			}else{
 				addSeeker(game.players[i]);
-				//game.players[i].join('seekerRoom');
-				//game.roles.seekers.push(game.players[i].name);
 			}
 		}
 
@@ -236,14 +320,7 @@ io.on('connection', (socket) => {
 		//THE CURRENT ROUND
 		setupObject.currentRound = game.currentRound;
 
-		//ITERATE TO BUILD SAFE ROUNDS ARRAY
-		for(let i = 0; i < setupObject.roundCount; i++){
-
-			let obj = {};
-			obj.clues = [];
-			obj.thumbs = -1;
-			game.rounds[i] = JSON.parse(JSON.stringify(obj));
-		}
+		game.rounds = getInitialRoundArray(setupObject.roundCount);
 
 		//THE ROUNDS (CLUES, THUMBS)
 		setupObject.rounds = game.rounds;
@@ -322,11 +399,11 @@ io.on('connection', (socket) => {
 				return false;
 			}
 		}*/
-		console.log('Round',game.currentRound,'Clues BEFORE: "',game.rounds[game.currentRound - 1].clues.join(', '),'"');
+		//console.log('Round',game.currentRound,'Clues BEFORE: "',game.rounds[game.currentRound - 1].clues.join(', '),'"');
 		//ADD TO CLUES ARRAY FOR THIS ROUND
 		//game.rounds[game.currentRound - 1].clues = game.rounds[game.currentRound - 1].clues.push(guess);
 		game.rounds[game.currentRound - 1].clues.push(guess);
-		console.log('Round',game.currentRound,'Clues AFTER: ' + game.rounds[game.currentRound - 1].clues.join(', '));
+		//console.log('Round',game.currentRound,'Clues AFTER: ' + game.rounds[game.currentRound - 1].clues.join(', '));
 		//EMIT THIS ROUND'S GUESSES
 		io.emit('update-guesses', game.rounds[game.currentRound - 1].clues);
 		//io.emit('debug-output',game.rounds);
@@ -375,6 +452,12 @@ io.on('connection', (socket) => {
 		game.players = removeSocket(game.players, socket.id);
 	});
 
+	socket.on('reset-game', () => {
+		console.log('Reset requested by ' + socket.name);
+		io.emit('new-lobby', game.lobby);
+		reset();
+	});
+
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// PLAYER INPUT: CLOSE TAB
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -386,7 +469,7 @@ io.on('connection', (socket) => {
 		io.emit('player-join', getPlayerNamesArray(game.players));
 		console.log('Remaining Player Count: ',game.players.length);
 		if(game.players.length === 0){
-			init();
+			reset();
 		}
 	});
 });
@@ -427,6 +510,21 @@ function getPlayerNamesArray(players){
 		arrNames.push(player);
 	}
 	return arrNames;
+}
+
+function getInitialRoundArray(count){
+
+	let arr = [];
+
+	//ITERATE TO BUILD SAFE ROUNDS ARRAY
+	for(let i = 0; i < count; i++){
+
+		let obj = {};
+		obj.clues = [];
+		obj.thumbs = -1;
+		arr[i] = JSON.parse(JSON.stringify(obj));
+	}
+	return arr;
 }
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#

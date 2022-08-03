@@ -2,8 +2,13 @@
 // INITIALIZE
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 
+//const e = require("express");
+
 //SOCKET (SERVER WILL PICK UP CONNECTION)
 var socket = io();
+
+var guesses = [];
+var gameInfo;
 
 //INIT PANELS AND INFO
 function init(){
@@ -77,9 +82,34 @@ socket.on('debug-output', (output) => {
 // UPDATE PLAYER GUESSES LIST
 socket.on('update-guesses', function(guesses){
 
-	gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
-	updateGuessList(guesses);
-	updateGuessInfoSpan();
+	console.log('New guesses submitted',guesses);
+	//let roundGuesses = gameInfo.rounds[gameInfo.currentRound - 1].clues;
+	let difference = [];
+	for(let i = 0; i < guesses.length; i++){
+		
+		console.log('Checking guess', guesses[i]);
+
+		if(!gameInfo.rounds[gameInfo.currentRound - 1].clues.includes(guesses[i])){
+
+			console.log('New guess found!', guesses[i]);
+			difference.push(guesses[i]);
+		}else{
+			console.log('Existing guess found!', guesses[i]);
+		}
+	}
+	//https://stackoverflow.com/a/33034768/16384571
+	//let intersection = roundGuesses.filter(x => guesses.includes(x));
+	//let difference = gameInfo.rounds[gameInfo.currentRound - 1].clues.filter(x => !guesses.includes(x));
+	gameInfo.rounds[gameInfo.currentRound - 1].clues.push(...difference);
+	console.log('diff', difference);
+	console.log('guesses now', gameInfo.rounds[gameInfo.currentRound - 1].clues);
+	//UPDATE ONLY WITH DIFFERENCE OF GUESSES
+	updateGuessList(difference);
+
+
+	//gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
+	//updateGuessList(guesses);
+	//updateGuessInfoSpan();
 	//updateThumbsInput(socket);
 });
 
@@ -158,8 +188,8 @@ function updateWordAndCategory(word, category){
 
 	let catSpan = document.getElementById('categoryDisplaySpan');
 	catSpan.innerHTML = toTitleCase(category.replace('-',' '));
-	let wordSpan = document.getElementById('wordDisplaySpan');
-	wordSpan.innerHTML = word;
+	//let wordSpan = document.getElementById('wordDisplaySpan');
+	//wordSpan.innerHTML = word;
 }
 
 //CONVERT INTO Proper/TitleCase
@@ -191,6 +221,21 @@ function updateThumbsList(thumbs){
 
 
 function updateGuessList(guesses){
+	
+	//GET THE ROW TO APPEND THIS GUESS TO
+	let guessRow = document.getElementById('guessRow' + gameInfo.currentRound);
+
+	let div = document.createElement('div');
+	div.classList.add('newGuess');
+	let colSpan = Math.floor(12 / gameInfo.cluesPerRound);
+	div.classList.add('w3-col');
+	div.classList.add('l' + colSpan);
+	div.classList.add('s' + colSpan);
+	let h2 = document.createElement('h2');
+	h2.innerHTML = guesses;
+	div.appendChild(h2);
+	guessRow.appendChild(div);
+	return;
 
 	//let guessTable = document.getElementById('guessesTable');
 	let guessTableRows = document.getElementsByTagName('tr');

@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>DISPLAY</title>
-		<link rel="stylesheet" type="text/css" href="/style.css" />
+		<link rel="stylesheet" type="text/css" href="/display.css" />
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
@@ -15,16 +15,16 @@
 			<!-- RHS: PLAYERS -->
 			<section class="w3-row">
 
-				<section class="w3-col s4 l4">
+				<section class="w3-col s2 l2">
 					<img id="qrCodeImg" width="100" height="100" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.4:3000/game.html"/>
 				</section>
 				
-				<section class="w3-col s4 l4">
+				<section class="w3-col s5 l5">
 					<h1>Game: Master Word</h1>
 					<h2>Lobby ID: <span id="lobbyIdSpan"></span></h2>
 				</section>
 
-				<section class="w3-col s4 l4">
+				<section class="w3-col s5 l5">
 					<h2>Players/IDs:</h2>
 					<ul class="playersUL"></ul>
 				</section>
@@ -54,57 +54,43 @@
 
 			<section class="w3-row">
 
-				<section class="w3-col s12 l6 w3-card-4 w3-center w3-purple">
-					<h2 id="wordDisplayHeader">The Master Word is: 
-						<br>
-						<span id="wordDisplaySpan"></span>
-					</h2>
-				</section>
-				<section class="w3-col s12 l6 w3-card-4 w3-center w3-green">
-					<h2 id="categoryDisplayHeader">The Category is: 
-						<br>
+				<section class="w3-col s12 l12 w3-card-4 w3-center w3-white" id="categorySection">
+					<h2 id="categoryDisplayHeader">
 						<span id="categoryDisplaySpan"></span>
 					</h2>
 				</section>
-			</section>
-
-			<section class="w3-row">
-
-				<div id="guessInputDiv" style="display: none;" class="w3-col s12 w3-orange">
-					<br>
-					<label for="guessInput">Input your guess here: </label>
-					<input id="guessInput" class="w3-input w3-block" type="text" maxlength="50"></input>
-					<button id="guessSubmitButton" class="w3-btn w3-block w3-green" onclick="submitGuess()">Submit Guess</button>
-					<br><br>
-				</div>
-
-				<div id="thumbsInputDiv" style="display: none;" class="w3-col s12 w3-orange">
-					<br>
-					<label for="thumbInput">Input the number of thumbs here: </label>
-					<input id="thumbInput" class="w3-input w3-block" type="number" min="0" max="4" value="0"></input>
-					<button id="thumbSubmitButton" class="w3-btn w3-block w3-green" onclick="submitThumbs()">Submit Thumbs</button>
-					<br><br>
-				</div>
+				<section class="w3-col s12 l12 w3-card-4 w3-center" id="hiddenSection">
+					<div class="w3-center">
+						&star;&nbsp;&nbsp;&nbsp;
+						<img src="mickey.png" width="100" height="100" />
+						&nbsp;&nbsp;&nbsp;&star;
+					</div>
+				</section>
 
 			</section>
 
-			<section class="w3-row w3-orange w3-margin-8">
+			<section class="w3-row w3-margin-8">
 
 				<h3 id="guessCountHeader">Guesses <span id="guessInfoSpan"></span></h3>
 
-				<table id="guessesTable">
+				<div id="guessesList">
+					<div id="guessRow1" class="w3-row">
+
+					</div>
+				</div>
+				<!--table id="guessesTable">
 					<tr>
 						<th>Round</th>
 						<th>Guesses</th>
 						<th>Thumbs</th>
 					</tr>
 					<tr>
-						<td id="round1numberTd">1</td>
+						<td id="round1numberTd">1</td-->
 						<!--td>Bigger than a shark, older than Jesus, female, colourful</td-->
-						<td id="round1guessesTd"></td>
+						<!--td id="round1guessesTd"></td>
 						<td id="round1thumbsTd">0</td>
 					</tr>
-				</table>
+				</table-->
 
 				<!-- PADDING BELOW GUESS TABLE-->
 				<br><br>

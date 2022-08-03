@@ -106,6 +106,7 @@ socket.on('player-join', function(players){
 // UPDATE ROUND INFORMATION (WORD, CATEGORY)
 socket.on('setup-round', function(info){
 
+	console.log('SETUP ROUND', info);
 	//UPDATE LOCAL COPY
 	gameInfo = JSON.parse(JSON.stringify(info));
 	//console.log(info.category, info.word);
@@ -140,8 +141,29 @@ socket.on('update-thumbs', function(thumbs){
 	startNextRound();
 });
 
+socket.on('game-update', function(rounds, roles, players){
+
+	//CHECK IF ON CORRECT STAGE
+	checkStage(rounds[rounds.length - 1]);
+
+	//CHECK ROLES ASSIGNED CORRECTLY
 
 
+	//CHECK PLAYERS ARRAY SYNCED
+
+
+});
+
+
+
+
+
+
+function resetGame(){
+	if (confirm("Are you sure you want to reset the game?") == true) {
+		socket.emit('reset-game');
+	}
+}
 
 
 
@@ -152,7 +174,12 @@ function updateWordAndCategory(word, category){
 	let catSpan = document.getElementById('categoryDisplaySpan');
 	catSpan.innerHTML = toTitleCase(category.replace('-',' '));
 	let wordSpan = document.getElementById('wordDisplaySpan');
-	wordSpan.innerHTML = word;
+	if(word === '_____'){
+		wordSpan.style.display = 'none';
+	}else{
+		wordSpan.style.display = 'block';
+		wordSpan.innerHTML = word;
+	}
 }
 
 function updateVisibleInputs(word){
@@ -372,6 +399,8 @@ function collapseSections(openSection){
 		}
 	}
 }
+
+function checkStage(stage){}
 
 function showNameArea(){
 	collapseSections('nameAreaDiv');

@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>GAME</title>
-		<link rel="stylesheet" type="text/css" href="/style.css" />
+		<link rel="stylesheet" type="text/css" href="/player.css" />
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
@@ -25,6 +25,7 @@
 				</section>
 				<section class="w3-col s4 l4">
 					<img id="qrCodeImg" width="100" height="100" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=192.168.0.4:3000/game.html"/>
+					<button id="resetGameButton" class="w3-button w3-red" onclick="resetGame()">Reset Game</button>
 				</section>
 			</section>
 		</header>
@@ -52,18 +53,20 @@
 
 			<section class="w3-row">
 
-				<section class="w3-col s12 l6 w3-card-4 w3-center w3-purple">
-					<h2 id="wordDisplayHeader">The Master Word is: 
-						<br>
-						<span id="wordDisplaySpan"></span>
-					</h2>
-				</section>
-				<section class="w3-col s12 l6 w3-card-4 w3-center w3-green">
-					<h2 id="categoryDisplayHeader">The Category is: 
-						<br>
+				<section class="w3-col s12 l12 w3-card-4 w3-center w3-white" id="categorySection">
+					<h2 id="categoryDisplayHeader">
 						<span id="categoryDisplaySpan"></span>
 					</h2>
 				</section>
+				<section class="w3-col s12 l12 w3-card-4 w3-center" id="hiddenSection">
+					<span id="wordDisplaySpan"></span>
+					<div class="w3-center">
+						&star;&nbsp;&nbsp;&nbsp;
+						<img src="mickey.png" width="100" height="100" />
+						&nbsp;&nbsp;&nbsp;&star;
+					</div>
+				</section>
+
 			</section>
 
 			<section class="w3-row">
