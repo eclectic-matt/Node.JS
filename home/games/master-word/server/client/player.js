@@ -104,7 +104,7 @@ socket.on('player-join', function(players){
 });
 
 // UPDATE ROUND INFORMATION (WORD, CATEGORY)
-socket.on('setup-round', function(info){
+socket.on('setup-game', function(info){
 
 	console.log('SETUP ROUND', info);
 	//UPDATE LOCAL COPY

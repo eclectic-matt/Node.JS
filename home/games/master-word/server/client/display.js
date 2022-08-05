@@ -60,7 +60,7 @@ socket.on('player-join', function(players){
 });
 
 // UPDATE ROUND INFORMATION (WORD, CATEGORY)
-socket.on('setup-round', function(info){
+socket.on('setup-game', function(info){
 
 	//UPDATE LOCAL COPY
 	gameInfo = JSON.parse(JSON.stringify(info));
@@ -69,10 +69,6 @@ socket.on('setup-round', function(info){
 	updateWordAndCategory(info.word, info.category);
 
 	collapseSections('gameAreaDiv');
-
-	//updateVisibleInputs(info.word);
-
-	//updateGuessInfoSpan();
 });
 
 socket.on('debug-output', (output) => {
@@ -82,42 +78,23 @@ socket.on('debug-output', (output) => {
 // UPDATE PLAYER GUESSES LIST
 socket.on('update-guesses', function(guesses){
 
-	console.log('New guesses submitted',guesses);
-	//let roundGuesses = gameInfo.rounds[gameInfo.currentRound - 1].clues;
-	let difference = [];
-	for(let i = 0; i < guesses.length; i++){
-		
-		console.log('Checking guess', guesses[i]);
-
-		if(!gameInfo.rounds[gameInfo.currentRound - 1].clues.includes(guesses[i])){
-
-			console.log('New guess found!', guesses[i]);
-			difference.push(guesses[i]);
-		}else{
-			console.log('Existing guess found!', guesses[i]);
-		}
-	}
-	//https://stackoverflow.com/a/33034768/16384571
-	//let intersection = roundGuesses.filter(x => guesses.includes(x));
-	//let difference = gameInfo.rounds[gameInfo.currentRound - 1].clues.filter(x => !guesses.includes(x));
-	gameInfo.rounds[gameInfo.currentRound - 1].clues.push(...difference);
-	console.log('diff', difference);
-	console.log('guesses now', gameInfo.rounds[gameInfo.currentRound - 1].clues);
-	//UPDATE ONLY WITH DIFFERENCE OF GUESSES
-	updateGuessList(difference);
-
-
-	//gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
-	//updateGuessList(guesses);
-	//updateGuessInfoSpan();
-	//updateThumbsInput(socket);
+	//GET THE MOST RECENT GUESS
+	let lastGuess = guesses[guesses.length - 1];
+	//console.log('New guess submitted',lastGuess);
+	//PUSH TO OUR LOCAL ROUNDS OBJECT
+	gameInfo.rounds[gameInfo.currentRound - 1].clues.push(lastGuess);
+	//UPDATE THE HTML
+	updateGuessList(lastGuess);
 });
 
 socket.on('update-thumbs', function(thumbs){
 
 	//console.log('Received ' + thumbs + ' thumbs!');
+	//ADD THESE TO LOCAL GAME OBJECT
 	gameInfo.rounds[gameInfo.currentRound - 1].thumbs = thumbs;
+	//UPDATE HTML
 	updateThumbsList(thumbs);
+	//PROCESS NEXT ROUND
 	startNextRound();
 });
 
@@ -188,9 +165,72 @@ function updateWordAndCategory(word, category){
 
 	let catSpan = document.getElementById('categoryDisplaySpan');
 	catSpan.innerHTML = toTitleCase(category.replace('-',' '));
-	//let wordSpan = document.getElementById('wordDisplaySpan');
-	//wordSpan.innerHTML = word;
 }
+
+
+function startNextRound(){
+
+	//INCREMENT CURRENT ROUND
+	gameInfo.currentRound += 1;
+	console.log('Starting round',gameInfo.currentRound);
+	//ADD <div id="guessRow1" class="w3-row">
+	let div = document.createElement('div');
+	div.classList.add('w3-row');
+	div.id = 'guessRow' + gameInfo.currentRound;
+	//GET GUESSES DIV
+	let guessDiv = document.getElementById('guessesList');
+	//STICK A NEW ROW ON IT
+	guessDiv.appendChild(div);
+}
+
+
+
+
+/**
+ * Update the guesses table with a received number of thumb tokens.
+ * @param {integer} thumbs 
+ */
+function updateThumbsList(thumbs){
+
+	let thumbsHeader = document.getElementById('thumbsRound' + gameInfo.currentRound);
+	thumbsHeader.innerHTML = '&#128077;'.repeat(thumbs);
+	thumbsHeader.classList.add('thumbsReceived');
+}
+
+
+function updateGuessList(guess){
+	
+	//GET THE ROW TO APPEND THIS GUESS TO
+	let guessRow = document.getElementById('guessRow' + gameInfo.currentRound);
+
+	let div = document.createElement('div');
+	div.classList.add('newGuess');
+	let colSpan = Math.floor(10 / gameInfo.cluesPerRound);
+	div.classList.add('w3-col');
+	div.classList.add('l' + colSpan);
+	div.classList.add('s' + colSpan);
+	let h2 = document.createElement('h2');
+	h2.innerHTML = guess;
+	div.appendChild(h2);
+	guessRow.appendChild(div);
+	//IF WE'VE RECEIVED ALL CLUES
+	if(guessRow.children.length === gameInfo.cluesPerRound){
+		//APPEND THUMBS DIV READY FOR THE THUMBS EVENT
+		let div = document.createElement('div');
+		div.classList.add('thumbs');
+		div.classList.add('w3-col');
+		let thumbSpan = 12 - (colSpan * gameInfo.cluesPerRound);
+		div.classList.add('l' + thumbSpan);
+		div.classList.add('s' + thumbSpan);
+		let h2 = document.createElement('h2');
+		h2.id = 'thumbsRound' + gameInfo.currentRound;
+		h2.innerHTML = '&nbsp;';
+		div.appendChild(h2);
+		guessRow.appendChild(div);
+	}
+	return;
+}
+
 
 //CONVERT INTO Proper/TitleCase
 //https://stackoverflow.com/a/196991/16384571
@@ -202,64 +242,4 @@ function toTitleCase(str) {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
 		}
 	);
-}
-
-
-
-/**
- * Update the guesses table with a received number of thumb tokens.
- * @param {integer} thumbs 
- */
-function updateThumbsList(thumbs){
-
-	let guessTable = document.getElementById('guessesTable');
-	let guessTableRows = document.getElementsByTagName('tr');
-	//console.log(guessTableRows);
-	let thumbsTd = guessTableRows[gameInfo.currentRound].children[2];
-	thumbsTd.innerHTML = thumbs;
-}
-
-
-function updateGuessList(guesses){
-	
-	//GET THE ROW TO APPEND THIS GUESS TO
-	let guessRow = document.getElementById('guessRow' + gameInfo.currentRound);
-
-	let div = document.createElement('div');
-	div.classList.add('newGuess');
-	let colSpan = Math.floor(12 / gameInfo.cluesPerRound);
-	div.classList.add('w3-col');
-	div.classList.add('l' + colSpan);
-	div.classList.add('s' + colSpan);
-	let h2 = document.createElement('h2');
-	h2.innerHTML = guesses;
-	div.appendChild(h2);
-	guessRow.appendChild(div);
-	return;
-
-	//let guessTable = document.getElementById('guessesTable');
-	let guessTableRows = document.getElementsByTagName('tr');
-	//console.log(guessTableRows);
-	let guessTd = guessTableRows[gameInfo.currentRound].children[1];
-	//console.log(guessTd.innerHTML);
-	let thisRoundGuesses = [];
-	for(let i = 0; i < guesses.length; i++){
-		thisRoundGuesses.push(guesses[i]);
-	}
-	guessTd.innerHTML = thisRoundGuesses.join(', ');
-}
-
-function updateGuessInfoSpan(){
-
-	let guessInfoSpan = document.getElementById('guessInfoSpan');
-	let guessesRemaining = gameInfo.cluesPerRound - gameInfo.rounds[gameInfo.currentRound - 1].clues.length;
-	guessInfoSpan.innerHTML = '(' + gameInfo.cluesPerRound + ' guesses, ' + guessesRemaining + ' left)';
-	if(guessesRemaining === 0){
-		//HIDE GUESSES INPUT
-		document.getElementById('guessInputDiv').style.display = 'none';
-	}
-
-	//UPDATE THUMB INPUT 
-	let thumbInput = document.getElementById('thumbInput');
-	thumbInput.max = gameInfo.cluesPerRound;
 }

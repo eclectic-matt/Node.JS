@@ -239,9 +239,9 @@ io.on('connection', (socket) => {
 		if(game.status.running){
 			//ASSIGN AS SEEKER AND ADD TO PLAYERS
 			addSeeker(socket);
-			//socket.emit('setup-round',game.setupObject);
-			//io.to(socket).emit('setup-round',game.setupObject);
-			io.to(socket.id).emit('setup-round',game.setupObject);
+			//socket.emit('setup-game',game.setupObject);
+			//io.to(socket).emit('setup-game',game.setupObject);
+			io.to(socket.id).emit('setup-game',game.setupObject);
 			io.emit('game-update', game.status, game.roles, playersArray, game.rounds);
 
 		}
@@ -375,9 +375,9 @@ io.on('connection', (socket) => {
 			//#-#-#-#-#-#-#-#-#-#-#-#-#
 			// EMIT: ROUND INFO
 			//#-#-#-#-#-#-#-#-#-#-#-#-#
-			io.to('guideRoom').emit('setup-round',guideSetupObject);
-			io.to('seekerRoom').emit('setup-round',setupObject);
-			io.to('displayRoom').emit('setup-round',setupObject);
+			io.to('guideRoom').emit('setup-game',guideSetupObject);
+			io.to('seekerRoom').emit('setup-game',setupObject);
+			io.to('displayRoom').emit('setup-game',setupObject);
 			io.emit('debug-output',game.rounds);
 		});
 		console.log('setup complete!');
