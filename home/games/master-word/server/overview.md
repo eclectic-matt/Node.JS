@@ -1,5 +1,84 @@
 MASTER WORD FLOW
 
+//============================
+//RETHINK OF THE GAME OBJECTS 
+//AND EMITTER FUNCTIONS
+//============================
+
+SIMPLIFY FUNCTIONS BOTH WAYS
+
+//OUTBOUND (SERVER-SIDE) - SEND A CONSISTENT, SINGLE EVENT 
+io.emit('server-update', game, players, round);
+
+//INBOUND (PLAYER-SIDE) - A SINGLE HANDLER
+//WHICH MATCHES UP TO LOCAL COPIES
+socket.on('server-update', (game, players, round) => {
+
+	//CHECK GAME MATCHES
+	if(JSON.stringify(localGame.status) !== JSON.stringify(game.status)){
+		switch(game.status.stage){
+			case GAME_STAGE_LOBBY:
+				handleRunning(game, players, round);
+			break;
+			case end:
+				handleEnd(game, players, round);
+			break;
+		}
+	}
+	
+	//CHECK PLAYERS MATCH
+	if(
+		(JSON.stringify(localPlayers.list) !== JSON.stringify(players.list))
+	){
+
+		handlePlayers(players.list, players.roles);
+	}
+
+	//CHECK ROLES MATCH
+	if ((JSON.stringify(localRoles.list) !== JSON.stringify(roles.list)))
+
+		handlePlayers(players.list, players.roles);
+	}
+	
+	//CHECK ROUND MATCHES
+	if(
+		(JSON.stringify(localRound.guesses) !== JSON.stringify(round.guess)) ||
+		(JSON.stringify(localRound.thumbs) !== JSON.stringify(round.thumbs))
+	){
+
+		handleRound(round);
+	}
+});
+
+//-----
+
+//OUTBOUND (PLAYER-SIDE) - A SINGLE HANDLER
+socket.emit('player-update', update);
+
+//INBOUND (SERVER-SIDE)
+switch(update.type){
+	case 'playerName':
+		handlePlayerName(socket, update);
+	break;
+	case 'guessInput':
+		handleGuessInput(socket, update);
+	break;
+	case 'thumbsInput':
+		handleThumbsInput(socket, update);
+	break;
+}
+function handlePlayerName(socket, update){
+	socket.name = 
+}
+
+//-----
+
+THEN WHEN SOCKET CONNECTS:
+socket.on('connection', () => {
+	//INSTANTLY IN-SYNC
+	io.emit('server-update', game, players, round);
+});
+
 DIRECTIONS:
 	io.emit(server -> clients)
 	socket.on(client -> server)

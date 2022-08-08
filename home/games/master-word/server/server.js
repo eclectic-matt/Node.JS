@@ -14,15 +14,6 @@ const fs = require('fs');
 //JOIN - NOPE, NOT NEEDED
 //const { join } = require('path');
 
-
-//CONSTANTS
-const GAME_STAGE_LOBBY = 0;		//PLAYERS JOIN
-const GAME_STAGE_SEEKER = 1;	//SEEKERS GUESS
-const GAME_STAGE_GUIDE = 2;		//GUIDE THUMBS/WINS
-const GAME_STAGE_OVER = 3;		//GAME OVER
-const HIDDEN_SECRET_WORD = '__________';
-
-
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // ROUTING (EXPRESS)
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -70,77 +61,68 @@ app.get('/mickey.png', (req, res) => {
 // INITIALIZE
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
+//DEFINE CONSTANTS
+const PLAYER_LIMIT_MIN = 2;
+const PLAYER_LIMIT_MAX = 10;
+const CLUES_PER_ROUND = 4;
+const SOLUTIONS_PER_GAME = 3;
+const ROUND_LIMIT_MAX = 7;
+const GAME_NAME = 'Master Word';
+const DEFAULT_LOBBY_ID = 'AB12';
+const HIDDEN_SECRET_WORD = '__________';
+//STAGES
+const GAME_STAGE_LOBBY = 0;		//PLAYERS JOIN
+const GAME_STAGE_SEEKER = 1;	//SEEKERS GUESS
+const GAME_STAGE_GUIDE = 2;		//GUIDE THUMBS/WINS
+const GAME_STAGE_OVER = 3;		//GAME OVER
+
 //THE GAME OBJECT
 var game = {};
-//EXAMPLE
-
-//FIXED (FOR ALL GAMES)
+//GAME INFO
 game.info = {};
-	game.info.name = 'Master Word';
-	game.info.lobbyId = 'A1B2';
-game.limits = {};
-	game.limits.playerLimits = {};
-		game.limits.playerLimits.min = 2;
-		game.limits.playerLimits.max = 10;
-	game.limits.cardLimits = {};
-		game.limits.cardLimits.guessesPerRound = 4;
-		game.limits.cardLimits.cluesPerGame = 3;
-
-//PERSISTENT (BETWEEN GAMES)
-game.stats = {};
-	game.stats.plays = 0;
-	game.stats.wins = 0;
-	game.stats.losses = 0;
-game.players = [];
-
-//RESET (CLEARED EACH GAME)
-game.rounds = {};
-	game.rounds = [];
-game.roles = {};
-	game.roles.guide = undefined;
-	game.roles.seekers = [];
-	//game.roles.observers = [];	//TO BE ADDED INTO THE NEXT GAME?
+game.info.name = GAME_NAME;
+game.info.lobbyId = DEFAULT_LOBBY_ID;
+game.info.cluesPerRound = CLUES_PER_ROUND;
+game.info.solutionsPerGame = SOLUTIONS_PER_GAME;
+game.info.roundLimit = ROUND_LIMIT_MAX;
+//GAME STATUS
 game.status = {};
-	game.status.running = false;
-	game.status.currentRound = 0;
-	game.status.stage = GAME_STAGE_LOBBY;
+game.status.running = false;
+game.status.currentRound = 0;
+game.status.stage = GAME_STAGE_LOBBY;
+//GAME SECRETS
 game.secrets = {};
-	game.secrets.word = HIDDEN_SECRET_WORD;
-	game.secrets.category = 'CATEGORY';
+game.secrets.word = HIDDEN_SECRET_WORD;
+game.secrets.category = 'CATEGORY';
+
+//NEW - PLAYERS OBJECT
+players = {};
+players.sockets = [];
+players.roles = {};
+	players.roles.guide = undefined;
+	players.roles.seekers = [];
+//AND A GET PLAYER NAMES FUNCTION
+players.getPlayerNamesArray = function(){
+	let arrNames = [];
+	for(let i = 0; i < this.sockets.length; i++){
+		let player = {};
+		player.id = this.sockets[i].id;
+		player.name = this.sockets[i].name;
+		arrNames.push(player);
+	}
+	return arrNames;
+}
+
+//NEW - ROUNDS ARRAY
+rounds = [];
+
+//-----
 
 //INITIALIZE SERVER
-initServer();
+//initServer();
 
 //RUN RESET FUNCTION
 reset();
-
-
-//io.emit('game-update',game.rounds, getPlayerNamesArray(game.players));
-
-/*class Game{
-	__constructor(){
-		this.lobby = null;
-		this.players = [];
-		this.roles = {};
-		this.running = false;
-		this.stage = GAME_STAGE_LOBBY;
-	}
-
-	getPlayerNamesArray(){
-		return this.players.map(function(val, index, arr){
-			arr.push(val.name);
-		});
-	}
-}*/
-
-function initServer(){
-
-	//RESET PERSISTENT
-	game.stats = {};
-	game.stats.plays = 0;
-	game.stats.wins = 0;
-	game.stats.losses = 0;
-}
 
 
 //RESET GAME OBJECT BACK TO INIT STATE
@@ -149,15 +131,18 @@ function reset(){
 	//RESET PER GAME VARS
 	console.log('Initializing game variables');
 
-	game.rounds = [];
+	rounds = getInitialRoundArray(ROUND_LIMIT_MAX);
 	
 	//CLEAR ROLES
-	game.roles = {};
-	game.roles.guide = undefined;
-	game.roles.seekers = [];
+	players.roles = {};
+	players.roles.guide = undefined;
+	players.roles.seekers = [];
 
 	game.status.running = false;
 	game.status.stage = GAME_STAGE_LOBBY;
+
+	game.jokerUsed = false;
+	game.solutionsUsed = 0;
 
 	game.secrets = {};
 	game.secrets.word = HIDDEN_SECRET_WORD;
@@ -182,16 +167,14 @@ io.on('connection', (socket) => {
 	//INITIALIZE NAME TO SOCKET (DEFAULT ID)
 	socket.name = socket.id;
 	socket.role = '';
+	players.sockets.push(socket);
 
 	//COUNT OF CONNECTED
 	if(socket.client.conn.server.clientsCount === 1){
-
-		//NO OTHER PLAYERS - PROMOTE TO ADMIN!
-		//game.admin = socket;
-		//console.log('Admin Joined with ID:' + socket.id);
 		
-		//DEFAULT LOBBY ID
-		let lobbyId = 'A1B2';
+		//#-#-#-#-#-#-#-#-#-#-#-#-#
+		// NEW LOBBY CREATED
+		//#-#-#-#-#-#-#-#-#-#-#-#-#
 
 		//GENERATE SOME RANDOM BYTES FOR THE LOBBY ID
 		crypto.randomBytes(2, (err, buffer) => {
@@ -201,7 +184,7 @@ io.on('connection', (socket) => {
 			//LOG THE LOBBY ID
 			console.log('New Lobby ID generated: ' + game.info.lobbyId);
 			//EMIT TO PLAYERS
-			io.emit('new-lobby', game.info.lobbyId);
+			sendServerUpdate();
 			//JOIN THE ROOM WITH lobbyId
 			socket.join(game.info.lobbyId);
 		});
@@ -211,237 +194,45 @@ io.on('connection', (socket) => {
 		socket.join(game.info.lobbyId);
 	}
 
-	//ALWAYS ADD ALL PLAYERS TO THE GAME.PLAYERS ARRAY
-	game.players.push(socket);
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	// PLAYER JOINED
+	//#-#-#-#-#-#-#-#-#-#-#-#-#
+	sendServerUpdate();
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	// EMIT: PLAYER NAMES (OR IDS)
+	// PLAYER INPUT
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	io.emit('player-join', getPlayerNamesArray(game.players));
+	socket.on('player-update', (update) => {
 
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	// EMIT: AVAILABLE GAMES (NOT USED)
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	//io.emit('games-available', gamesAvailable);
-
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	// PLAYER INPUT: SET NAME
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	socket.on('player-add', (name) => {
-
-		let prevId = socket.name;
-
-		//SET THE NAME ON THE SOCKET
-		socket.name = name;
-
-		console.log(prevId,'has been renamed to',socket.name);
-
-		if(game.status.running){
-			//ASSIGN AS SEEKER AND ADD TO PLAYERS
-			addSeeker(socket);
-			//socket.emit('setup-game',game.setupObject);
-			//io.to(socket).emit('setup-game',game.setupObject);
-			io.to(socket.id).emit('setup-game',game.setupObject);
-			io.emit('game-update', game.status, game.roles, playersArray, game.rounds);
-
+		//DOES THIS TRIGGER A SERVER CHANGE?
+		let serverUpdate = false;
+		switch(update.type){
+			case 'playerName':
+				serverUpdate = handlePlayerName(socket, update.name);
+			break;
+			case 'startGame':
+				serverUpdate = handleStartGame();
+			break;
+			case 'clueInput':
+				serverUpdate = handleClueInput(socket, update.guess);
+			break;
+			case 'solutionInput':
+				serverUpdate = handleSolutionInput(socket, update.guess);
+			break;
+			case 'thumbsInput':
+				serverUpdate = handleThumbsInput(socket, update);
+			break;
+			case 'resetGame':
+				serverUpdate = handleResetGame();
+			break;
 		}
 
-		//#-#-#-#-#-#-#-#-#-#-#-#-#
-		// EMIT: PLAYER NAMES
-		//#-#-#-#-#-#-#-#-#-#-#-#-#
-		io.emit('player-join', getPlayerNamesArray(game.players));
-
-		//LOG THE PLAYERS
-		//console.log('Players: ', getPlayerNamesArray(game.players));
-	});
-
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	// PLAYER INPUT: START GAME
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	socket.on('start-game', () => {
-
-		//BUILD ROLES OBJECT (PUBLIC, EMITTED)
-		game.roles = {};
-		game.roles.guide = null;
-		game.roles.seekers = [];
-		//ADMIN STARTS GAME
-			//	:ASSIGNMENTS:
-			//	-> ASSIGN GUIDE
-			//	-> REST ARE SEEKERS
-		
-		//ASSIGN A RANDOM GUIDE
-		let guideIndex = Math.floor(Math.random() * game.players.length);
-		
-		//GET THE SOCKET ID
-		console.log('GUIDE ASSIGNED TO',game.players[guideIndex].name);
-
-		//NOW ROLES ASSIGNED, ADD SOCKETS TO ROOMS
-		for(let i = 0; i < game.players.length; i++){
-			if(i === guideIndex){
-				addGuide(game.players[i]);
-			}else{
-				addSeeker(game.players[i]);
-			}
+		//IF A FUNCTION ABOVE HAS RETURNED TRUE (SERVER UPDATE TRIGGERED)
+		if(serverUpdate){
+			sendServerUpdate();
 		}
-
-		//#-#-#-#-#-#-#-#-#-#-#-#-#
-		// EMIT: ROLES
-		//#-#-#-#-#-#-#-#-#-#-#-#-#
-		io.emit('assign-roles', game.roles);
-
-		console.log(game.roles);
-
-		//ROLES ASSIGNED - ANY LATE PLAYER-JOINS ARE SEEKERS
-		game.running = true;
-
-		//SET UP KEY VARIABLES FOR THIS GAME
-		let theWord = '';
-		let theCategory = '';
-
-		//LEAVING THIS LINE IN HERE - THIS APPARENTLY FILLS THE ARRAY WITH DUPLICATE OBJECTS (SHALLOW COPY!)
-		//game.rounds = Array(7).fill({"clues":[],"thumbs":-1});
-
-		//REPLACEMENT LINE WHICH DEEP COPIES THE "FILL" OBJECT AT INSTANTIATION
-		//game.rounds = Array(7).fill(JSON.parse(JSON.stringify({"clues":[],"thumbs":-1})));
-
-		game.rounds = [];
-		game.currentRound = 1;
-
-		//MAKE AN OBJECT TO TRANSMIT GAME INFO
-		let setupObject = {};
-		//THE MAX NUMBER OF ROUNDS
-		setupObject.roundCount = 7;
-		//THE MAX NUMBER OF SOLUTIONS
-		setupObject.solutionCardCount = 3;
-		//THE NUMBER OF SEEKERS IN THIS GAME
-		setupObject.seekerCount = game.roles.seekers.length;
-		//THE NUMBER OF CLUES REQUIRED PER ROUND
-		setupObject.cluesPerRound = Math.max(4, setupObject.seekerCount);
-		//THE CURRENT ROUND
-		setupObject.currentRound = game.currentRound;
-
-		game.rounds = getInitialRoundArray(setupObject.roundCount);
-
-		//THE ROUNDS (CLUES, THUMBS)
-		setupObject.rounds = game.rounds;
-
-			//	:GAME SETUP:
-		//	-> SELECT HINT/MASTER WORD FROM CATEGORIES
-		//	-> CONFIRM CLUE CARD COUNTS (6 EACH) = THUMB TOKEN COUNT
-		//	-> CONFIRM SOLUTION CARD COUNTS (3 TOTAL)
-
-		//GET THE WORD LIST
-		fs.readFile('../../words/wordlist.json', 'utf8', (err, data) => {
-
-			if (err) {
-				console.error(err);
-				return;
-			}
-			
-			//PARSE THE JSON
-			let allWords = JSON.parse(data);
-
-			//GET THE CATEGORIES
-			let categories = allWords.categories;
-
-			//PICK A CATEGORY
-			let catTitles = Object.keys(categories);
-			let categoryIndex = Math.floor(Math.random() * catTitles.length);
-			//SET THE CATEGORY
-			theCategory = catTitles[categoryIndex];
-			let thisCategory = categories[catTitles[categoryIndex]];
-
-			//PICK A WORD IN THIS CATEGORY
-			let thisList = thisCategory.list;
-			let wordIndex = Math.floor(Math.random() * thisList.length);
-			//SET THE WORD
-			theWord = thisList[wordIndex];
-
-			console.log('The category is:',theCategory);
-			console.log('The word is:',theWord);
-
-			//THE SETUP OBJECT IS PUBLIC, HIDE MASTER WORD
-			setupObject.word = '_____';
-			setupObject.category = theCategory;
-
-			//THE GUIDE SETUP OBJECT IS A COPY
-			let guideSetupObject = JSON.parse(JSON.stringify(setupObject));
-			//WITH THE ACTUAL MASTER WORD SHOWN!
-			guideSetupObject.word = theWord;
-
-			//game.guideSetupObject = guideSetupObject;
-			game.setupObject = setupObject;
-
-			//#-#-#-#-#-#-#-#-#-#-#-#-#
-			// EMIT: ROUND INFO
-			//#-#-#-#-#-#-#-#-#-#-#-#-#
-			io.to('guideRoom').emit('setup-game',guideSetupObject);
-			io.to('seekerRoom').emit('setup-game',setupObject);
-			io.to('displayRoom').emit('setup-game',setupObject);
-			io.emit('debug-output',game.rounds);
-		});
-		console.log('setup complete!');
 	});
 
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	// PLAYER INPUT: SUBMIT GUESS
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	socket.on('guess-submitted', (guess) => {
-
-		//GET THE GAME DATA FOR THIS ROUND
-		//let thisRound = game.rounds[game.currentRound - 1];
-
-		//REJECT IDENTICAL? OPTION?
-		/*for(let i = 0; i < thisRound.clues.length; i++){
-
-			if(thisRound.clues[i] === guess){
-				//REJECT IDENTICAL GUESSES?
-				return false;
-			}
-		}*/
-		//console.log('Round',game.currentRound,'Clues BEFORE: "',game.rounds[game.currentRound - 1].clues.join(', '),'"');
-		//ADD TO CLUES ARRAY FOR THIS ROUND
-		//game.rounds[game.currentRound - 1].clues = game.rounds[game.currentRound - 1].clues.push(guess);
-		game.rounds[game.currentRound - 1].clues.push(guess);
-		//console.log('Round',game.currentRound,'Clues AFTER: ' + game.rounds[game.currentRound - 1].clues.join(', '));
-		//EMIT THIS ROUND'S GUESSES
-		io.emit('update-guesses', game.rounds[game.currentRound - 1].clues);
-		//io.emit('debug-output',game.rounds);
-	});
-
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	// PLAYER INPUT: SUBMIT THUMBS
-	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	socket.on('thumbs-submitted', (thumbs) => {
-		
-		console.log('Round ' + game.currentRound + ' thumbs submitted! (' + thumbs + ')');
-
-		//GET THE CURRENT ROUND DATA
-		//let thisRound = game.rounds[game.currentRound - 1];
-		
-		//CHECK THUMBS ALREADY SUBMITTED?
-		if(game.rounds[game.currentRound - 1].thumbs !== -1){
-
-			console.log('Thumbs for round ' + game.currentRound + ' already submitted!');
-			return false;
-		}
-
-		//CHECK SOCKET IS THE GUIDE? UNNECESSARY SAFETY CHECK?
-		if(game.roles.guide !== socket.name){
-
-			console.log('Thumbs can only be submitted by the Guide!');
-			return false;
-		}
-
-		//ADD TO THUMBS TO ARRAY FOR THIS ROUND
-		game.rounds[game.currentRound - 1].thumbs = thumbs;
-		
-		//UPDATE CURRENT ROUND
-		game.currentRound += 1;
-
-		//EMIT THIS ROUND'S GUESSES
-		io.emit('update-thumbs', thumbs);
-	});
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// DISPLAY: REMOVE FROM PLAYERS
@@ -449,27 +240,22 @@ io.on('connection', (socket) => {
 	socket.on('display-connected', (ip) => {
 		console.log('Display Connected at ',ip);
 		socket.join('displayRoom');
-		game.players = removeSocket(game.players, socket.id);
+		players = removeSocket(players, socket.id);
+		sendServerUpdate();
 	});
-
-	socket.on('reset-game', () => {
-		console.log('Reset requested by ' + socket.name);
-		io.emit('new-lobby', game.lobby);
-		reset();
-	});
-
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	// PLAYER INPUT: CLOSE TAB
+	// PLAYER INPUT: DISCONNECT
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('disconnect', () => {
 
 		console.log('Player ' + socket.name + ' disconnected');
-		//REMOVE USER FROM USERS ARRAY
-		game.players = removeSocket(game.players, socket.id);
-		io.emit('player-join', getPlayerNamesArray(game.players));
-		console.log('Remaining Player Count: ',game.players.length);
-		if(game.players.length === 0){
+		//REMOVE USER FROM USERS ARRAY (NOTE: NO EFFECT IF DISPLAY)
+		players.sockets = removeSocket(players.sockets, socket.id);
+		sendServerUpdate();
+		console.log('Remaining Player Count: ',players.sockets.length);
+		if(players.sockets.length === 0){
 			reset();
+			sendServerUpdate();
 		}
 	});
 });
@@ -488,28 +274,18 @@ function removeSocket(sockets, id){
 	return sockets;
 }
 
-function addSeeker(player){
-	player.join('seekerRoom');
-	game.roles.seekers.push(player.name);
-	player.role = 'Seeker';
-}
-
-function addGuide(player){
-	player.join('guideRoom');
-	game.roles.guide = player.name;
-	player.role = 'Guide';
-}
-
-//ITERATE OVER THE PLAYER SOCKETS AND GET AN ARRAY OF NAMES ONLY
-function getPlayerNamesArray(players){
-	let arrNames = [];
-	for(let i = 0; i < players.length; i++){
-		let player = {};
-		player.id = players[i].id;
-		player.name = players[i].name;
-		arrNames.push(player);
+function addSeeker(socket){
+	socket.join('seekerRoom');
+	if(!players.roles.seekers.includes(socket.name)){
+		players.roles.seekers.push(socket.name);
+		socket.role = 'Seeker';
 	}
-	return arrNames;
+}
+
+function addGuide(socket){
+	socket.join('guideRoom');
+	players.roles.guide = socket.name;
+	socket.role = 'Guide';
 }
 
 function getInitialRoundArray(count){
@@ -522,6 +298,7 @@ function getInitialRoundArray(count){
 		let obj = {};
 		obj.clues = [];
 		obj.thumbs = -1;
+		obj.solutions = [];
 		arr[i] = JSON.parse(JSON.stringify(obj));
 	}
 	return arr;
@@ -547,3 +324,224 @@ server.listen(port, () => {
 		}
 	}
 });
+
+
+/**
+ * The new single server update - sends all objects to ensure joining players in sync.
+ */
+function sendServerUpdate(){
+	console.log('sending server update');
+	let p = players.getPlayerNamesArray();
+	let r = players.roles;
+	io.emit('server-update', game, p, r, rounds);
+	console.log(rounds);
+}
+
+///-----------------------------------------
+/// NEW HANDLER FUNCTIONS (RETURN FALSE IF 
+/// NO SERVER UPDATE, TRUE TO EMIT UPDATE)
+///-----------------------------------------
+
+
+function handleResetGame(){
+	reset();
+	return true;
+}
+
+/**
+ * 
+ * @param {The socket requesting a name change} socket 
+ * @param {*} name 
+ * @returns 
+ */
+function handlePlayerName(socket, name){
+
+	//GET PREV ID
+	let prevId = socket.name;
+
+	//NO CHANGE?
+	if(prevId === name){
+		return false;
+	}
+
+	//SET THE NAME ON THE SOCKET
+	socket.name = name;
+
+	console.log(prevId,'has been renamed to',socket.name);
+
+	//IF GAME IS RUNNING
+	if(game.status.running){
+		//ASSIGN AS SEEKER AND ADD TO PLAYERS
+		addSeeker(socket);
+		//updateRole()
+	}//ELSE, WILL GET ADDED ONCE RUNNING
+
+	return true;
+}
+
+function handleStartGame(){
+	
+	//IF GAME ALREADY RUNNING, IGNORE
+	if(game.status.running){
+		return false;
+	}
+
+	//CHECK PLAYER LIMITS (ONCE OUT OF TESTING)
+	//if(players.sockets.length < PLAYER_COUNT_MIN etc)
+
+	//START RUNNING
+	game.status.running = true;
+	game.currentRound = 1;
+	game.stage = GAME_STAGE_SEEKER;
+
+	players.roles = {};
+	players.roles.guide = null;
+	players.roles.seekers = [];
+
+	//ASSIGN A RANDOM GUIDE
+	let guideIndex = Math.floor(Math.random() * players.sockets.length);
+
+	//NOW ROLES ASSIGNED, ADD SOCKETS TO ROOMS
+	for(let i = 0; i < players.sockets.length; i++){
+		if(i === guideIndex){
+			addGuide(players.sockets[i]);
+		}else{
+			addSeeker(players.sockets[i]);
+		}
+	}
+
+	console.log('ROLES ASSIGNED', players.roles);
+
+	//SET UP KEY VARIABLES FOR THIS GAME
+	game.secrets.word = '';
+	game.secrets.category = '';
+	
+	rounds = getInitialRoundArray(ROUND_LIMIT_MAX);
+
+	//GET THE WORD LIST
+	fs.readFile('../../words/wordlist.json', 'utf8', (err, data) => {
+
+		if (err) {
+			console.error(err);
+			return false;
+		}
+		
+		//PARSE THE JSON
+		let allWords = JSON.parse(data);
+
+		//GET THE CATEGORIES
+		let categories = allWords.categories;
+
+		//PICK A CATEGORY
+		let catTitles = Object.keys(categories);
+		let categoryIndex = Math.floor(Math.random() * catTitles.length);
+		//SET THE CATEGORY
+		let thisCategory = categories[catTitles[categoryIndex]];
+		let theCategoryTitle = categories[catTitles[categoryIndex]].title;
+
+		//PICK A WORD IN THIS CATEGORY
+		let thisList = thisCategory.list;
+		let wordIndex = Math.floor(Math.random() * thisList.length);
+		//SET THE WORD
+		theWord = thisList[wordIndex];
+
+		console.log('The category is:',theCategoryTitle);
+		console.log('The word is:',theWord);
+
+		game.secrets.word = theWord;
+		game.secrets.category = theCategoryTitle;
+	});
+
+	console.log('setup complete!');
+	return true;
+}
+
+function handleClueInput(socket, guess){
+
+	//CHECK STATUS
+	if(!game.status.running){
+		return false;
+	}
+
+	//CHECK SEEKER SUBMITTED
+	if(!players.roles.seekers.includes(socket.name)){
+		return false;
+	}
+
+	//GET CONVENIENCE VARIABLE FOR THIS ROUND CLUES
+	let currentClues = rounds[game.currentRound - 1].clues;
+
+	//CHECK MAX CLUES SUBMITTED
+	if(currentClues.length === CLUES_PER_ROUND){
+		return false;
+	}
+
+	//ADD TO ARRAY OF CLUES
+	currentClues.push(guess);
+
+	//IF WE HAVE RECEIVED ENOUGH CLUES FOR THE ROUND
+	if(currentClues.length === CLUES_PER_ROUND){
+		game.stage = GAME_STAGE_GUIDE;
+	}
+
+	return true;
+}
+
+function handleSolutionInput(socket, guess){
+
+	//CHECK STATUS
+	if(!game.status.running){
+		return false;
+	}
+
+	//CHECK SEEKER SUBMITTED
+	if(!players.roles.seekers.includes(socket.name)){
+		return false;
+	}
+
+	//CHECK MAX SOLUTIONS USED (ON GAME OBJECT FOR CONVENIENCE)
+	if(game.solutionsUsed === SOLUTIONS_PER_GAME){
+		return false;
+	}
+
+	//PUSH SOLUTION TO THIS ROUND (SHOWS UP FOR GUIDE INPUT)
+	rounds[game.currentRound - 1].solutions.push(guess);
+
+	return true;
+}
+
+function handleThumbsInput(socket, update){
+
+	//CHECK STATUS
+	if(!game.status.running){
+		return false;
+	}
+
+	//CHECK GUIDE SUBMITTED
+	if(!players.roles.guide == socket.name){
+		return false;
+	}
+
+	//CHECK THUMBS ALREADY SUBMITTED?
+	if(rounds[game.currentRound - 1].thumbs !== -1){
+
+		console.log('Thumbs for round ' + game.currentRound + ' already submitted!');
+		return false;
+	}
+	
+	rounds[game.currentRound - 1].thumbs = update.thumbs;
+
+	//IF A JOKER SUPPLIED
+	if(update.joker > 0){
+		if(!game.jokerUsed){
+			game.jokerUsed = true;
+			rounds[game.currentRound - 1].clues[update.Joker - 1] += ' (JOKER)';
+		}
+	}
+
+	console.log('Round ' + game.currentRound + ' thumbs submitted! (' + thumbs + ')');
+	//UPDATE CURRENT ROUND
+	game.currentRound += 1;
+
+	return true;
+}

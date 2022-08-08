@@ -2,15 +2,20 @@
 // INITIALIZE
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 
-//const { text } = require("express");
+const HIDDEN_SECRET_WORD = '__________';
+const GAME_STAGE_LOBBY = 0;		//PLAYERS JOIN
+const GAME_STAGE_SEEKER = 1;	//SEEKERS GUESS
+const GAME_STAGE_GUIDE = 2;		//GUIDE THUMBS/WINS
+const GAME_STAGE_OVER = 3;		//GAME OVER
 
 //SOCKET (SERVER WILL PICK UP CONNECTION)
 var socket = io();
 
-//PLAYERS ARRAY (LOCAL)
-var gamePlayers = [];
-//GAME INFO (LOCAL)
-var gameInfo = {};
+//SET UP LOCAL VARIABLES
+var localGame = {};
+var localPlayers = [];
+var localRoles = {};
+var localRounds = getInitialRoundArray();
 
 //INIT PANELS AND INFO
 function init(){
@@ -18,32 +23,11 @@ function init(){
 	//COLLAPSE SECTIONS
 	collapseSections('nameAreaDiv');
 
-	const queryString = window.location.pathname.replace('/game.html/','');
-	const params = queryString.split('/');
-	let game = 'Game Error';
-	if(params[0] === 'game'){
-		game = (params[1]) ? params[1] : 'Game Error!';
-		//document.getElementById('lobbyGameSpan').innerHTML = game;
-	}
-	let lobbyId = 'Lobby ID Error';
-	if(params[2] === 'id'){
-		lobbyId = (params[3]) ? params[3] : 'Lobby ID Error!';
-		//document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
-	}
-
 	//SET LISTENERS ON INPUTS TO SUBMIT ON ENTER
 	applyInputSubmit('guessInput', 'guessSubmitButton');
 	applyInputSubmit('thumbInput', 'thumbSubmitButton');
 	applyInputSubmit('playerNameInput', 'playerNameSubmitButton');
 
-	/*if(document.cookie.includes('name=')){
-		console.log('Cookie found! Joining as player!');
-		joinAsName(document.cookie.replace('name=',''));
-		collapseSections('lobbyAreaDiv');
-	}*/
-	/*if(document.cookie.includes('name=')){
-		document.getElementById('playerNameInput').value = document.cookie.replace('name=','');
-	}*/
 	if(localStorage.getItem('RiverdaleRoadPlayerName') !== null){
 		document.getElementById('playerNameInput').value = localStorage.getItem('RiverdaleRoadPlayerName');
 	}
@@ -63,107 +47,172 @@ function applyInputSubmit(inputId, btnId){
 }
 
 
+
+
+
+
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 // SERVER UPDATES
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 
-// NEW LOBBY OPENED
-socket.on('new-lobby', function(lobbyId){
+// NEW FUNCTIONALITY
+socket.on('server-update', (game, players, roles, rounds) => {
+	
+	console.log('server update');
+	checkInitialized();
 
-	//NOT USED AT PRESENT
-	//document.getElementById('lobbyIdSpan').innerHTML = lobbyId;
-	//UPDATE QR CODE?
-});
+	//MATCH UP LOCAL OBJECTS TO DETERMINE PANEL CHANGES
+	if(JSON.stringify(localGame) !== JSON.stringify(game)){
+		
+		console.log(rounds);
+		//UPDATE LOCAL COPY
+		localGame = JSON.parse(JSON.stringify(game));
+		localRounds = JSON.parse(JSON.stringify(rounds));
+		console.log('localGame generated',game);
+		console.log('localRounds',localRounds);
+		//
+		switchGameStage(socket, game.stage);
 
-//RECEIVE: lobby id to join game
-socket.on('lobby-open', function(game, lobbyId){
-	//console.log(game,lobbyId);
-	//PULL CLIENT INTO LOBBY ROOM?
-	window.location.href = 'game.html/game/' + game + '/id/' + lobbyId;
-});
-
-// UPDATE PLAYER ROLES LIST
-socket.on('assign-roles', function(roles){
-	if (roles.guide === socket.name){
-		socket.role = 'Guide';
-	}else{
-		socket.role = 'Seeker';
+		switch(game.status.stage){
+			case GAME_STAGE_LOBBY:
+				handleRunning(socket, game, players, roles, rounds);
+			break;
+			case GAME_STAGE_SEEKER:
+			case GAME_STAGE_GUIDE:
+				
+				//handleRound(socket, game, players, roles, rounds);
+			break;
+			case GAME_STAGE_OVER:
+				handleEnd(game, players, roles, rounds);
+			break;
+		}
 	}
-	//console.log(roles);
-	updatePlayerList(gamePlayers, roles);
+	
+	//CHECK PLAYERS MATCH
+	if(JSON.stringify(localPlayers) !== JSON.stringify(players)){
+		console.log('handle players');
+		handlePlayers(socket, players, roles);
+	}
+
+	//CHECK ROLES MATCH
+	if(JSON.stringify(localRoles) !== JSON.stringify(roles)){
+		console.log('handle players');
+		handlePlayers(socket, players, roles);
+	}
+	
+	//CHECK ROUND MATCHES
+	if(JSON.stringify(localRounds) !== JSON.stringify(rounds)){
+		console.log('handle round');
+		handleRound(socket, rounds);
+	}
 });
 
-// UPDATE PLAYERS LIST
-socket.on('player-join', function(players){
+function checkInitialized(){
+	
+	if(isEmpty(localGame)){
+		//INITIALIZE TO NULLS
+		localGame.stage = -1;
+		localGame.currentRound = -1;
+		localGame.running = undefined;
+	}
+	if(localRounds == []){
+		
+		localRounds = getInitialRoundArray();
+		console.log('initalized local rounds');
+	}
+	if(isEmpty(localRoles)){
+		//INITIALIZE
+		localRoles.guide = undefined;
+		localRoles.seekers = [];
+	}
+}
 
-	//SET LOCAL PLAYERS ARRAY
-	gamePlayers = JSON.parse(JSON.stringify(players));
+function isEmpty(obj){
+	//https://stackoverflow.com/a/32108184/16384571
+	return obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
+}
 
-	//GET LIST OF NAMES AND UPDATE
-	updatePlayerList(gamePlayers);
-});
+function handleRunning(socket, game, players, roles, rounds){
 
-// UPDATE ROUND INFORMATION (WORD, CATEGORY)
-socket.on('setup-game', function(info){
+	console.log('handle running');
 
-	console.log('SETUP ROUND', info);
-	//UPDATE LOCAL COPY
-	gameInfo = JSON.parse(JSON.stringify(info));
-	//console.log(info.category, info.word);
+	//SWITCH PANELS (VISUAL)
+	if(localGame.stage !== game.stage){
+	
+		//UPDATE PANELS
+		switchGameStage(socket, game.stage);
+	}
 
-	updateWordAndCategory(info.word, info.category);
+}
 
-	collapseSections('gameAreaDiv');
+function handlePlayers(socket, players, roles = null){
+	//KEEP LOCAL COPIES IN SYNC
+	localPlayers = JSON.parse(JSON.stringify(players));
+	localRoles = JSON.parse(JSON.stringify(roles));
+	updatePlayerList(localPlayers, localRoles);
+}
 
-	updateVisibleInputs(info.word);
+function handleRound(socket, rounds){
 
-	updateGuessInfoSpan();
-});
-
-socket.on('debug-output', (output) => {
-	console.log(output);
-});
-
-// UPDATE PLAYER GUESSES LIST
-socket.on('update-guesses', function(guesses){
-
-	gameInfo.rounds[gameInfo.currentRound - 1].clues = guesses;
+	if(localRounds.thumbs !== rounds.thumbs){
+		handleThumbs(rounds.thumbs);
+	}
+	console.log('localRounds generated');
+	localRounds = JSON.parse(JSON.stringify(rounds));
+	guesses = localRounds[localGame.currentRound - 1].clues;
 	updateGuessList(guesses);
 	updateGuessInfoSpan();
 	updateThumbsInput(socket);
-});
+}
 
-socket.on('update-thumbs', function(thumbs){
-
-	//console.log('Received ' + thumbs + ' thumbs!');
-	gameInfo.rounds[gameInfo.currentRound - 1].thumbs = thumbs;
+function handleThumbs(thumbs){
 	updateThumbsList(thumbs);
 	startNextRound();
-});
+}
 
-socket.on('game-update', function(rounds, roles, players){
-
-	//CHECK IF ON CORRECT STAGE
-	checkStage(rounds[rounds.length - 1]);
-
-	//CHECK ROLES ASSIGNED CORRECTLY
-
-
-	//CHECK PLAYERS ARRAY SYNCED
-
-
-});
-
-
-
-
-
-
-function resetGame(){
-	if (confirm("Are you sure you want to reset the game?") == true) {
-		socket.emit('reset-game');
+/**
+ * Handles all UI changes when the server changes the game stage.
+ * @param {object} socket The current socket (check name defined).
+ * @param {string} stage The current game stage (defined as a const).
+ */
+function switchGameStage(socket, stage){
+	switch(stage){
+		case GAME_STAGE_LOBBY:
+			//IS DEFAULT NAME SET?
+			if(socket.name === socket.id){
+				//SHOW NAME AREA
+				collapseSections('nameAreaDiv');
+			}else{
+				//SHOW LOBBY
+				collapseSections('lobbyAreaDiv');
+			}
+		break;
+		case GAME_STAGE_SEEKER:
+		case GAME_STAGE_GUIDE:
+			//IF THIS PLAYER IS THE GUIDE
+			if(socket.name === localRoles.guide){
+				//SHOW THEM THE SECRET WORD
+				updateWordAndCategory(localGame.secrets.word, localGame.secrets.category);
+				updateVisibleInputs(localGame.secrets.word);
+			}else{
+				//OTHERWISE, SHOW A BLANK
+				updateWordAndCategory(HIDDEN_SECRET_WORD, localGame.secrets.category);
+				updateVisibleInputs(HIDDEN_SECRET_WORD);
+			}
+			//DETERMINE INPUTS BASED ON ROLE
+			updateGuessInfoSpan();
+			//SHOW MAIN GAME AREA
+			collapseSections('gameAreaDiv');
+		break;
+		case GAME_STAGE_OVER:
+			//SHOW GAME OVER (FINISHED? WIN/LOSE?) AREA
+			collapseSections('gameOverDiv');
+		break;
 	}
 }
+
+
+
 
 
 
@@ -226,17 +275,20 @@ function startNextRound(){
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 
 //SEND: instruction to open a lobby
-function openLobby(game){
+function openLobby(){
 
-	socket.emit('open-lobby', game);
+	let update = {};
+	update.type = 'openLobby';
+	socket.emit('player-update', update);
 }
-
 //SEND: start the game
 function startGame(){
 
-	socket.emit('start-game');
+	//socket.emit('start-game');
+	let update = {};
+	update.type = 'startGame';
+	socket.emit('player-update', update);
 }
-
 //SEND: set player's name
 function playerJoin(){
 
@@ -249,12 +301,13 @@ function playerJoin(){
 	localStorage.setItem('RiverdaleRoadPlayerName',name);
 	joinAsName(name);
 }
-
 function joinAsName(name){
 	socket.name = name;
-	socket.emit('player-add', name);
+	let update = {};
+	update.type = 'playerName';
+	update.name = name;
+	socket.emit('player-update', update);
 }
-
 //SEND: guess
 function submitGuess(){
 
@@ -263,19 +316,31 @@ function submitGuess(){
 	let guess = guessInput.value;
 	//IGNORE BLANK GUESSES
 	if(guess === '') return;
-	socket.emit('guess-submitted', guess);
 	guessInput.value = '';
+	let update = {};
+	update.type = 'clueInput';
+	update.guess = guess;
+	socket.emit('player-update', update);
 }
-
 function submitThumbs(){
 
 	let thumbInput = document.getElementById('thumbInput');
 	let thumbs = thumbInput.value;
-	//console.log('Submitting ' + thumbInput.value + ' thumbs!');
+
+	//IF WIN
+	let winDeclared = false;
+	//IF SOLUTION WRITTEN ON CLUE CARD - LOSS
+	let lossDeclared = false;
 
 	//IF THE NUMBER OF THUMBS IS WITHIN ALLOWED LIMITS
-	if(	(thumbs <= gameInfo.cluesPerRound) && (thumbs >= 0) ){
-		socket.emit('thumbs-submitted', thumbs);
+	if(	(thumbs <= localGame.info.cluesPerRound) && (thumbs >= 0) ){
+
+		let update = {};
+		update.type = 'thumbsInput';
+		update.thumbs = thumbs;
+		update.winDeclared = winDeclared;
+		update.lossDeclared = lossDeclared;
+		socket.emit('player-update', update);
 		thumbInput.value = 0;
 		document.getElementById('thumbsInputDiv').style.display = 'none';
 	}else{
@@ -287,6 +352,37 @@ function submitThumbs(){
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 // UTILITY FUNCTIONS
 //#-#-#-#-#-#-#-#-#-#-#-#-#
+/**
+ * 
+ * @param {integer} count The number of rounds.
+ * @returns {array} The default rounds array.
+ */
+function getInitialRoundArray(count){
+
+	let arr = [];
+
+	//ITERATE TO BUILD SAFE ROUNDS ARRAY
+	for(let i = 0; i < count; i++){
+
+		let obj = {};
+		obj.clues = [];
+		obj.thumbs = -1;
+		obj.solutions = [];
+		arr[i] = JSON.parse(JSON.stringify(obj));
+	}
+	return arr;
+}
+
+/**
+ * Reset the game back to the initial state.
+ */
+function resetGame(){
+	if (confirm("Are you sure you want to reset the game?") == true) {
+		let update = {};
+		update.type = 'resetGame';
+		socket.emit('player-update', update);
+	}
+}
 
 //CONVERT INTO Proper/TitleCase
 //https://stackoverflow.com/a/196991/16384571
@@ -300,11 +396,12 @@ function toTitleCase(str) {
 	);
 }
 
+//#-#-#-#-#-#-#-#-#-#-#-#-#
+// UI UPDATES
+//#-#-#-#-#-#-#-#-#-#-#-#-#
 //UPDATE THE LIST OF PLAYERS (WITH OPTIONAL ROLES INFO)
 function updatePlayerList(players, roles=null){
 
-	//console.log('Updating player list' + (roles ? ' with roles' : ''));
-	//console.log(players);
 	let playerLists = document.getElementsByClassName('playersUL');
 	//console.log(playerLists);
 	for(let listId = 0; listId < playerLists.length; listId++){
@@ -333,7 +430,6 @@ function updatePlayerList(players, roles=null){
 		}
 	}
 }
-
 /**
  * Update the guesses table with a received number of thumb tokens.
  * @param {integer} thumbs 
@@ -343,17 +439,16 @@ function updateThumbsList(thumbs){
 	let guessTable = document.getElementById('guessesTable');
 	let guessTableRows = document.getElementsByTagName('tr');
 	//console.log(guessTableRows);
-	let thumbsTd = guessTableRows[gameInfo.currentRound].children[2];
+	let thumbsTd = guessTableRows[game.info.currentRound].children[2];
 	thumbsTd.innerHTML = thumbs;
 }
-
-
 function updateGuessList(guesses){
 
+	let currentRound = localGame.status.currentRound;
 	//let guessTable = document.getElementById('guessesTable');
 	let guessTableRows = document.getElementsByTagName('tr');
 	//console.log(guessTableRows);
-	let guessTd = guessTableRows[gameInfo.currentRound].children[1];
+	let guessTd = guessTableRows[currentRound].children[1];
 	//console.log(guessTd.innerHTML);
 	let thisRoundGuesses = [];
 	for(let i = 0; i < guesses.length; i++){
@@ -361,12 +456,14 @@ function updateGuessList(guesses){
 	}
 	guessTd.innerHTML = thisRoundGuesses.join(', ');
 }
-
 function updateGuessInfoSpan(){
 
+	let currentRound = localGame.status.currentRound;
+	let clues = localRounds[currentRound - 1].clues;
+	console.log(clues);
 	let guessInfoSpan = document.getElementById('guessInfoSpan');
-	let guessesRemaining = gameInfo.cluesPerRound - gameInfo.rounds[gameInfo.currentRound - 1].clues.length;
-	guessInfoSpan.innerHTML = '(' + gameInfo.cluesPerRound + ' guesses, ' + guessesRemaining + ' left)';
+	let guessesRemaining = info.cluesPerRound - localRounds[info.currentRound - 1].clues.length;
+	guessInfoSpan.innerHTML = '(' + info.cluesPerRound + ' guesses, ' + guessesRemaining + ' left)';
 	if(guessesRemaining === 0){
 		//HIDE GUESSES INPUT
 		document.getElementById('guessInputDiv').style.display = 'none';
@@ -374,19 +471,18 @@ function updateGuessInfoSpan(){
 
 	//UPDATE THUMB INPUT 
 	let thumbInput = document.getElementById('thumbInput');
-	thumbInput.max = gameInfo.cluesPerRound;
+	thumbInput.max = info.cluesPerRound;
 }
-
 function updateThumbsInput(socket){
-
-	let guessesRemaining = gameInfo.cluesPerRound - gameInfo.rounds[gameInfo.currentRound - 1].clues.length;
+	let currentRound = localGame.status.currentRound;
+	let info = localGame.info;
+	let guessesRemaining = info.cluesPerRound - localRounds[currentRound - 1].clues.length;
 
 	if(socket.role === 'Guide' && guessesRemaining === 0){
 		let thumbInputDiv = document.getElementById('thumbsInputDiv');
 		thumbInputDiv.style.display = 'block';
 	}
 }
-
 //COLLAPSE ALL PANELS EXCEPT THE openSection
 function collapseSections(openSection){
 
@@ -399,9 +495,6 @@ function collapseSections(openSection){
 		}
 	}
 }
-
-function checkStage(stage){}
-
 function showNameArea(){
 	collapseSections('nameAreaDiv');
 }
