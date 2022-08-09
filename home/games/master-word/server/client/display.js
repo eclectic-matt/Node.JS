@@ -17,13 +17,17 @@ function init(){
 	collapseSections('lobbyDiv');
 
 	socket.emit('display-connected', window.location.href);
+	console.log('connect');
 }
 
 
 //#-#-#-#-#-#-#-#-#-#-#-#-#
 // SERVER UPDATES
 //#-#-#-#-#-#-#-#-#-#-#-#-#
-
+/*socket.on('reconnect', () =>{
+	socket.emit('display-connected', window.location.href);
+	console.log('reconnect',socket.name);
+});*/
 // NEW LOBBY OPENED
 socket.on('new-lobby', function(lobbyId){
 

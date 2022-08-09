@@ -88,7 +88,7 @@ game.info.roundLimit = ROUND_LIMIT_MAX;
 //GAME STATUS
 game.status = {};
 game.status.running = false;
-game.status.currentRound = 0;
+game.status.currentRound = 1;	//SO THAT round - 1 INDEXES WORK
 game.status.stage = GAME_STAGE_LOBBY;
 //GAME SECRETS
 game.secrets = {};
@@ -114,7 +114,7 @@ players.getPlayerNamesArray = function(){
 }
 
 //NEW - ROUNDS ARRAY
-rounds = [];
+rounds = getInitialRoundArray(ROUND_LIMIT_MAX);
 
 //-----
 
@@ -184,7 +184,7 @@ io.on('connection', (socket) => {
 			//LOG THE LOBBY ID
 			console.log('New Lobby ID generated: ' + game.info.lobbyId);
 			//EMIT TO PLAYERS
-			sendServerUpdate();
+			sendServerUpdate('lobbyGenerated');
 			//JOIN THE ROOM WITH lobbyId
 			socket.join(game.info.lobbyId);
 		});
@@ -197,39 +197,46 @@ io.on('connection', (socket) => {
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// PLAYER JOINED
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
-	sendServerUpdate();
+	sendServerUpdate('playerJoined');
 
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// PLAYER INPUT
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	socket.on('player-update', (update) => {
 
+		let source = null;
 		//DOES THIS TRIGGER A SERVER CHANGE?
 		let serverUpdate = false;
-		switch(update.type){
+		switch(update.method){
 			case 'playerName':
+				source = 'playerNameSet';
 				serverUpdate = handlePlayerName(socket, update.name);
 			break;
 			case 'startGame':
+				source = 'playerStartGame';
 				serverUpdate = handleStartGame();
 			break;
 			case 'clueInput':
+				source = 'playerClueInput';
 				serverUpdate = handleClueInput(socket, update.guess);
 			break;
 			case 'solutionInput':
+				source = 'playerSolutionInput';
 				serverUpdate = handleSolutionInput(socket, update.guess);
 			break;
 			case 'thumbsInput':
+				source = 'playerThumbsInput';
 				serverUpdate = handleThumbsInput(socket, update);
 			break;
 			case 'resetGame':
+				source = 'playerResetGame';
 				serverUpdate = handleResetGame();
 			break;
 		}
 
 		//IF A FUNCTION ABOVE HAS RETURNED TRUE (SERVER UPDATE TRIGGERED)
 		if(serverUpdate){
-			sendServerUpdate();
+			sendServerUpdate(source);
 		}
 	});
 
@@ -240,8 +247,9 @@ io.on('connection', (socket) => {
 	socket.on('display-connected', (ip) => {
 		console.log('Display Connected at ',ip);
 		socket.join('displayRoom');
-		players = removeSocket(players, socket.id);
-		sendServerUpdate();
+		socket.name = 'DISPLAY_' + socket.id;
+		players.sockets = removeSocket(players.sockets, socket.id);
+		sendServerUpdate('displayConnected',socket.name);
 	});
 	//#-#-#-#-#-#-#-#-#-#-#-#-#
 	// PLAYER INPUT: DISCONNECT
@@ -251,11 +259,12 @@ io.on('connection', (socket) => {
 		console.log('Player ' + socket.name + ' disconnected');
 		//REMOVE USER FROM USERS ARRAY (NOTE: NO EFFECT IF DISPLAY)
 		players.sockets = removeSocket(players.sockets, socket.id);
-		sendServerUpdate();
+		sendServerUpdate('playerRemoved',socket.id);
 		console.log('Remaining Player Count: ',players.sockets.length);
+		console.log('Remaining Players: ',players.sockets.join(','));
 		if(players.sockets.length === 0){
 			reset();
-			sendServerUpdate();
+			sendServerUpdate('noPlayersRemaining');
 		}
 	});
 });
@@ -329,8 +338,8 @@ server.listen(port, () => {
 /**
  * The new single server update - sends all objects to ensure joining players in sync.
  */
-function sendServerUpdate(){
-	console.log('sending server update');
+function sendServerUpdate(source='unknown'){
+	console.log('sending server update',source);
 	let p = players.getPlayerNamesArray();
 	let r = players.roles;
 	io.emit('server-update', game, p, r, rounds);
@@ -361,6 +370,7 @@ function handlePlayerName(socket, name){
 
 	//NO CHANGE?
 	if(prevId === name){
+		console.log('no name change, ignored',name);
 		return false;
 	}
 
@@ -391,8 +401,8 @@ function handleStartGame(){
 
 	//START RUNNING
 	game.status.running = true;
-	game.currentRound = 1;
-	game.stage = GAME_STAGE_SEEKER;
+	game.status.currentRound = 1;
+	game.status.stage = GAME_STAGE_SEEKER;
 
 	players.roles = {};
 	players.roles.guide = null;
@@ -450,10 +460,11 @@ function handleStartGame(){
 
 		game.secrets.word = theWord;
 		game.secrets.category = theCategoryTitle;
+		console.log('setup complete!');
+		//TRIGGER UPDATE HERE (THE ASYNC BREAKS THE RETURN?)
+		sendServerUpdate('setupGameComplete');
+		return true;
 	});
-
-	console.log('setup complete!');
-	return true;
 }
 
 function handleClueInput(socket, guess){
@@ -469,7 +480,7 @@ function handleClueInput(socket, guess){
 	}
 
 	//GET CONVENIENCE VARIABLE FOR THIS ROUND CLUES
-	let currentClues = rounds[game.currentRound - 1].clues;
+	let currentClues = rounds[game.status.currentRound - 1].clues;
 
 	//CHECK MAX CLUES SUBMITTED
 	if(currentClues.length === CLUES_PER_ROUND){
@@ -481,7 +492,7 @@ function handleClueInput(socket, guess){
 
 	//IF WE HAVE RECEIVED ENOUGH CLUES FOR THE ROUND
 	if(currentClues.length === CLUES_PER_ROUND){
-		game.stage = GAME_STAGE_GUIDE;
+		game.status.stage = GAME_STAGE_GUIDE;
 	}
 
 	return true;

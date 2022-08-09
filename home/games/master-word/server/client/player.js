@@ -61,26 +61,33 @@ socket.on('server-update', (game, players, roles, rounds) => {
 	console.log('server update');
 	checkInitialized();
 
-	//MATCH UP LOCAL OBJECTS TO DETERMINE PANEL CHANGES
-	if(JSON.stringify(localGame) !== JSON.stringify(game)){
+	//BACKUP FOR MATCHING
+	prevGame = JSON.parse(JSON.stringify(localGame));
+	prevPlayers = JSON.parse(JSON.stringify(localPlayers));
+	prevRoles = JSON.parse(JSON.stringify(localRoles));
+	prevRounds = JSON.parse(JSON.stringify(localRounds));
+	
+	//UPDATE LOCAL COPIES
+	localGame = JSON.parse(JSON.stringify(game));
+	localPlayers = JSON.parse(JSON.stringify(players));
+	localRoles = JSON.parse(JSON.stringify(roles));
+	localRounds = JSON.parse(JSON.stringify(rounds));
+
+	//MATCH UP PREVIOUS OBJECTS TO DETERMINE PANEL CHANGES
+	if(JSON.stringify(prevGame) !== JSON.stringify(game)){
 		
-		console.log(rounds);
-		//UPDATE LOCAL COPY
-		localGame = JSON.parse(JSON.stringify(game));
-		localRounds = JSON.parse(JSON.stringify(rounds));
-		console.log('localGame generated',game);
-		console.log('localRounds',localRounds);
 		//
-		switchGameStage(socket, game.stage);
+		console.log('Game changed',game);
+		switchGameStage(socket, game.status.stage);
 
 		switch(game.status.stage){
 			case GAME_STAGE_LOBBY:
-				handleRunning(socket, game, players, roles, rounds);
+				handleRunning(socket, game, rounds);
 			break;
 			case GAME_STAGE_SEEKER:
 			case GAME_STAGE_GUIDE:
-				
-				//handleRound(socket, game, players, roles, rounds);
+				console.log('handle round');
+				handleRound(socket, rounds);
 			break;
 			case GAME_STAGE_OVER:
 				handleEnd(game, players, roles, rounds);
@@ -89,19 +96,19 @@ socket.on('server-update', (game, players, roles, rounds) => {
 	}
 	
 	//CHECK PLAYERS MATCH
-	if(JSON.stringify(localPlayers) !== JSON.stringify(players)){
+	if(JSON.stringify(prevPlayers) !== JSON.stringify(players)){
 		console.log('handle players');
 		handlePlayers(socket, players, roles);
 	}
 
 	//CHECK ROLES MATCH
-	if(JSON.stringify(localRoles) !== JSON.stringify(roles)){
+	if(JSON.stringify(prevRoles) !== JSON.stringify(roles)){
 		console.log('handle players');
 		handlePlayers(socket, players, roles);
 	}
 	
 	//CHECK ROUND MATCHES
-	if(JSON.stringify(localRounds) !== JSON.stringify(rounds)){
+	if(JSON.stringify(prevRounds) !== JSON.stringify(rounds)){
 		console.log('handle round');
 		handleRound(socket, rounds);
 	}
@@ -109,11 +116,13 @@ socket.on('server-update', (game, players, roles, rounds) => {
 
 function checkInitialized(){
 	
+	console.log('initalized?');
 	if(isEmpty(localGame)){
 		//INITIALIZE TO NULLS
-		localGame.stage = -1;
-		localGame.currentRound = -1;
-		localGame.running = undefined;
+		localGame.status = {};
+		localGame.status.stage = -1;
+		localGame.status.running = undefined;
+		localGame.status.currentRound = -1;
 	}
 	if(localRounds == []){
 		
@@ -129,19 +138,20 @@ function checkInitialized(){
 
 function isEmpty(obj){
 	//https://stackoverflow.com/a/32108184/16384571
-	return obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype;
+	return (obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype);
 }
 
-function handleRunning(socket, game, players, roles, rounds){
+function handleRunning(socket, game){
 
-	console.log('handle running');
+	console.log('handle running is dead');
+	handleRound(socket, game, rounds);
 
 	//SWITCH PANELS (VISUAL)
-	if(localGame.stage !== game.stage){
+	//if(localGame.stage !== game.stage){
 	
 		//UPDATE PANELS
-		switchGameStage(socket, game.stage);
-	}
+	//	switchGameStage(socket, game.stage);
+	//}
 
 }
 
@@ -157,9 +167,10 @@ function handleRound(socket, rounds){
 	if(localRounds.thumbs !== rounds.thumbs){
 		handleThumbs(rounds.thumbs);
 	}
-	console.log('localRounds generated');
+	//console.log(rounds);
+	//console.log(localGame);
 	localRounds = JSON.parse(JSON.stringify(rounds));
-	guesses = localRounds[localGame.currentRound - 1].clues;
+	guesses = localRounds[localGame.status.currentRound - 1].clues;
 	updateGuessList(guesses);
 	updateGuessInfoSpan();
 	updateThumbsInput(socket);
@@ -176,10 +187,11 @@ function handleThumbs(thumbs){
  * @param {string} stage The current game stage (defined as a const).
  */
 function switchGameStage(socket, stage){
+	console.log('switch stage to',stage);
 	switch(stage){
 		case GAME_STAGE_LOBBY:
 			//IS DEFAULT NAME SET?
-			if(socket.name === socket.id){
+			if(socket.name == undefined){
 				//SHOW NAME AREA
 				collapseSections('nameAreaDiv');
 			}else{
@@ -223,7 +235,7 @@ function updateWordAndCategory(word, category){
 	let catSpan = document.getElementById('categoryDisplaySpan');
 	catSpan.innerHTML = toTitleCase(category.replace('-',' '));
 	let wordSpan = document.getElementById('wordDisplaySpan');
-	if(word === '_____'){
+	if(word === HIDDEN_SECRET_WORD){
 		wordSpan.style.display = 'none';
 	}else{
 		wordSpan.style.display = 'block';
@@ -233,7 +245,7 @@ function updateWordAndCategory(word, category){
 
 function updateVisibleInputs(word){
 	
-	if(word === '_____'){
+	if(word === HIDDEN_SECRET_WORD){
 		document.getElementById('wordDisplaySpan').classList.remove('secretWord');
 		//SHOW GUESS INPUT PANEL
 		document.getElementById('guessInputDiv').style.display = 'block';
@@ -278,17 +290,19 @@ function startNextRound(){
 function openLobby(){
 
 	let update = {};
-	update.type = 'openLobby';
+	update.method = 'openLobby';
 	socket.emit('player-update', update);
 }
+
 //SEND: start the game
 function startGame(){
 
 	//socket.emit('start-game');
 	let update = {};
-	update.type = 'startGame';
+	update.method = 'startGame';
 	socket.emit('player-update', update);
 }
+
 //SEND: set player's name
 function playerJoin(){
 
@@ -301,13 +315,16 @@ function playerJoin(){
 	localStorage.setItem('RiverdaleRoadPlayerName',name);
 	joinAsName(name);
 }
+
 function joinAsName(name){
 	socket.name = name;
 	let update = {};
-	update.type = 'playerName';
+	update.method = 'playerName';
 	update.name = name;
 	socket.emit('player-update', update);
+	switchGameStage(socket, localGame.status.stage);
 }
+
 //SEND: guess
 function submitGuess(){
 
@@ -318,10 +335,11 @@ function submitGuess(){
 	if(guess === '') return;
 	guessInput.value = '';
 	let update = {};
-	update.type = 'clueInput';
+	update.method = 'clueInput';
 	update.guess = guess;
 	socket.emit('player-update', update);
 }
+
 function submitThumbs(){
 
 	let thumbInput = document.getElementById('thumbInput');
@@ -336,7 +354,7 @@ function submitThumbs(){
 	if(	(thumbs <= localGame.info.cluesPerRound) && (thumbs >= 0) ){
 
 		let update = {};
-		update.type = 'thumbsInput';
+		update.method = 'thumbsInput';
 		update.thumbs = thumbs;
 		update.winDeclared = winDeclared;
 		update.lossDeclared = lossDeclared;
@@ -379,7 +397,7 @@ function getInitialRoundArray(count){
 function resetGame(){
 	if (confirm("Are you sure you want to reset the game?") == true) {
 		let update = {};
-		update.type = 'resetGame';
+		update.method = 'resetGame';
 		socket.emit('player-update', update);
 	}
 }
@@ -435,15 +453,17 @@ function updatePlayerList(players, roles=null){
  * @param {integer} thumbs 
  */
 function updateThumbsList(thumbs){
-
+	console.log('updateThumbsList');
 	let guessTable = document.getElementById('guessesTable');
 	let guessTableRows = document.getElementsByTagName('tr');
 	//console.log(guessTableRows);
 	let thumbsTd = guessTableRows[game.info.currentRound].children[2];
 	thumbsTd.innerHTML = thumbs;
 }
-function updateGuessList(guesses){
 
+
+function updateGuessList(guesses){
+	console.log('updateGuessList');
 	let currentRound = localGame.status.currentRound;
 	//let guessTable = document.getElementById('guessesTable');
 	let guessTableRows = document.getElementsByTagName('tr');
@@ -456,14 +476,14 @@ function updateGuessList(guesses){
 	}
 	guessTd.innerHTML = thisRoundGuesses.join(', ');
 }
-function updateGuessInfoSpan(){
 
+function updateGuessInfoSpan(){
+	console.log('updateGuessInfo');
 	let currentRound = localGame.status.currentRound;
 	let clues = localRounds[currentRound - 1].clues;
-	console.log(clues);
 	let guessInfoSpan = document.getElementById('guessInfoSpan');
-	let guessesRemaining = info.cluesPerRound - localRounds[info.currentRound - 1].clues.length;
-	guessInfoSpan.innerHTML = '(' + info.cluesPerRound + ' guesses, ' + guessesRemaining + ' left)';
+	let guessesRemaining = localGame.info.cluesPerRound - clues.length;
+	guessInfoSpan.innerHTML = '(' + localGame.info.cluesPerRound + ' guesses, ' + guessesRemaining + ' left)';
 	if(guessesRemaining === 0){
 		//HIDE GUESSES INPUT
 		document.getElementById('guessInputDiv').style.display = 'none';
@@ -471,14 +491,18 @@ function updateGuessInfoSpan(){
 
 	//UPDATE THUMB INPUT 
 	let thumbInput = document.getElementById('thumbInput');
-	thumbInput.max = info.cluesPerRound;
+	thumbInput.max = localGame.info.cluesPerRound;
 }
+
 function updateThumbsInput(socket){
+	console.log('updateThumbsInput');
 	let currentRound = localGame.status.currentRound;
 	let info = localGame.info;
 	let guessesRemaining = info.cluesPerRound - localRounds[currentRound - 1].clues.length;
-
-	if(socket.role === 'Guide' && guessesRemaining === 0){
+	console.log(info.cluesPerRound, localRounds[currentRound - 1].clues.length, guessesRemaining);
+	
+	if(socket.name === localRoles.guide && guessesRemaining === 0){
+	//if(socket.role === 'Guide' && guessesRemaining === 0){
 		let thumbInputDiv = document.getElementById('thumbsInputDiv');
 		thumbInputDiv.style.display = 'block';
 	}
@@ -486,6 +510,7 @@ function updateThumbsInput(socket){
 //COLLAPSE ALL PANELS EXCEPT THE openSection
 function collapseSections(openSection){
 
+	console.log('collapseSection',openSection);
 	let sections = document.getElementsByClassName('sectionDiv');
 	for(let i = 0; i < sections.length; i++){
 		if(sections[i].id !== openSection){
