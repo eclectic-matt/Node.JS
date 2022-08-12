@@ -141,7 +141,7 @@ function isEmpty(obj){
 	return (obj && Object.keys(obj).length === 0 && Object.getPrototypeOf(obj) === Object.prototype);
 }
 
-function handleRunning(socket, game){
+function handleRunning(socket, game, rounds){
 
 	console.log('handle running is dead');
 	handleRound(socket, game, rounds);
@@ -500,7 +500,7 @@ function updateThumbsInput(socket){
 	let info = localGame.info;
 	let guessesRemaining = info.cluesPerRound - localRounds[currentRound - 1].clues.length;
 	console.log(info.cluesPerRound, localRounds[currentRound - 1].clues.length, guessesRemaining);
-	
+
 	if(socket.name === localRoles.guide && guessesRemaining === 0){
 	//if(socket.role === 'Guide' && guessesRemaining === 0){
 		let thumbInputDiv = document.getElementById('thumbsInputDiv');

@@ -14,6 +14,24 @@ const fs = require('fs');
 //JOIN - NOPE, NOT NEEDED
 //const { join } = require('path');
 
+setInterval(alive,2000);
+
+function alive(){
+	let stage = 'Lobby';
+	switch(game.status.stage){
+		case GAME_STAGE_SEEKER:
+			stage = 'Seekers Guess';
+		break;
+		case GAME_STAGE_GUIDE:
+			stage = 'Guide Thumbs';
+		break;
+		case GAME_STAGE_OVER:
+			stage = 'Over';
+		break;
+	}
+	console.log('The current game state is:',stage,'at',new Date());
+}
+
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // ROUTING (EXPRESS)
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -190,6 +208,9 @@ io.on('connection', (socket) => {
 		});
 	}else{
 		console.log('Player Joined with ID:' + socket.id);
+		console.log('Players IDs: ',players.sockets.map(x => x.id).join(', '));
+		console.log('Players Names: ',players.sockets.map(x => x.name).join(', '));
+	
 		//JOIN THE ROOM WITH lobbyId
 		socket.join(game.info.lobbyId);
 	}
@@ -261,7 +282,7 @@ io.on('connection', (socket) => {
 		players.sockets = removeSocket(players.sockets, socket.id);
 		sendServerUpdate('playerRemoved',socket.id);
 		console.log('Remaining Player Count: ',players.sockets.length);
-		console.log('Remaining Players: ',players.sockets.join(','));
+		console.log('Remaining Players: ',players.sockets.map(x => x.id).join(', '));
 		if(players.sockets.length === 0){
 			reset();
 			sendServerUpdate('noPlayersRemaining');
@@ -343,7 +364,7 @@ function sendServerUpdate(source='unknown'){
 	let p = players.getPlayerNamesArray();
 	let r = players.roles;
 	io.emit('server-update', game, p, r, rounds);
-	console.log(rounds);
+	//console.log(rounds);
 }
 
 ///-----------------------------------------
@@ -378,6 +399,8 @@ function handlePlayerName(socket, name){
 	socket.name = name;
 
 	console.log(prevId,'has been renamed to',socket.name);
+	console.log('Players IDs: ',players.sockets.map(x => x.id).join(', '));
+	console.log('Players Names: ',players.sockets.map(x => x.name).join(', '));
 
 	//IF GAME IS RUNNING
 	if(game.status.running){
