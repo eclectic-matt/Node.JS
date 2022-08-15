@@ -2,15 +2,6 @@ import React from 'react';
 
 class RoundsSection extends React.Component {
 
-	/*render(){
-		return (
-			<section id="roundsSection">
-				{this.props.clues.map((clue, index) => this.renderClue(clue, index))}
-				<b>Stage: {this.props.info.stage}</b>
-			</section>
-		)
-	}*/
-
 	renderClue(clue, round){
 		return (
 			<li 
@@ -18,6 +9,17 @@ class RoundsSection extends React.Component {
 			id={"clue" + clue + round}
 			>
 				{clue}
+			</li>
+		)
+	}
+
+	renderSolution(solution, round){
+		return (
+			<li 
+			key={"solution" + solution + round}
+			id={"solution" + solution + round}
+			>
+				{solution}
 			</li>
 		)
 	}

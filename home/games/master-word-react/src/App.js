@@ -22,6 +22,11 @@ function App() {
 	player.name = 'Naomi';
 	player.role = 'Seeker';
 	players.push(player);
+	player = {};
+	player.id = 4;
+	player.name = 'Loz';
+	player.role = 'Seeker';
+	players.push(player);
 
 	let info = {};
 	info.name = 'Master Word';
@@ -30,7 +35,7 @@ function App() {
 	let rounds = {};
 	rounds.clues = [
 		//ROUND 1
-		['Hello', 'Test', 'Smeg'],
+		['Shite', 'Test', 'Smeg'],
 		//ROUND 2
 		['Dick', 'Head', 'Brain'],
 	];
