@@ -361,10 +361,24 @@ server.listen(port, () => {
  */
 function sendServerUpdate(source='unknown'){
 	console.log('sending server update',source);
-	let p = players.getPlayerNamesArray();
-	let r = players.roles;
+	//let p = players.getPlayerNamesArray();
+	//let r = players.roles;
 	io.emit('server-update', game, p, r, rounds);
 	//console.log(rounds);
+	//PREPARE A SHAREABLE OBJECT
+	let shareObj = {};
+	//GET COPY OF GAME
+	let gameObj = JSON.parse(JSON.stringify(game));
+	//STORE GAME OBJECT IN SHARE OBJECT
+	shareObj.game = gameObj;
+	//STORE PLAYERS IN THE SHARE OBJECT (INCL. ROLES?)
+	shareObj.players = {};
+	shareObj.players.names = getPlayerNamesArray(players);
+	shareObj.players.roles = players.roles;
+	//STORE ROUNDS IN THE SHARE OBJECT
+	shareObj.rounds = JSON.parse(JSON.stringify(rounds));
+	//SEND SINGLE OBJECT UPDATE
+	io.emit('server-update', shareObj);
 }
 
 ///-----------------------------------------
