@@ -16,9 +16,12 @@ class PlayerList extends React.Component {
 
 	render(){
 		return (
-			<ul>
-				{this.props.players.map((i) => this.renderPlayerItem(i)) }
-			</ul>
+			<>
+				<h2>Clues:</h2>
+				<ul>
+					{this.props.players.map((i) => this.renderPlayerItem(i)) }
+				</ul>
+			</>
 		)
 	}
 }

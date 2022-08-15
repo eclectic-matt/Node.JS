@@ -28,7 +28,12 @@ function App() {
 	info.stage = 'Waiting for lobby to fill up...';
 
 	let rounds = {};
-	rounds.clues = [];
+	rounds.clues = [
+		//ROUND 1
+		['Hello', 'Test', 'Smeg'],
+		//ROUND 2
+		['Dick', 'Head', 'Brain'],
+	];
 	rounds.solutions = [];
 	rounds.wins = false;
 
@@ -38,9 +43,7 @@ function App() {
 			<div id="inputDiv">
 			</div>
 			<SecretsSection category="Famous People" word="butts" />
-			<div id="roundsDiv">
-			</div>
-			<RoundsSection rounds={rounds} />
+			<RoundsSection rounds={rounds} clues={rounds.clues}/>
 		</>
 	)
 	
