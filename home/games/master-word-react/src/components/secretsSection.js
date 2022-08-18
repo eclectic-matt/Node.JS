@@ -4,7 +4,7 @@ class SecretsSection extends React.Component {
 
 	renderSecretWord(word){
 		return (
-			<span style={{backgroundColor: "black"},{color: "white"}}>{word}</span>
+			<span style={{color: "white"}}>{word}</span>
 		)
 	}
 

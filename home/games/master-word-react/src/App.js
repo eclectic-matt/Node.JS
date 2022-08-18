@@ -1,57 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
-import HeaderSection from './components/headerSection';
-import SecretsSection from './components/secretsSection';
-import RoundsSection from './components/roundsSection';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import GamePage from './pages/GamePage';
+import socketIO from 'socket.io-client';
+
+const socket = socketIO.connect('http://localhost:3000');
+console.log('REACT Client available at http://localhost:3000');
 
 function App() {
-	
-	let players = [];
-	let player = {};
-	player.id = 1;
-	player.name = 'Matt';
-	player.role = 'Guide';
-	players.push(player);
-	player = {};
-	player.id = 2;
-	player.name = 'Lindsay';
-	player.role = 'Seeker';
-	players.push(player);
-	player = {};
-	player.id = 3;
-	player.name = 'Naomi';
-	player.role = 'Seeker';
-	players.push(player);
-	player = {};
-	player.id = 4;
-	player.name = 'Loz';
-	player.role = 'Seeker';
-	players.push(player);
-
-	let info = {};
-	info.name = 'Master Word';
-	info.stage = 'Waiting for lobby to fill up...';
-
-	let rounds = {};
-	rounds.clues = [
-		//ROUND 1
-		['Shite', 'Test', 'Smeg'],
-		//ROUND 2
-		['Dick', 'Head', 'Brain'],
-	];
-	rounds.solutions = [];
-	rounds.wins = false;
-
 	return (
-		<>
-			<HeaderSection players={players} info={info}/>
-			<div id="inputDiv">
-			</div>
-			<SecretsSection category="Famous People" word="butts" />
-			<RoundsSection rounds={rounds} clues={rounds.clues}/>
-		</>
-	)
-	
+	<BrowserRouter>
+		<div>
+		<Routes>
+			<Route path="/" element={<HomePage socket={socket} />}></Route>
+			<Route path="/game" element={<GamePage socket={socket} />}></Route>
+		</Routes>
+		</div>
+	</BrowserRouter>
+	);
 }
 
 export default App;
