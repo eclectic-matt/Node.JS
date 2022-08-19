@@ -1,10 +1,20 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import GamePage from './pages/GamePage';
-import socketIO from 'socket.io-client';
+import socketClient from 'socket.io-client';
 
-const socket = socketIO.connect('http://localhost:3000');
-console.log('REACT Client available at http://localhost:3000');
+//THIS CLIENT IS SERVED TO/RESPONDING FROM THIS PORT (DIFF TO SERVER.JS)
+const SERVERPORT = 3000;
+//REACTPORT = 8227
+
+//CLIENT PORT
+const socket = socketClient(`http://${window.location.hostname}:${SERVERPORT}`);
+socket.on("connect_error", (err) => {
+	console.log(err.message);
+});
+
+//NOTE: CONSOLE LOGS HERE ARE PRESENTED TO THE CLIENT!
+console.log('React Client live at http://localhost:' + SERVERPORT);
 
 function App() {
 	return (

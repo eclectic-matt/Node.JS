@@ -5,6 +5,7 @@ import HeaderSection from '../components/headerSection';
 import SecretsSection from '../components/secretsSection';
 import RoundsSection from '../components/roundsSection';
 import React, { useEffect, useState } from 'react';
+import NameInput from '../components/nameInput';
 
 //SOCKET/SERVER STUFF
 const HomePage = ({socket}) => {
@@ -54,6 +55,7 @@ const HomePage = ({socket}) => {
 			<h1>HomePage</h1>
 			<HeaderSection socket={socket} players={players} info={info}/>
 			<div id="inputDiv">
+				<NameInput socket={socket} />
 			</div>
 			<SecretsSection category="Famous People" word="butts" />
 			<RoundsSection rounds={rounds} clues={rounds.clues}/>
