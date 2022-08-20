@@ -373,7 +373,8 @@ function sendServerUpdate(source='unknown'){
 	shareObj.game = gameObj;
 	//STORE PLAYERS IN THE SHARE OBJECT (INCL. ROLES?)
 	shareObj.players = {};
-	shareObj.players.names = getPlayerNamesArray(players);
+	//shareObj.players.names = players.getPlayerNamesArray();
+	shareObj.players.names = players.sockets.map(x => x.name);
 	shareObj.players.roles = players.roles;
 	//STORE ROUNDS IN THE SHARE OBJECT
 	shareObj.rounds = JSON.parse(JSON.stringify(rounds));

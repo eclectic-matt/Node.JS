@@ -12,11 +12,11 @@ const HomePage = ({socket}) => {
 
 	//DEFINE AND PROVIDE DEFAULTS FOR PLAYERS
 	const [players, setPlayers] = useState([
-		{
+		/*{
 			id: 1,
 			name: 'Matt',
 			role: 'Guide'
-		}
+		}*/
 	]);
 	//DEFINE AND PROVIDE DEFAULTS FOR PLAYERS
 	const [rounds, setRounds] = useState({
@@ -32,6 +32,13 @@ const HomePage = ({socket}) => {
 		category: 'Example',
 		word: 'Secret'
 	});
+
+	//SINGLE GAME STATE OBJECT
+	const [game, updateGame] = useState({
+		name: 'Master Word',
+		players: {},
+		secrets: {}
+	});
 	//NOTE [varname, methodname] = useState
 	//IS THE PATTERN WHICH EXPOSES
 	//methodname(newvarname) TO SET THE STATE
@@ -41,12 +48,15 @@ const HomePage = ({socket}) => {
 	//IN THIS CASE, SOCKET.IO UPDATES
 	useEffect(() =>  
 		{
-			//socket.on('server-update', (game) => updateApp(game));
+			//socket.on('server-update', (game) => updateGame(game));
+			socket.on('server-update', (game) => {
+				console.log('server update received!', game)
+				setPlayers([...players, game.players.names]);
+				setRounds([...rounds, game.rounds]);
+				setInfo([...info, game.info]);
+				setSecrets([...secrets, game.secrets]);
 			
-			//socket.on('server-update-players', (newPlayers) => setPlayers([...players, newPlayers]));
-			//socket.on('server-update-rounds', (newRounds) => setRounds([...rounds, newRounds]));
-			//socket.on('server-update-info', (newInfo) => setInfo([...info, newInfo]));
-			//socket.on('server-update-secrets', (newSecrets) => setSecrets([...secrets, newSecrets]));
+		});
 		}, [socket]
 	);
 	
@@ -54,11 +64,11 @@ const HomePage = ({socket}) => {
 		<>
 			<h1>HomePage</h1>
 			<HeaderSection socket={socket} players={players} info={info}/>
-			<div id="inputDiv">
+			{ socket.name == undefined && 
 				<NameInput socket={socket} />
-			</div>
+			}
 			<SecretsSection category="Famous People" word="butts" />
-			<RoundsSection rounds={rounds} clues={rounds.clues}/>
+			{/*<RoundsSection rounds={rounds} clues={rounds.clues}/>*/}
 		</>
 	)
 	

@@ -4,6 +4,7 @@ import PlayerListItem from './playerListItem'
 class PlayerList extends React.Component {
 
 	renderPlayerItem(player){
+		console.log('rendering player',player);
 		return (
 			<PlayerListItem 
 				key={player.id} 
@@ -15,12 +16,18 @@ class PlayerList extends React.Component {
 	}
 
 	render(){
+		console.log('rendering players',this.props.players[0]);
 		return (
 			<>
-				<h2>Clues:</h2>
-				<ul>
-					{this.props.players.map((i) => this.renderPlayerItem(i)) }
-				</ul>
+				<h2>Players:</h2>
+				{this.props.players.length === 0 &&
+					<em>No players joined yet!</em>
+				}
+				{this.props.players.length > 0 &&
+					<ul>
+						{this.props.players[0].map((i) => this.renderPlayerItem(i)) }
+					</ul>
+				}
 			</>
 		)
 	}

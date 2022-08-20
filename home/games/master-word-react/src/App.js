@@ -8,13 +8,14 @@ const SERVERPORT = 3000;
 //REACTPORT = 8227
 
 //CLIENT PORT
-const socket = socketClient(`http://${window.location.hostname}:${SERVERPORT}`);
+const hostAddress = `http://${window.location.hostname}:${SERVERPORT}`;
+const socket = socketClient(hostAddress);
 socket.on("connect_error", (err) => {
 	console.log(err.message);
 });
 
 //NOTE: CONSOLE LOGS HERE ARE PRESENTED TO THE CLIENT!
-console.log('React Client live at http://localhost:' + SERVERPORT);
+console.log('React Client live at ' + hostAddress);
 
 function App() {
 	return (

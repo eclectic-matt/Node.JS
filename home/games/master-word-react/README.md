@@ -1,3 +1,20 @@
+# START UP SCRIPTS
+
+To run this app, you need to start BOTH the React server and the Socket server with:
+
+	node src\server.js
+	react-scripts start
+
+Or as a one-liner with titles as:
+
+	start \"NodeServer\" node src/server.js && start \"ReactClient\" react-scripts start
+
+This can also be achieved through the "npm test" command as defined in package.json
+
+Or use the batch file in the src/ folder.
+
+## ---------------------------------------
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -29,7 +29,9 @@ class RoundsSection extends React.Component {
 			<div key={"roundHeader" + round}>
 				<h3 key={"roundHeader" + round}>Round {round + 1}</h3>
 				<ul key={"roundList" + round}>
-					{this.props.clues[round].map((clue,round) => this.renderClue(clue, round))}
+					{this.props.clues.length > 0 &&
+						this.props.clues[round].map((clue,round) => this.renderClue(clue, round))
+					}
 				</ul>
 			</div>
 		)
