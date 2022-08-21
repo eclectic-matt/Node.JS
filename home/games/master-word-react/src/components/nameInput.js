@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-//import './NameInput.css';
+import './styles/nameInput.css';
 
 const NameInput = ({socket}) => {
 	//VALUE IS THE SET NAME
@@ -10,12 +10,8 @@ const NameInput = ({socket}) => {
 			let update = {};
 			update.method = 'playerName';
 			update.name = value;
-			//socket.name = value;
-			console.log(socket.name);
 			socket.emit('player-update', update);
-			console.log(update);
-			//window.location.href += 'game';
-			//setValue(value);	//VALUE ALREADY IN STATE
+			console.log('sending update to server',update);
 		}else{
 			console.log('Already signed up with this name!');
 		}
@@ -23,13 +19,14 @@ const NameInput = ({socket}) => {
 
 	return (
 		<section id="NameInputSection">
+			<h2 id="NameInputHeader">Player Name Input</h2>
 			<form onSubmit={submitForm}>
 				<label htmlFor="name">Enter your name: </label>
 				<input
 					autoFocus
 					value={value}
 					name="name"
-					placeholder="Type your name"
+					placeholder="Your name..."
 					onChange={(e) => {
 						setValue(e.currentTarget.value);
 					}}

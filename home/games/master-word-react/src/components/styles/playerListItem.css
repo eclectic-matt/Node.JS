@@ -1,0 +1,41 @@
+:root {
+	--main-bg-color: #800000;
+	--main-text-color: #fff;
+	--main-highlight-color: #ffff00;
+	--dark-fg-color: #400000;
+}
+
+body {
+	background-color: var(--main-bg-color);
+	color: var(--main-text-color);
+	padding: 10px;
+}
+.playerHighlightItem {
+	color: var(--main-highlight-color);
+}
+.playerHighlightItem::after {
+	content: "*";
+}
+.playerItem{
+	color: var(--main-text-color);
+}
+ul {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+li {
+	list-style-type: none;
+	background-color: var(--dark-fg-color);
+	border: 5px outset var(--main-text-color);
+	border-radius: 5px;
+	padding: 5px;
+	margin-top: 5px;
+	margin-right: 5px;
+	left: -20px;
+	position: relative;
+}
+h2 {
+	font-size: 1em;
+	font-weight: 300;
+}

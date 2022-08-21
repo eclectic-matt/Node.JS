@@ -1,4 +1,5 @@
 import React from 'react';
+import './styles/playerListItem.css';
 
 /**
  * PlayerListItem is a single LI showing a player name and role.
@@ -8,19 +9,19 @@ import React from 'react';
  */
 class PlayerListItem extends React.Component {
 	render(){
+		let className = (this.props.highlight ? 'playerHighlightItem' : 'playerItem');
 		return (
 		<li 
 			key={this.props.id} 
 			value={this.props.name}>
-				<b>
+				<b className={className}>
 					{this.props.name}
-				</b>
-				&nbsp;
 				{this.props.role !== undefined && 
 					<em>
-						({this.props.role})
+						( {this.props.role})
 					</em>
 				}
+				</b>
 			</li>
 		)
 	}
