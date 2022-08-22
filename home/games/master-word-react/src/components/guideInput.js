@@ -1,12 +1,17 @@
 import React from 'react';
 
-class RoundsSection extends React.Component {
+class GuideInput extends React.Component {
+
+	markLose = () => {
+
+	}
 
 	renderClue(clue, index){
 		return (
 			<li 
 			key={"clue" + clue + index}
 			id={"clue" + clue + index}
+			onClick="markLose"
 			>
 				{clue}
 			</li>
@@ -24,8 +29,20 @@ class RoundsSection extends React.Component {
 		)
 	}
 
-	renderRound(round, index){
-		console.log('render round', round);
+	renderThumbsInput(maxThumbs){
+		return (
+			<input
+			type="number"
+			min="0"
+			max={maxThumbs}
+			step="1"
+			value="0"
+			/>
+		)
+	}
+
+	renderClues(round, index){
+		console.log('render guide clue', round);
 		if(round.clues.length === 0){
 			return false;
 		}
@@ -42,14 +59,16 @@ class RoundsSection extends React.Component {
 	}
 
 	render() {
-		console.log('render rounds',this.props.rounds[0]);
+		let roundClues = this.props.rounds[0][this.props.status.currentRound - 1].clues;
+		console.log('render guide clues',roundClues);
 		return (
-			<section id="roundsSection">
-				<h2>Rounds</h2>
-				{this.props.rounds[0].map((round, index) => this.renderRound(round, index)) }
+			<section id="guideInputSection">
+				<h2>Clues/Solutions</h2>
+				{this.renderThumbsInput(this.props.info.cluesPerRound)}
+				{roundClues.map((clue, index) => this.renderClues(clue, index)) }
 			</section>
 		)
 	}
 }
 
-export default RoundsSection;
+export default GuideInput;

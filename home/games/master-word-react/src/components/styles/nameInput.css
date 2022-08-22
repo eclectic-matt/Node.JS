@@ -5,6 +5,13 @@ h2#NameInputHeader{
 	text-decoration: underline;
 }
 
+button#changeNameButton{
+	margin: 10px 10%;
+	width: 80%;
+	background-color: var(--main-highlight-color);
+	color: var(--dark-fg-color);
+}
+
 form {
 	margin: 3px;
 	padding: 3px;

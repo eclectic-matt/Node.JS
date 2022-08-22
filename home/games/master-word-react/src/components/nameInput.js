@@ -31,6 +31,11 @@ const NameInput = ({socket}) => {
 						setValue(e.currentTarget.value);
 					}}
 				/>
+				<button 
+					id="changeNameButton"
+					type="submit"
+					value="submit"
+				>Change Name</button>
 			</form>
 		</section>
 	);

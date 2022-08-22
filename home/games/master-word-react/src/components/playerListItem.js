@@ -18,7 +18,7 @@ class PlayerListItem extends React.Component {
 					{this.props.name}
 				{this.props.role !== undefined && 
 					<em>
-						( {this.props.role})
+						&nbsp;({this.props.role})
 					</em>
 				}
 				</b>

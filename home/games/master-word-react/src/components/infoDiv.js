@@ -15,7 +15,7 @@ class InfoDiv extends React.Component {
 	returnStageName(stage){
 		switch(stage){
 			case 0:
-				return 'LOBBY';
+				return 'Waiting in lobby';
 			break;
 			case 1:
 				return 'Seekers Give Clues';

@@ -9,7 +9,10 @@ const server = http.createServer(app);
 //const { isSet } = require('util/types');	//AUTO INCLUDED WHEN I WROTE A TYPO!?!
 
 //IMPORT PLAYER UPDATE HANDLERS
-const { handleClueInput, handlePlayerName, handleResetGame, handleSolutionInput, handleStartGame, handleThumbsInput} = require(__dirname + '/server/playerUpdates.js');
+const { 
+	handleClueInput, handlePlayerName, handleResetGame, handleSolutionInput, 
+	handleStartGame, handleThumbsInput, getInitialRoundArray, sendServerUpdate, reset
+} = require(__dirname + '/server/playerUpdates.js');
 
 //CONSTANTS
 const SERVERPORT = 4000;
@@ -27,7 +30,7 @@ const io = new Server(server, {
 	}
 });
 
-setInterval(alive,2000);
+//setInterval(alive,2000);
 
 function alive(){
 	let stage = 'Lobby';
@@ -50,63 +53,22 @@ function alive(){
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 // INITIALIZE
 //#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-
-//DEFINE CONSTANTS
-const PLAYER_LIMIT_MIN = 2;
-const PLAYER_LIMIT_MAX = 10;
-const CLUES_PER_ROUND = 4;
-const SOLUTIONS_PER_GAME = 3;
-const ROUND_LIMIT_MAX = 7;
-const GAME_NAME = 'Master Word';
-const DEFAULT_LOBBY_ID = 'AB12';
-const HIDDEN_SECRET_WORD = '__________';
-//STAGES
-const GAME_STAGE_LOBBY = 0;		//PLAYERS JOIN
-const GAME_STAGE_SEEKER = 1;	//SEEKERS GUESS
-const GAME_STAGE_GUIDE = 2;		//GUIDE THUMBS/WINS
-const GAME_STAGE_OVER = 3;		//GAME OVER
+const {
+	PLAYER_LIMIT_MIN, PLAYER_LIMIT_MAX, CLUES_PER_ROUND, SOLUTIONS_PER_GAME,
+	ROUND_LIMIT_MAX, GAME_NAME, DEFAULT_LOBBY_ID, HIDDEN_SECRET_WORD,
+	GAME_STAGE_LOBBY, GAME_STAGE_SEEKER, GAME_STAGE_GUIDE, GAME_STAGE_OVER
+} = require(__dirname + '/constants.js');
 
 //-------------------
 //INITIALIZE GAME
 //-------------------
 //THE GAME OBJECT
 var game = {};
-
-//NEW BEHEMOTH, HOLDING EVERYTHING
-
-//GAME INFO (SET FOR GAME DURATION)
-game.info = {};
-game.info.name = GAME_NAME;
-game.info.lobbyId = DEFAULT_LOBBY_ID;
-game.info.cluesPerRound = CLUES_PER_ROUND;
-game.info.solutionsPerGame = SOLUTIONS_PER_GAME;
-game.info.roundLimit = ROUND_LIMIT_MAX;
-//GAME STATUS (CHANGES DURING GAME)
-game.status = {};
-game.status.running = false;
-game.status.currentRound = 1;	//SO THAT round - 1 INDEXES WORK
-game.status.stage = GAME_STAGE_LOBBY;
-game.status.jokerUsed = false;
-game.status.solutionsUsed = 0;
-//GAME SECRETS
-game.secrets = {};
-game.secrets.word = HIDDEN_SECRET_WORD;
-game.secrets.category = 'CATEGORY';
-//NEW - PLAYERS ARRAY
-/*//BUILD PLAYER OBJECTS LIKE:
-player = {};
-player.id = 'socket-id';
-player.name = undefined || 'player-name';
-player.role = undefined || 'player-role';*/
-game.players = [];
-//STORE ROUNDS IN GAME OBJECT
-game.rounds = getInitialRoundArray(ROUND_LIMIT_MAX);
-
-//rounds = getInitialRoundArray(ROUND_LIMIT_MAX);
 //INITIALIZE SERVER
 //initServer();
 //RUN RESET FUNCTION
-reset();
+handleResetGame(game);
+sendServerUpdate(io, game, 'game reset', 'everyone');
 
 //EXPRESS HTTP SERVER ... NOT APP!!!! (LISTEN ON THIS PORT)
 server.listen(process.env.PORT || CLIENTPORT, () => {
@@ -132,7 +94,7 @@ io.on('connection', (socket) => {
 	console.log('');
 	
 	//SEND GAME STATE TO THIS PLAYER
-	sendServerUpdate('user connected',socket.id);
+	sendServerUpdate(io, game, 'user connected',socket.id);
 
 	//LOG UPDATE
 	socket.on('player-update', (update) => {
@@ -148,11 +110,11 @@ io.on('connection', (socket) => {
 			break;
 			case 'startGame':
 				source = 'playerStartGame';
-				serverUpdate = handleStartGame();
+				serverUpdate = handleStartGame(game, io);
 			break;
 			case 'clueInput':
 				source = 'playerClueInput';
-				serverUpdate = handleClueInput(socket, update.guess);
+				serverUpdate = handleClueInput(game, socket, update.guess);
 			break;
 			case 'solutionInput':
 				source = 'playerSolutionInput';
@@ -164,7 +126,7 @@ io.on('connection', (socket) => {
 			break;
 			case 'resetGame':
 				source = 'playerResetGame';
-				serverUpdate = handleResetGame();
+				serverUpdate = handleResetGame(game);
 			break;
 		}
 
@@ -172,7 +134,7 @@ io.on('connection', (socket) => {
 		if(serverUpdate){
 
 			//SEND SERVER UPDATE TO EVERYONE
-			sendServerUpdate(source, undefined);
+			sendServerUpdate(io, game, source, undefined);
 		}
 	});
 
@@ -189,7 +151,7 @@ io.on('connection', (socket) => {
 		console.log('#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#');
 		console.log('');
 		//SEND SERVER UPDATE
-		sendServerUpdate('user disconnected','everyone');
+		sendServerUpdate(io, game, 'user disconnected','everyone');
 	
 	});
 });
@@ -223,89 +185,4 @@ function removeSocket(sockets, id){
 		sockets.splice(userIndex, 1);
 	}
 	return sockets;
-}
-
-
-function addSeeker(socket){
-	socket.join('seekerRoom');
-	if(!players.roles.seekers.includes(socket.name)){
-		players.roles.seekers.push(socket.name);
-		socket.role = 'Seeker';
-	}
-}
-
-function addGuide(socket){
-	socket.join('guideRoom');
-	players.roles.guide = socket.name;
-	socket.role = 'Guide';
-}
-
-
-function sendServerUpdate(source='unknown', to='everyone'){
-
-	console.log('');
-	console.log('#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#');
-	console.log(`Sending server update`);
-	console.log(`caused by "${source}"`);
-	console.log(`to ${to}`);
-	console.log('#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#');
-	console.log('');
-
-	//PREPARE A SHAREABLE OBJECT
-	//let gameObj = JSON.parse(JSON.stringify(game));
-
-	//IF SENDING TO A SINGLE USER
-	if(to !== 'everyone'){
-		//TO ONE SOCKET
-		io.to(to).emit('server-update', game);
-	}else{
-		//SEND SINGLE OBJECT UPDATE TO ALL
-		io.emit('server-update', game);
-	}
-}
-
-
-
-//RESET GAME OBJECT BACK TO INIT STATE
-function reset(){
-
-	//RESET PER GAME VARS
-	console.log('Initializing game variables');
-
-	//GAME STATUS (CHANGES DURING GAME)
-	game.status = {};
-	game.status.running = false;
-	game.status.currentRound = 1;	//SO THAT round - 1 INDEXES WORK
-	game.status.stage = GAME_STAGE_LOBBY;
-	game.status.jokerUsed = false;
-	game.status.solutionsUsed = 0;
-	//GAME SECRETS
-	game.secrets = {};
-	game.secrets.word = HIDDEN_SECRET_WORD;
-	game.secrets.category = 'CATEGORY';
-	//NEW - PLAYERS ARRAY
-	/*//BUILD PLAYER OBJECTS LIKE:
-	player = {};
-	player.id = 'socket-id';
-	player.name = undefined || 'player-name';
-	player.role = undefined || 'player-role';*/
-	game.players = [];
-	//STORE ROUNDS IN GAME OBJECT
-	game.rounds = getInitialRoundArray(ROUND_LIMIT_MAX);
-}
-
-function getInitialRoundArray(count){
-
-	let arr = [];
-
-	//ITERATE TO BUILD SAFE ROUNDS ARRAY
-	for(let i = 0; i < count; i++){
-
-		let obj = {};
-		obj.clues = [];
-		obj.thumbs = -1;
-		obj.solutions = [];
-		arr[i] = JSON.parse(JSON.stringify(obj));
-	}
-	return arr;
 }

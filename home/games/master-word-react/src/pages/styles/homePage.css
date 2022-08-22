@@ -1,0 +1,12 @@
+/*.h1 {
+	font-size: 1.3em;
+	font-weight: 500;
+	color: purple;
+
+}*/
+:root {
+	--main-bg-color: #800000;
+	--main-text-color: #fff;
+	--main-highlight-color: #ffff00;
+	--dark-fg-color: #400000;
+}
