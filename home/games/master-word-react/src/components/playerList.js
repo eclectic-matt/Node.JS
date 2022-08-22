@@ -1,5 +1,6 @@
 import React from 'react';
 import PlayerListItem from './playerListItem'
+import './styles/playerList.css';
 
 class PlayerList extends React.Component {
 
@@ -32,14 +33,18 @@ class PlayerList extends React.Component {
 		}
 		return (
 			<>
-				<h2>Players ({playerCount}):</h2>
+				<h2 id='playerListHeader'>Players ({playerCount}):</h2>
 				{playerCount === 0 &&
 					<em>No players joined yet!</em>
 				}
 				{playerCount > 0 &&
-					<ul>
+				<div className='playerListDiv'>
+					<ul 
+						className='playerList'
+					>
 						{this.props.players[0].map((i) => this.renderPlayerItem(i)) }
 					</ul>
+				</div>
 				}
 			</>
 		)

@@ -10,7 +10,7 @@ const CluesInput = ({socket}) => {
 		update.method = 'clueInput';
 		update.guess = value;
 		socket.emit('player-update', update);
-		console.log('sending update to server',update);
+		//console.log('sending update to server',update);
 		//CLEAR VALUE
 		setValue('');
 	};

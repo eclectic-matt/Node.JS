@@ -17,9 +17,10 @@ const NameInput = ({socket}) => {
 		}
 	};
 
+	//<h2 id="NameInputHeader">Player Name Input</h2>
 	return (
 		<section id="NameInputSection">
-			<h2 id="NameInputHeader">Player Name Input</h2>
+			
 			<form onSubmit={submitForm}>
 				<label htmlFor="name">Enter your name: </label>
 				<input

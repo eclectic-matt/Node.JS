@@ -1,0 +1,12 @@
+.resetButton {
+	background-color: var(--main-text-color);
+	color: var(--main-button-text-color);
+	font-size: 0.75em;
+	position: fixed;
+	top: -1%;
+	right: 1%;
+	width: 20%;
+	margin-right: 0;
+	padding: 5px;
+	border-radius: 3px;
+}

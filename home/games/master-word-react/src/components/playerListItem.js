@@ -11,7 +11,8 @@ class PlayerListItem extends React.Component {
 	render(){
 		let className = (this.props.highlight ? 'playerHighlightItem' : 'playerItem');
 		return (
-		<li 
+			<li 
+			className="playerListItem"
 			key={this.props.id} 
 			value={this.props.name}>
 				<b className={className}>

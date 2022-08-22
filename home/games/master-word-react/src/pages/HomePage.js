@@ -44,10 +44,10 @@ const HomePage = ({socket}) => {
 		if(players[0] === undefined){
 			return false;
 		}
-		console.log('checking for current player', players);
+		//console.log('checking for current player', players);
 		for(let i = 0; i < players[0].length; i++){
 			if(players[0][i].id === socket.id){
-				console.log('matched current player', players[0][i]);
+				//console.log('matched current player', players[0][i]);
 				return players[0][i];
 			}
 		}
@@ -56,7 +56,7 @@ const HomePage = ({socket}) => {
 	const renderSection = (stage) => {
 
 		let thisPlayer = currentPlayer(players, socket);
-		console.log(thisPlayer);
+		//console.log('current-player',thisPlayer);
 
 		switch(stage){
 
@@ -65,12 +65,12 @@ const HomePage = ({socket}) => {
 				
 				let startGameBtn = null;
 				if(players[0]?.length !== undefined){
-					console.log('players length found -',players[0].length);
+					//console.log('players length found -',players[0].length);
 					if( 
 						(players[0].length >= info.playerLimitMin) && 
 						(players[0].length <= info.playerLimitMax)
 					){
-						console.log('players limit suitable',players[0].length);
+						//console.log('players limit suitable',players[0].length);
 						startGameBtn = <StartGameButton socket={socket}/>;
 					}
 				}
@@ -134,7 +134,7 @@ const HomePage = ({socket}) => {
 	useEffect(() =>  
 		{
 			socket.on('server-update', (game) => {
-				console.log('server update received!', game, socket.name);
+				//console.log('server update received!', game, socket.name);
 				//UPDATE PLAYERS
 				setPlayers([...players, game.players]);
 				//UPDATE ROUNDS (DURING GAME)

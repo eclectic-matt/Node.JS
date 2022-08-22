@@ -25,7 +25,7 @@ class RoundsSection extends React.Component {
 	}
 
 	renderRound(round, index){
-		console.log('render round', round);
+		//console.log('render round', round);
 		if(round.clues.length === 0){
 			return false;
 		}
