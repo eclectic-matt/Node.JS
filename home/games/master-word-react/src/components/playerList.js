@@ -10,6 +10,9 @@ class PlayerList extends React.Component {
 		if(this.props.socket.id === player.id){
 			highlight = true;
 		}
+		if(player.name !== player.id){
+			player.name = '@' + player.name;
+		}
 		return (
 			<PlayerListItem 
 				key={player.id} 

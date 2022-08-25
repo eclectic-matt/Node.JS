@@ -81,6 +81,7 @@ io.on('connection', (socket) => {
 	//INITIALIZE NAME TO SOCKET (DEFAULT ID)
 	socket.name = socket.id;
 	socket.role = undefined;
+	socket.nameSet = false;
 	//NEW - PUSH TO PLAYERS, RENAME PLAYER ID, OR DO NOTHING?
 	//handleSocketJoin(socket, game);
 	//CREATE SHARE-SAFE PLAYER OBJECT TO STORE

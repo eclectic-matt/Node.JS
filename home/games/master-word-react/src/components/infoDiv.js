@@ -1,4 +1,5 @@
 import React from 'react';
+import './styles/infoDiv.css';
 
 class InfoDiv extends React.Component {
 
@@ -32,7 +33,7 @@ class InfoDiv extends React.Component {
 	render(){
 		return (
 			<section id="infoDiv">
-				<em>Stage: {this.returnStageName(this.props.status.stage)}</em>
+				<h4 id="stageInfo">Stage: {this.returnStageName(this.props.status.stage)}</h4>
 			</section>
 		)
 	}

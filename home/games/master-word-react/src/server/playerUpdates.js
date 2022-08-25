@@ -55,6 +55,7 @@ function handlePlayerName(game, socket, name){
 
 	//SET THE NAME ON THE SOCKET
 	socket.name = name;
+	socket.nameSet = true;
 	//RENAME THE GAME PLAYER
 	game.players = renameGamePlayer(game.players, socket);
 	

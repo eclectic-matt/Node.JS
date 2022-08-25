@@ -5,4 +5,24 @@ h1 {
 	font-family: 'Bradley Hand', Bradley Hand, 'Brush Script MT', Brush Script MT, cursive;
 	padding: 1px;
 	margin: 5px 0px;
+	text-align: center;
+	line-height: 0.9em;
+}
+
+h1 span#headerMaster { 
+	/* https://css-tricks.com/snippets/svg/curved-text-along-path/ */
+	/*text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;*/
+	-webkit-text-stroke: 10px black;
+	color: #888;
+	font-size: 64px;
+	font-family: 'Open Sans', Open Sans, sans-serif;
+}
+
+h1 span#headerWord {
+	font-family: 'Bradley Hand', Bradley Hand, 'Brush Script MT', Brush Script MT, cursive;
+
+}
+
+section#headerSection {
+	background-color: var(--dark-grey-color);
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './styles/nameInput.css';
+import './styles/cluesInput.css';
 
 const CluesInput = ({socket}) => {
 	//VALUE IS THE SET NAME
@@ -15,13 +15,15 @@ const CluesInput = ({socket}) => {
 		setValue('');
 	};
 
+	//<h2 id="CluesInputHeader">Clue Input</h2>
 	return (
 		<section id="CluesInputSection">
-			<h2 id="CluesInputHeader">Clue Input</h2>
 			<form onSubmit={submitForm}>
 				<label htmlFor="guess">Enter your clue: </label>
 				<input
+					id="clueInput"
 					autoFocus
+					autoComplete="off"
 					value={value}
 					name="clue"
 					placeholder="Your clue..."

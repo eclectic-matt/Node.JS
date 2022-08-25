@@ -5,6 +5,14 @@
 
 }*/
 :root {
+
+	--bg-color-white: #fff;
+	--bg-color-red: #c00;
+	--text-color-black: #000;
+	--text-color-white: #fff;
+	--button-color-red: #c00;
+	--button-text-color: #fff;
+
 	/* BACKGROUNDS */
 	/*--main-bg-color: #800000;
 	--dark-fg-color: #400000;*/
@@ -13,6 +21,8 @@
 	--dark-fg-color: #200000;
 	--dark-highlight-color: #400080;
 	--light-bg-color: #999999;
+
+	--dark-grey-color: #555;
 	/* TEXT */
 	/*--main-text-color: #fff;*/
 	--main-highlight-color: #ffff00;

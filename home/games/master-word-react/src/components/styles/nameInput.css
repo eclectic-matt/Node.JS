@@ -6,8 +6,10 @@ h2#NameInputHeader{
 }
 
 button#changeNameButton{
-	margin: 10px 10%;
-	width: 80%;
+	font-size: 1.2em;
+	margin: 5px 20px 20% 20%;
+	padding: 20px;
+	width: 60%;
 	background-color: var(--main-highlight-color);
 	color: var(--dark-fg-color);
 }
@@ -17,8 +19,8 @@ form {
 	padding: 3px;
 }
 
-input {
-	font-size: 3em;
+input#playerNameInput {
+	font-size: 2em;
 	width: 90%;
 }
 

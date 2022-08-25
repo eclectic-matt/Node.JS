@@ -3,3 +3,88 @@ h2#playerListHeader{
 	font-size: 1.5em;
 	margin: 0px 10px;
 }
+
+/*div.playerListDiv{
+	overflow-x: auto;
+	scrollbar-color: red;
+	scroll-padding: 2px;
+	overflow-y: hidden;
+	width: 100%;
+	min-height: 90px;
+	max-height: 100px;
+}*/
+/*ul.playerList {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	min-height: 80px;
+	max-height: 90px;
+	width: 300%;
+	background-color: var(--light-bg-color);
+}*/
+
+
+
+@-webkit-keyframes ticker {
+	0% {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0);
+		visibility: visible;
+   }
+	100% {
+		-webkit-transform: translate3d(-125%, 0, 0);
+		transform: translate3d(-125%, 0, 0);
+   }
+}
+
+@keyframes ticker {
+	0% {
+		-webkit-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0);
+		visibility: visible;
+   }
+	100% {
+		-webkit-transform: translate3d(-125%, 0, 0);
+		transform: translate3d(-125%, 0, 0);
+   }
+}
+
+/* 
+Ticker source from
+https://codepen.io/lewismcarey/pen/GJZVoG
+*/
+.playerListDiv {
+	/*position: fixed;*/
+	padding-top: 0;
+	width: 100%;
+	overflow: hidden;
+	height: 5em;
+	/* height: 8rem; */
+	padding-left: 100%;
+	box-sizing: content-box;
+}
+
+.playerListDiv .playerList {
+	display: inline-block;
+	height: 2.5rem;
+	padding-top: 0;
+	padding-right: 100%;
+
+	line-height: 0.5rem;
+	white-space: nowrap;
+	
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	
+	box-sizing: content-box;
+	
+	-webkit-animation-iteration-count: infinite;
+	animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	animation-timing-function: linear;
+	-webkit-animation-name: ticker;
+	animation-name: ticker;
+	-webkit-animation-duration: 10s;
+	animation-duration: 10s;
+}

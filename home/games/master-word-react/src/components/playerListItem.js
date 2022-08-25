@@ -10,12 +10,16 @@ import './styles/playerListItem.css';
 class PlayerListItem extends React.Component {
 	render(){
 		let className = (this.props.highlight ? 'playerHighlightItem' : 'playerItem');
+		let nameSet = this.props.name !== this.props.id;
 		return (
 			<li 
 			className="playerListItem"
 			key={this.props.id} 
 			value={this.props.name}>
 				<b className={className}>
+					{nameSet === true &&
+						<span>👤</span>
+					}
 					{this.props.name}
 				{this.props.role !== undefined && 
 					<em>

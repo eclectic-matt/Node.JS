@@ -57,6 +57,7 @@ const HomePage = ({socket}) => {
 
 		let thisPlayer = currentPlayer(players, socket);
 		//console.log('current-player',thisPlayer);
+		//console.log('renderSection',stage,socket);
 
 		switch(stage){
 
@@ -77,7 +78,7 @@ const HomePage = ({socket}) => {
 				return (
 					<>
 					<HeaderSection socket={socket} players={players} info={info} status={status}/>
-						{ socket.name === undefined && 
+						{ socket.nameSet !== true && 
 							<NameInput socket={socket} />
 						}
 						{startGameBtn}

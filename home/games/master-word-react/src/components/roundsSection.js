@@ -1,15 +1,17 @@
 import React from 'react';
+import './styles/roundsSection.css';
 
 class RoundsSection extends React.Component {
 
 	renderClue(clue, index){
 		return (
-			<li 
-			key={"clue" + clue + index}
-			id={"clue" + clue + index}
+			<div 
+				className='newClue'
+				key={"clue" + clue + index}
+				id={"clue" + clue + index}
 			>
 				{clue}
-			</li>
+			</div>
 		)
 	}
 
@@ -29,23 +31,28 @@ class RoundsSection extends React.Component {
 		if(round.clues.length === 0){
 			return false;
 		}
+		
+		//<ul key={"roundList" + index}>
 		return (
 			<div key={"roundHeader" + index}>
 				<h3 key={"roundHeader" + index}>Round {index + 1}</h3>
-				<ul key={"roundList" + index}>
+				<div 
+					id={"roundClues" + index }
+					className="roundCluesDiv"
+				>
 					{round.clues.length > 0 &&
 						round.clues.map((clue, index) => this.renderClue(clue, index))
 					}
-				</ul>
+				</div>
 			</div>
 		)
 	}
 
+	//<h2>Rounds</h2>
 	render() {
 		console.log('render rounds',this.props.rounds[0]);
 		return (
 			<section id="roundsSection">
-				<h2>Rounds</h2>
 				{this.props.rounds[0].map((round, index) => this.renderRound(round, index)) }
 			</section>
 		)
