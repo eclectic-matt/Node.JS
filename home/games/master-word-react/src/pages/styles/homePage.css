@@ -29,8 +29,14 @@
 	--main-button-text-color: #fff;
 	/* BUTTONS */
 	--main-button-color: #ffffff;
+
+	/* TICKER */
+	--ticker-height: 2rem;		/* 4rem */
+	--ticker-item-size: 1rem;	/* 2rem */
 }
 
 body {
 	font-size: 1em;
+	padding: 0;
+	margin: 0;
 }

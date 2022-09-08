@@ -1,52 +1,73 @@
-h2#playerListHeader{
-	text-align: center;
-	font-size: 1.5em;
-	margin: 0px 10px;
+* {
+	box-sizing: border-box;
 }
-
-/*div.playerListDiv{
-	overflow-x: auto;
-	scrollbar-color: red;
-	scroll-padding: 2px;
-	overflow-y: hidden;
-	width: 100%;
-	min-height: 90px;
-	max-height: 100px;
-}*/
-/*ul.playerList {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	min-height: 80px;
-	max-height: 90px;
-	width: 300%;
-	background-color: var(--light-bg-color);
-}*/
-
-
 
 @-webkit-keyframes ticker {
 	0% {
 		-webkit-transform: translate3d(0, 0, 0);
 		transform: translate3d(0, 0, 0);
 		visibility: visible;
-   }
+	}
 	100% {
-		-webkit-transform: translate3d(-125%, 0, 0);
-		transform: translate3d(-125%, 0, 0);
-   }
+		-webkit-transform: translate3d(-100%, 0, 0);
+		transform: translate3d(-100%, 0, 0);
+	}
 }
-
 @keyframes ticker {
 	0% {
 		-webkit-transform: translate3d(0, 0, 0);
 		transform: translate3d(0, 0, 0);
 		visibility: visible;
-   }
+	}
 	100% {
-		-webkit-transform: translate3d(-125%, 0, 0);
-		transform: translate3d(-125%, 0, 0);
-   }
+		-webkit-transform: translate3d(-100%, 0, 0);
+		transform: translate3d(-100%, 0, 0);
+	}
+}
+.playerListDiv {
+	position: fixed;
+	/*bottom: 0;*/
+	width: calc(100% - 1px);
+	overflow: hidden;
+	height: 4rem;
+	left: -0.5px; /* headerSection Border Width */
+	/*background-color: rgba(0, 0, 0, 0.9);*/
+	background-color: var(--dark-grey-color);
+	border-left: 3px solid var(--bg-color-red);
+	border-right: 3px solid var(--bg-color-red);
+	border-bottom: 3px solid var(--bg-color-red);
+	padding-left: 100%;
+	box-sizing: content-box;
+}
+.playerList {
+	display: inline-block;
+	height: var(--ticker-height);
+	line-height: var(--ticker-height);
+	white-space: nowrap;
+	padding-right: 100%;
+	box-sizing: content-box;
+	-webkit-animation-iteration-count: infinite;
+	animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	animation-timing-function: linear;
+	-webkit-animation-name: ticker;
+	animation-name: ticker;
+	-webkit-animation-duration: 30s;
+	animation-duration: 30s;
+}
+.playerListItem {
+	display: inline-block;
+	padding: 0 var(--ticker-item-size);
+	font-size: var(--ticker-item-size);
+	color: white;
+}
+
+h2#playerListHeader{
+	text-align: center;
+	font-size: 1rem;
+	margin: 0px 10px;
+	padding-top: 0;
+	color: var(--button-text-color);
 }
 
 /* 

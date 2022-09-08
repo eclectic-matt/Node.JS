@@ -1,9 +1,17 @@
+section#headerSection {
+	background-color: var(--dark-grey-color);
+	padding-bottom: 0.4rem;
+	margin-bottom: 4rem;
+	border: 3px solid var(--bg-color-red);
+}
+
 h1 {
 	font-size: 3em;
 	font-weight: 800;
-	color: var(--main-text-color);
+	color: var(--button-text-color);
 	font-family: 'Bradley Hand', Bradley Hand, 'Brush Script MT', Brush Script MT, cursive;
-	padding: 1px;
+	padding-bottom: 0.05rem;
+	padding-top: 1rem;
 	margin: 5px 0px;
 	text-align: center;
 	line-height: 0.9em;
@@ -12,7 +20,7 @@ h1 {
 h1 span#headerMaster { 
 	/* https://css-tricks.com/snippets/svg/curved-text-along-path/ */
 	/*text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;*/
-	-webkit-text-stroke: 10px black;
+	-webkit-text-stroke: 6px black;
 	color: #888;
 	font-size: 64px;
 	font-family: 'Open Sans', Open Sans, sans-serif;
@@ -20,9 +28,14 @@ h1 span#headerMaster {
 
 h1 span#headerWord {
 	font-family: 'Bradley Hand', Bradley Hand, 'Brush Script MT', Brush Script MT, cursive;
-
+	margin: 0;
+	top: -1rem;
+	position: relative;
 }
 
-section#headerSection {
-	background-color: var(--dark-grey-color);
+h4#stageInfo {
+	font-size: 1rem;
+	padding: 0.05rem;
+	margin: 0;
+	color: var(--light-bg-color);
 }

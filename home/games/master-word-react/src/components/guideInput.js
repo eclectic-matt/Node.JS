@@ -60,7 +60,7 @@ class GuideInput extends React.Component {
 
 	render() {
 		let roundClues = this.props.rounds[0][this.props.status.currentRound - 1].clues;
-		//console.log('render guide clues',roundClues);
+		console.log('render guide clues',roundClues);
 		return (
 			<section id="guideInputSection">
 				<h2>Clues/Solutions</h2>
