@@ -1,3 +1,6 @@
+/**
+ * Type Definition for a Character Role.
+ */
 type Role = {
 	name: string,
 	role: string,
@@ -17,11 +20,35 @@ type Role = {
 	}
 }
 
-type AliveStatus = "alive" | "dead" | "undead";
+/**
+ * Enum to define the "alive" statuses, as all players start alive but may become dead.
+ * Note: The Zombuul is the only character that can be "undead".
+ */
+enum AliveStatus {
+	Alive = 1,
+	Dead,
+	Undead
+}
+//OLD VERSION AS A TYPE
+//type AliveStatus = "alive" | "dead" | "undead";
 
-type VoteStatus = "yes" | "no" | "once";
+/**
+ * Enum to define a players' vote status - starting as "yes" but changing to "Ghost" when ghost vote left and "no" once ghost vote used.
+ * Note: "Once" is defined for the purposes of characters that may only vote once.
+ */
+enum VoteStatus {
+	Yes = 1,
+	No,
+	Ghost,
+	Once
+}
+//OLD VERSION AS A TYPE
+//type VoteStatus = "yes" | "no" | "once";
 
-type PlayerType = {
+/**
+ * Type definition for a Player, with an ID (e.g. discord ID), their name, seating position (0-index), alive status and vote status.
+ */
+type Player = {
 	id: number,
 	name: string,
 	seatPosition: number,
@@ -29,29 +56,17 @@ type PlayerType = {
 	vote: VoteStatus
 }
 
+/**
+ * Type definition for info learned by an ability - the info is the "role/alignment" and the possible is an array of players/roles this could be.
+ */
 type Info = {
 	possible: Array<string>,
 	info: string
 }
 
-/*
-{
-  "id": "washerwoman",
-  "name": "Washerwoman",
-  "edition": "tb",
-  "team": "townsfolk",
-  "firstNightReminder": "Show the Townsfolk character token. Point to both the *TOWNSFOLK* and *WRONG* players.",
-  "otherNightReminder": "",
-  "reminders": [
-    "Townsfolk",
-    "Wrong"
-  ],
-  "setup": false,
-  "ability": "You start knowing that 1 of 2 players is a particular Townsfolk.",
-  "firstNight": 37,
-  "otherNight": 0
-}
-*/
+//let TroubleBrewingScript = require('TroubleBrewing');
+//let tb = TroubleBrewingScript.tb;
+//import * as tb from './TroubleBrewing.ts'; 
 
 class StoryTeller 
 {
@@ -358,7 +373,7 @@ class StoryTeller
 							}
 						}
 					]
-				}
+				};
 					
 				//Shuffle roles 
 				this.script.roles = this.shuffle(this.script.roles);
@@ -525,15 +540,15 @@ class StoryTeller
 		let info;
 		const selfName = "Zam";
 		switch(infoType){
-    		case 'townsfolk':
-	    		info = this.learnTeam('townsfolk',2,selfName);
-	    	break;
-	    	case 'outsider':
-	    		info = this.learnTeam('outsider',2,selfName);
-	    	break;
-	    	case 'minion':
-	    		info = this.learnTeam('minion',2,selfName);
-	    	break;
+			case 'townsfolk':
+				info = this.learnTeam('townsfolk',2,selfName);
+			break;
+			case 'outsider':
+				info = this.learnTeam('outsider',2,selfName);
+			break;
+			case 'minion':
+				info = this.learnTeam('minion',2,selfName);
+			break;
 		}
 
 		if(info === undefined){
@@ -544,7 +559,7 @@ class StoryTeller
 		}
 		
 		//DEBUG
-		console.log('learn','townsfolk',info.possible.join(' or '),info.info);
+		//console.log('learn','townsfolk',info.possible.join(' or '),info.info);
 		return info;
 	}
 
@@ -557,7 +572,7 @@ class StoryTeller
 			
 		//Select from the correct team (not yourself, to be kind)
 		let options = this.roles.filter( (player: Role) => { return ( (player.team == team) && (player.name != selfName) ) });
-		console.log('options', team, count, selfName);
+		//console.log('options', team, count, selfName);
 		//librarian, no outsiders in play
 		if(options.length === 0){
 			info.info = 'none';
@@ -626,33 +641,24 @@ const http = require("http").createServer(app);
 const port = process.env.PORT || 3000;
  
 app.get("/", (req: XMLHttpRequest, res: any) => {
- 	let response: string = "<h1>Local Express Server Here!</h1>";
+ 	let response: string = "<h1>Clocktower Setup</h1>";
  	 //res.send("<h1>Local Express Server here!</h1>");
   	 console.log('connection');
   	 //TESTING
   	 for(let i = 5; i < 13; i++){
-  	 	//res.send('Setting up an ' + i + ' player game');
+			//NOTE - cannot res.send() more than once - must generate a string before sending a single response!
   	 	response += "<h2>Setting up a " + i + " player game</h2>";
   	 	let st = new StoryTeller(i);
   	 	response += st.outputCounts(i);
   	 	response += "<br>";
-  	 	//res.send(st.outputRoles());
   	 	response += "<ul>";
   	 	response += st.outputRoles().join("");
   	 	response += "</ul>";
-  	   //st.learn(2,2,'towmsfolk');
+			let info = st.learn(1, 2, 'townsfolk', false);
+			response += 'A washerwoman would learn that there is a "' + info.info + '" between "' + info.possible[0] + '" and "' + info.possible[1] + '"!';
   	 }
   	 res.send(response);
 });
 
 http.listen(port);
 console.log('Listening on port ' + port);
-
-/*
-//TESTING
-for(let i = 5; i < 16; i++){
-	console.log('Setting up an ' + i + ' player game');
-	let st = new StoryTeller(i);
-	//st.learn(2,2,'towmsfolk');
-}
-*/
