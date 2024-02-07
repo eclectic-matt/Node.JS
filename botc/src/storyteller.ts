@@ -233,10 +233,14 @@ class StoryTeller
 							alignment: 'good',
 							team: 'outsider',
 							ability: {
-								trigger: 'thinks',
-								target: undefined,
+								trigger: 'setup',
+								target: 'self',
 								cause: 'thinksTownsfolk',
-								special: undefined
+								special: {
+									team: 'self',
+									modifiedteam: 'townsfolk',
+									count: 1
+								}
 							}
 						},
 						{
