@@ -1,0 +1,67 @@
+//TESTING DISCORD CLIENT
+/*
+const intentFlags = GatewayIntentBits;
+
+const setup = async () => {
+  const discordClient = new Client({
+    intents: [
+      intentFlags.Guilds,
+      intentFlags.GuildVoiceStates,
+      intentFlags.GuildMessages,
+      intentFlags.GuildMessageReactions,
+      intentFlags.DirectMessages,
+    ],
+  });
+
+  await discordClient.login(process.env.BOT_TOKEN);
+};
+
+setup();
+*/
+
+---
+
+    /*
+    //TESTING MOVE
+    if (name === "night" && id) {
+      const userId = req.body.member.user.id;
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "Moving user " + userId + " to Voice Channel...",
+        },
+      });
+    } //end night
+    */
+    
+    /*
+    // "test" command
+    if (name === "test") {
+      // Send a message into the channel where command was triggered from
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          // Fetches a random emoji to send from a helper function
+          content: "hello world " + getRandomEmoji(),
+        },
+      });
+    } //end test
+    */
+
+---
+
+      //const user = discordClient.get(userId);
+      //const toVoiceChannel = req.body.member.voice_channel.id;
+      //await user.voice.setChannel(toVoiceChannel);
+      //const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/users/${userId}`;
+      //console.log(endpoint);
+      //console.log(app.get(endpoint));
+      //await DiscordRequest(endpoint, { method: "GET" })
+        /*.then( (user) => {
+        res.sent({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "Got user <@" + user.id + "> from message...",
+          },
+        })
+      });*/
