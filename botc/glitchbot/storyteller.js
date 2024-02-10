@@ -1,19 +1,20 @@
-export const roles = "roles";
 import { playerCounts } from './resources/playerCounts.js';
-//import { tbScript } from './resources/scripts/troubleBrewing.js';
-import { scripts } from './resources/scripts.js';
-//const rolesJSON = import('./resources/roles.json');
-//var requireRolesJSON = require('./resources/roles.json');
-//import rolesJSON from './resources/roles.json';// assert { type: 'json' };
-/*import { readFile } from 'fs/promises';
-const rolesJSON = JSON.parse(
-  await readFile(
-    new URL('./resources/roles.json', import.meta.url)
-  )
-);*/
+//import { scripts } from './resources/scripts.js';
+//const rolesJSON = require("./resources/roles.json");
+
+/*
+//REQUIRE WILL BE NEEDED FOR CANVAS BUT NOT YET
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const rolesJSON = require("./resources/roles.json");
+const { createCanvas, loadImage } = require('canvas');
+*/
+
+//IMPORT AND GET INSTANCE OF THE ScriptHelper CLASS
+import { ScriptHelper } from './classes/ScriptHelper.js';
+let SH = new ScriptHelper();
+//IMPORT AND GET INSTANCE OF THE RolesHelper CLASS
+import { RolesHelper } from './classes/RolesHelper.js';
+let RH = new RolesHelper();
 
 /**
   * The main class which holds game information.
@@ -25,12 +26,12 @@ export var StoryTeller = /** @class */ (function () {
    */
   function StoryTeller(playerCount, script, infoOnly = false) {
     if(!infoOnly){
-      console.log('Init StoryTeller',playerCount, script);
+      //console.log('Init StoryTeller',playerCount, script);
       this.playerCounts = playerCounts;
       this.playerCount = playerCount;
       //INITIALISE SCRIPT
       this.script = {};
-      const roles = this.loadScript(script);
+      const roles = SH.loadScript(script);
       //console.log('loadedRoles', roles);
       this.script.roles = JSON.parse(JSON.stringify(roles));
       this.script.roles = this.shuffle(this.script.roles);
@@ -39,75 +40,6 @@ export var StoryTeller = /** @class */ (function () {
       //this.roles = [];
       this.assignRoles();
     }
-  }
-
-  
-  /**
-   * Load the specified script
-  **/
-  StoryTeller.prototype.loadScript = function (script) {
-    switch (script) {
-      //CORE EDITIONS
-      case "Trouble Brewing":
-        //TROUBLE BREWING
-        return this.loadRolesJson("tb");
-      break;
-      case 'Bad Moon Rising':
-        //BAD MOON RISING
-        return this.loadRolesJson("bmr");
-      break;
-      case 'Sects & Violets':
-        //SECTS & VIOLETS
-        return this.loadRolesJson("snv");
-      break;
-      //CUSTOM SCRIPTS
-      case 'Extension Cord':
-      case 'Church of Spies':
-      case 'Reptiles II: Lizard in the City':
-      case 'No Greater Joy (Teensyville)':
-      case 'A Lleech of Distrust (Teensyville)':
-      case 'Comrade Demon (Teensyville)':
-        return this.loadCustomScript(script);
-      break;
-    }
-  };
-  
-
-  //SAO ORDER.JSON - TO IMPLEMENT!
-  // Values are of format: X.X.XXXX.XXX which corresponds to: Team Section, SAO Section, Last Non-white Pixel, Ability Length in Characters
-  //window.fetch('/sao-sorter/order.json').then(x => x.json()).then(x => {for (let id in x) {order[id] = x[id].replaceAll('.', '')}});
-  // filecontent.sort((x, y) => {
-  //  return order[x] - order[y]
-  // });
-            
-  StoryTeller.prototype.outputScriptInfo = function(script) 
-  {
-    let response = '# ' + script + "\n";
-    //LOAD SCRIPT METADATA
-    let scriptInfo = this.getScriptMetaData(script);
-    response += 'Source: [' + script + '](' + scriptInfo.source + ")\n";
-    //GET SCRIPT ROLES DATA
-    let scriptData = this.loadScript(script);
-    //console.log('scriptData', scriptData);
-    //DEFINE TEAMS
-    let teams = [ 'townsfolk', 'outsider', 'minion', 'demon' ];
-    //ITERATE TEAMS TO OUTPUT
-    for(let teamIndex = 0; teamIndex < teams.length; teamIndex++){
-      let teamName = teams[teamIndex];
-      let team = scriptData.filter( (r) => { return r.team == teamName; });
-      //console.log('scriptInfoTeam', teamName, team );
-      response += '## ' + teamName.toUpperCase() + "\n";
-      for(let i = 0; i < team.length; i++){
-        //console.log(teamName, team[i].name, team[i].ability);
-        response += "* [" + team[i].name + "](https://wiki.bloodontheclocktower.com/" + team[i].name.toString().replace(' ','_') + ")\n";
-        //GOING OVER DISCORD MESSAGE LENGTH LIMITS!!!
-        //response += "* " + team[i].name + " - _" + team[i].ability + "_\n";
-        //response += "* [" + team[i].name + "](https://wiki.bloodontheclocktower.com/" + team[i].name.toString().replace(' ','_') + ") - _" + team[i].ability + "_\n";
-      }
-    }
-    //RETURN GENERATED STRING
-    console.log(response.length);//TOO BLOODY LONG!
-    return response;
   }
   
   /*
@@ -119,40 +51,8 @@ export var StoryTeller = /** @class */ (function () {
     }else{
       return "No script selected";
     }
-  }
-  
-  StoryTeller.prototype.loadRolesJson = function(name){
-    const scriptRoles = rolesJSON.filter( (r) => { return r.edition === name; });
-    //console.log('rolesJSON', scriptRoles);
-    return scriptRoles;
-  }
-  
-  StoryTeller.prototype.getScriptMetaData = function(name){
-    let scriptInfo = scripts.find( (script) => { return script.name === name;});
-    return scriptInfo;
-  }
-  
-  StoryTeller.prototype.loadCustomScript = function(name){
-    let scriptInfo = scripts.find( (script) => { return script.name === name;});
-    console.log('loadingCustomScript', name, scriptInfo );
-    const customScript = require(scriptInfo.roles);
-    let scriptMeta = customScript.shift();
-    console.log('customData', customScript.join(',') );
-    let scriptRoles = [];
-    for(let i = 0; i < customScript.length; i++){
-      //NOTE: roles.json HAS "id" WITHOUT "_" SPACING BUT CUSTOM SCRIPT JSON USES "_" SPACING - FFS!
-      let thisRole = rolesJSON.find( (r) => { return r.id === customScript[i].replace('_','').replace('-',''); });
-      if(thisRole !== undefined){
-        scriptRoles.push(thisRole);
-      }
-    }
-    console.log('CustomLoad', scriptRoles.map( (r) => { return r.name; }).join(',') );
-    return scriptRoles;
-  }
-  
-  
+  }  
 
-  
   /**
     * assign roles to the players stored in the players array.
   **/
@@ -187,35 +87,45 @@ export var StoryTeller = /** @class */ (function () {
         
         switch(role.name){
           case 'Baron':
-            //BARON MODIFICATION
+            //BARON MODIFICATION (GENERALISED AS A TEMPLATE)
             var setupTeam = 'townsfolk';
             var modifiedTeam = 'outsider';
             var setupCount = 2;
-
             //FOR EACH ROLE TO MODIFY
             for (var i = 0; i < setupCount; i++) {
               //GET A NEW ROLE FOR THIS PLAYER
               var newRole = this.getNewRole(modifiedTeam);
-
+              //IF NO AVAILABLE ROLE - BREAK
+              if(!newRole) break;
               //ITERATE ROLES TO FIND MATCHING ROLE TO REPLACE
               for (var j = 0; j < this.roles.length; j++) {
-
                 //IF team MATCHES
                 if (this.roles[j].team === setupTeam) {
                   //STORE OLD NAME (CHANGING ROLE REMOVES NAME)
                   var oldName = this.roles[j].playerName;
                   //REPLACE ROLE
-                  //console.log('SWAPPING',JSON.parse(JSON.stringify(this.roles[j])), JSON.parse(JSON.stringify(newRole)));
                   this.roles[j] = JSON.parse(JSON.stringify(newRole));
-                  //GETTING NEW ROLE REMOVES NAME
-                  //this.roles[j].name = this.getRandomName();
-                  //USE OLD NAME
+                  //GETTING NEW ROLE REMOVES NAME - USE OLD NAME
                   this.roles[j].playerName = oldName;
                   //HAVE MADE THIS MODIFICATION, BREAK OUT OF FOR LOOP
                   break;
                 }
               }
             }
+          break;  //END BARON
+          case 'Drunk':
+            //DRUNK MODIFICATION
+            let thinksRole = this.getNewRole('townsfolk');
+            this.roles[roleId].thinksRole = JSON.parse(JSON.stringify(thinksRole));
+            //DEBUG ONLY - APPEND DRUNK TO THINKS ROLE
+            this.roles[roleId].name = thinksRole.name + ' (Drunk)';
+          break;
+          case 'Marionette':
+            //MARIONETTE MODIFICATION
+            let thinksMarioRole = this.getNewRole('townsfolk');
+            this.roles[roleId].thinksRole = JSON.parse(JSON.stringify(thinksMarioRole));
+            //DEBUG ONLY - APPEND MARIO TO THINKS ROLE
+            this.roles[roleId].name = thinksMarioRole.name + ' (Marionette)';
           break;
         }
       }
@@ -236,7 +146,12 @@ export var StoryTeller = /** @class */ (function () {
     });
     const possibleRoles = possible.map( (r) => { return r.name; });
     //console.log('possible', possibleRoles.join(','));
-    return possible[0];
+    //HANDLE TEENSY GAMES WITH 2 OUTSIDERS AND A BARON
+    if(possibleRoles.length === 0){
+      return false;
+    }else{
+      return possible[0];  
+    }
   };
 
 
@@ -249,9 +164,9 @@ export var StoryTeller = /** @class */ (function () {
   };
 
   /**
-    * output the roles
+    * output the roles as "roleName (team) => playerName"
    **/
-  StoryTeller.prototype.outputRoles = function () {
+  StoryTeller.prototype.outputRoles = function () {    
     return this.roles.map(function (role) {
       //TESTING COLOURS - NOT WORKING
       if(role.team === 'minion' || role.team === 'demon'){
@@ -266,6 +181,35 @@ export var StoryTeller = /** @class */ (function () {
     });
   };
 
+  /*
+  //NEEDS MORE TESTING
+  StoryTeller.prototype.generateGrimoireImage = function () {
+    const canvas = createCanvas(200, 200)
+    const ctx = canvas.getContext('2d')
+    // Write "Awesome!"
+    ctx.font = '30px Impact'
+    ctx.rotate(0.1)
+    ctx.fillText('Awesome!', 50, 100)
+
+    // Draw line under text
+    var text = ctx.measureText('Awesome!')
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)'
+    ctx.beginPath()
+    ctx.lineTo(50, 102)
+    ctx.lineTo(50 + text.width, 102)
+    ctx.stroke()
+
+    // Draw cat with lime helmet
+    //loadImage('examples/images/lime-cat.jpg').then((image) => {
+    //  ctx.drawImage(image, 50, 0, 70, 70)
+    //  console.log('<img src="' + canvas.toDataURL() + '" />')
+    //})
+
+    console.log("data:img/png;base64," + canvas.toDataURL());
+    return "data:img/png;base64," + canvas.toDataURL();
+  }
+  */
+  
   
   /**
    * output the count for each type of player at this player count.
@@ -394,7 +338,7 @@ export var StoryTeller = /** @class */ (function () {
  StoryTeller.prototype.getNeighbours = function (name, alive = false) {
    //WORK OUT WHERE THIS PLAYER IS SITTING
    const pos = this.getSeatPosition(name);
-   console.log('empathSeatPos', pos);
+   //console.log('empathSeatPos', pos);
    const roleCount = this.roles.length;
    let leftPos = false;
    let leftNb = false;
@@ -406,18 +350,18 @@ export var StoryTeller = /** @class */ (function () {
    for(let i = 0; i < this.roles.length - 1; i++){
       empathRoles.push(this.roles[i]);
    }
-   console.log('empathRoles', empathRoles.map( (r) => { return r.name }).join(','));
+   //console.log('empathRoles', empathRoles.map( (r) => { return r.name }).join(','));
    
 
    //NOT FINDING LIVING NEIGHBOURS?
    if(alive === false){
      //LEFT NEIGHBOUR
      leftPos = ((pos === 0) ? roleCount - 1 : pos - 1);
-     console.log('leftNB', this.roles[leftPos]);
+     //console.log('leftNB', this.roles[leftPos]);
      leftNb = JSON.parse(JSON.stringify(this.roles[leftPos]));
      //RIGHT NEIGHBOUR
      rightPos = ((pos === roleCount - 1) ? 0 : pos + 1);
-     console.log('rightNb', this.roles[rightPos]);
+     //console.log('rightNb', this.roles[rightPos]);
      rightNb = JSON.parse(JSON.stringify(this.roles[rightPos]));
    }else{
      //FIND LEFT LIVING NEIGHBOUR
@@ -520,7 +464,7 @@ export var StoryTeller = /** @class */ (function () {
     for(let i = 0; i < this.roles.length - 1; i++){
       chefRoles.push(this.roles[i]);
     }
-    console.log('chefRoles', chefRoles.map( (r) => { return r.name }).join(','));
+    //console.log('chefRoles', chefRoles.map( (r) => { return r.name }).join(','));
     let evilPings = [];
     for (let i = 0; i < chefRoles.length; i++){
       //DETECT EVIL PLAYERS
@@ -605,6 +549,8 @@ export var StoryTeller = /** @class */ (function () {
     //let st = new StoryTeller(i);
     let response = "# Clocktower Setup\n\n";
     response += "## Setting up a " + i + " player game of " + this.scriptName + "\n\n";
+    
+    //response += this.generateGrimoireImage();
     //var st = new StoryTeller(i);
     //OUTPUT TEAM COUNTS
     response += this.outputCounts(i);
@@ -615,7 +561,7 @@ export var StoryTeller = /** @class */ (function () {
     
     //EXAMPLE INFO
     let empathRole = this.getActiveRole('Empath');
-    console.log('empathRole=',empathRole);
+    //console.log('empathRole=',empathRole);
     let empathInfo = this.learnEmpathNumber();
     if(!empathInfo){
       response += "There is no Empath in the game!\n";

@@ -2,26 +2,13 @@ import 'dotenv/config';
 import { getRPSChoices } from './game.js';
 import { capitalize, InstallGlobalCommands } from './utils.js';
 import { scripts } from './resources/scripts.js';
+import { RolesHelper } from './classes/RolesHelper.js';
 
-
-// Get the game choices from game.js
-function createCommandChoices() {
-  const choices = getRPSChoices();
-  const commandChoices = [];
-
-  for (let choice of choices) {
-    commandChoices.push({
-      name: capitalize(choice),
-      value: choice.toLowerCase(),
-    });
-  }
-
-  return commandChoices;
-}
+let RH = new RolesHelper();
 
 function createScriptChoices() {
   const scriptChoices = [];
-  const scriptNames = scripts.map( (script) => { return script.name });
+  const scriptNames = scripts.map( (script) => { return script.name; });
   //Iterate available scripts
   for (let script of scriptNames) {
     scriptChoices.push({
@@ -43,6 +30,19 @@ function createPlayerCountChoices() {
     });
   }
   return countChoices;
+}
+
+function createRoleChoices() {
+  const roleChoices = [];
+  const roleNames = RH.getRolesList();
+  //Iterate available scripts
+  for (let role of roleNames) {
+    roleChoices.push({
+      name: role,
+      value: role
+    });
+  }
+  return roleChoices;
 }
 
 // Setup a game command
@@ -85,21 +85,20 @@ const SCRIPT_COMMAND = {
   type: 1
 };
 
-// Command containing options
-const CHALLENGE_COMMAND = {
-  name: 'challenge',
-  description: 'Challenge to a match of rock paper scissors',
+const ROLE_COMMAND = {
+  name: 'role',
+  description: 'Output Role Information',
   options: [
     {
       type: 3,
-      name: 'object',
-      description: 'Pick your object',
-      required: true,
-      choices: createCommandChoices(),
-    },
+      name: 'role',
+      description: 'Choose a role',
+      required: true
+    }
   ],
-  type: 1,
-};
+  type: 1
+}
+
 
 const NIGHT_COMMAND = {
   name: 'night',
@@ -107,6 +106,6 @@ const NIGHT_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [ START_COMMAND, SCRIPT_COMMAND ]; //CHALLENGE_COMMAND, NIGHT_COMMAND ];
+const ALL_COMMANDS = [ START_COMMAND, SCRIPT_COMMAND, ROLE_COMMAND ]; //CHALLENGE_COMMAND, NIGHT_COMMAND ];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
