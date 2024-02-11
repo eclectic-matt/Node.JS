@@ -91,15 +91,38 @@ app.post("/interactions", async function (req, res) {
     //============
     if (name === "script") {
       let scriptName = 'trouble brewing';
+      //GET REQUESTED SCRIPT 
       let selScript = data.options.filter( (opt) => { return opt.name === 'script'; });
       if(selScript[0].value){
         scriptName = selScript[0].value;
+      }
+      //OUTPUT OPTION
+      let outputOption = 'links';
+      let selOption = data.options.filter( (opt) => { return opt.name === 'type'; });
+      if(selOption[0].value){
+        outputOption = selOption[0].value;
+      }
+      let response;
+      switch(outputOption){
+          case 'links':
+          default:
+            response = SH.outputScriptInfo(scriptName);
+          break;
+          case 'abilities':
+            response = SH.outputScriptAbilities(scriptName);
+          break;
+          case 'firstNightOrder':
+            response = SH.outputScriptFirstNightOrder(scriptName);
+          break;
+          case 'otherNightsOrder':
+            response = SH.outputScriptOtherNightsOrder(scriptName);
+          break;
       }
       //console.log('script', scriptName);
       //let st = new StoryTeller(5, scriptName, true);
       //let response = st.outputScriptInfo(scriptName);
       //let response = StoryTeller.outputScriptInfo(scriptName);
-      let response = SH.outputScriptInfo(scriptName);
+      //let response = SH.outputScriptInfo(scriptName);
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {

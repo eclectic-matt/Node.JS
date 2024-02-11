@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { getRPSChoices } from './game.js';
+//import { getRPSChoices } from './game.js';
 import { capitalize, InstallGlobalCommands } from './utils.js';
 import { scripts } from './resources/scripts.js';
 import { RolesHelper } from './classes/RolesHelper.js';
@@ -17,6 +17,31 @@ function createScriptChoices() {
     });
   }
   return scriptChoices;
+}
+
+function createScriptOutputChoices() {
+  const outputChoices = [];
+  //WIKI LINK LIST
+  outputChoices.push({
+    name: 'List of Wiki Links',
+    value: 'links'
+  });
+  //ABILITY LIST
+  outputChoices.push({
+    name: 'List Abilities',
+    value: 'abilities'
+  });
+  //NIGHT ORDER - FIRST NIGHT
+  outputChoices.push({
+    name: 'Night Order, First Night',
+    value: 'firstNightOrder'
+  });
+  //NIGHT ORDER - OTHER NIGHTS
+  outputChoices.push({
+    name: 'Night Order, Other Nights',
+    value: 'otherNightsOrder'
+  });
+  return outputChoices;
 }
 
 function createPlayerCountChoices() {
@@ -80,6 +105,13 @@ const SCRIPT_COMMAND = {
       description: 'Choose a script',
       required: true,
       choices: createScriptChoices()
+    },
+    {
+      type: 3,
+      name: 'type',
+      description: 'Choose output type',
+      required: true,
+      choices: createScriptOutputChoices()
     }
   ],
   type: 1
