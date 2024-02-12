@@ -1,0 +1,2619 @@
+{
+	"id": "eventLog1",
+	"events": [
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707757204540
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768657889
+		},
+		{
+			"type": "request",
+			"message": "Role requested",
+			"data": {
+				"role": "imp"
+			},
+			"time": 1707768671457
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768708366
+		},
+		{
+			"type": "request",
+			"message": "Role requested",
+			"data": {
+				"role": "Imp"
+			},
+			"time": 1707768717544
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768732062
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768790037
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768811754
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768836765
+		},
+		{
+			"type": "request",
+			"message": "Role requested",
+			"data": {
+				"role": "Imp"
+			},
+			"time": 1707768930347
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768971842
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707768983155
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769046838
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769077583
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769091667
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769120282
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769131050
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769136674
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769143474
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769152541
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769158456
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769161561
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769168965
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769179154
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769183468
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769189381
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769202738
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769222557
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769229561
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769242375
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769245473
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769274976
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769341350
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769345684
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769348541
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769366240
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769380279
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769385976
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769397637
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769429374
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769440186
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769465863
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769471337
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769487150
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769514656
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769522368
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769526240
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769537866
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769542902
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769546571
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769551170
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769564471
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769571171
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769579256
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769585236
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769592869
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769629050
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769635665
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769645838
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769665591
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769671977
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769683165
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769691069
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769700781
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769706655
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769719754
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769725695
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769728871
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769735844
+		},
+		{
+			"type": "request",
+			"message": "Role requested",
+			"data": {
+				"role": "Imp"
+			},
+			"time": 1707769738350
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769765641
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769776672
+		},
+		{
+			"type": "request",
+			"message": "Role requested",
+			"data": {
+				"role": "spy"
+			},
+			"time": 1707769779637
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769796394
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769812654
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769822752
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769840367
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769847852
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769855273
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769859279
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769874361
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769882564
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769894063
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769904144
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769919067
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769927675
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769934048
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769944173
+		},
+		{
+			"type": "request",
+			"message": "Role requested",
+			"data": {
+				"role": "Imp"
+			},
+			"time": 1707769949277
+		},
+		{
+			"type": "request",
+			"message": "Role requested",
+			"data": {
+				"role": "Imp"
+			},
+			"time": 1707769965264
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769976891
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769982661
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707769993080
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770001258
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770005680
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770014070
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770020287
+		},
+		{
+			"type": "request",
+			"message": "Script requested",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"type": "links"
+			},
+			"time": 1707770022850
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770045353
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770117548
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770123375
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770127446
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770132956
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770136990
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770148692
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770159052
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770163687
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770169473
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770175855
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770180870
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770184249
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770207270
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770226596
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770237357
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770243148
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770259283
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770267555
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770272758
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770285988
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770291257
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770298358
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770308449
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770321644
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770333474
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770370150
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770376770
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770431854
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770443050
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770450755
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770457455
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770461068
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770465368
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770479347
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770498443
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770503864
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770508955
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770517762
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770522854
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770528674
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770533354
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770541651
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770559463
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770563373
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770577087
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770590747
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770607955
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770956489
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707770969049
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707770970442
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707770970636
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707770970772
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707771058974
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771146963
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771153339
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771165751
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771190954
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771196972
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771272859
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771285707
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771300153
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771321147
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771347369
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771431855
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771461253
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771464982
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771480645
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771484960
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771494060
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771564573
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771569649
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771580260
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771592379
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771602361
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771607739
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771616981
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771624856
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771630053
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771636590
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771660484
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771729453
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771741843
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771748154
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771759157
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707771768450
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771771159
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771788240
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707771796255
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771816876
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771831697
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707771865942
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771885277
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771922349
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707771931566
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771949549
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771963854
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771978844
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707771981262
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707771995245
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772010640
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772014367
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772018352
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772068168
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772077176
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772085059
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772090655
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772109658
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772140670
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772163863
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772180478
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772195837
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772208877
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772214957
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772222565
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772231854
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772241380
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772246247
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772267676
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772274755
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772288948
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772341846
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772345777
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772359937
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772431162
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772438844
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772441968
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772450738
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772464754
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707772473864
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772497983
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772531863
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772540076
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772545078
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772548657
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772577187
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772588962
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772596674
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772614446
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772621380
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772627059
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772635441
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772644360
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772651466
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772667596
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772691968
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772704942
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772709076
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772719040
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772723995
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772728873
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772750972
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772756657
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707772761551
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772812853
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772822945
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772832849
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772843275
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772852858
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772862962
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772872956
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772882839
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772892938
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772905449
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772910170
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772917282
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772926977
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772936956
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772946775
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772957055
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772967065
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772977051
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772986992
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707772996867
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773007005
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773017060
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773025372
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773037354
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773049862
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707773050769
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773119854
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773134391
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773143455
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773160056
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773176770
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773186346
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773202986
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773207255
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773389253
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773399770
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773407865
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773412368
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773418265
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773425646
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773434648
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773468368
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773484565
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773496958
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773505851
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773529549
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773536039
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773544745
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773550736
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773554861
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773559154
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707773572959
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773597157
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773607578
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707773609365
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773617676
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773635874
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773650241
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773654941
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773683643
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773697269
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707773698454
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707773707792
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773771356
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773817295
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773822866
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773834568
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707773892662
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773924869
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773929085
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773946738
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773955643
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707773975864
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707773981365
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774001938
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707774003160
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774039873
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774054179
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774062162
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774069578
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774073055
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774076254
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774085969
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774102653
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707774104061
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707774104280
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774151450
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774158252
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707774159763
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774187378
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774199260
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774203251
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774210855
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774217169
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774222773
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774229251
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774237282
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774246146
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707774247482
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774259080
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774276952
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774342881
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774347686
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774355142
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774360771
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774364159
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774374538
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Sects & Violets",
+				"playerCount": 5
+			},
+			"time": 1707774767364
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774959843
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774967662
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707774998161
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775026074
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775467868
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707775480047
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775659482
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Bad Moon Rising",
+				"playerCount": 5
+			},
+			"time": 1707775667759
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775720148
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775731270
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775746549
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775754171
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775773259
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775780363
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775788773
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775800771
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775836981
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775847281
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775866591
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775911256
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775938843
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Bad Moon Rising",
+				"playerCount": 5
+			},
+			"time": 1707775951277
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707775980065
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776018046
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776080942
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776087345
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776092743
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Bad Moon Rising",
+				"playerCount": 5
+			},
+			"time": 1707776093648
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776125571
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776131477
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776152550
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776204263
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776261558
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776296748
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776305744
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776322455
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776329068
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776401460
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707776408937
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776486691
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776523847
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776531267
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776536666
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776543456
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776561749
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776564872
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776580775
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707776584854
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776594440
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776671755
+		},
+		{
+			"type": "system",
+			"message": "Starting logging",
+			"data": false,
+			"time": 1707776684381
+		},
+		{
+			"type": "request",
+			"message": "Game started",
+			"data": {
+				"username": "EclecticMatt",
+				"script": "Trouble Brewing",
+				"playerCount": 5
+			},
+			"time": 1707776686647
+		}
+	]
+}

@@ -1,0 +1,26 @@
+{
+	"games": [
+	  {
+		"id": "CHANNEL_ID_GAME_ID",
+		"stage": "init",
+		"settings": { "script": "SCRIPT_NAME", "playerCount": 7 },
+		"result": { "winningTeam": "evil", "winCondition": "twoAlive" },
+		"players": ["INITIATOR_ID"],
+		"roles": [],
+		"history": [
+		  {
+			"event": "Initialised by PLAYER_NAME",
+			"type": "init",
+			"time": "2024-02-13 19:55:09"
+		  },
+		  {
+			"event": "Joined by PLAYER_NAME",
+			"type": "join",
+			"player": "PLAYER_NAME",
+			"time": "2024-02-13 19:56:00"
+		  }
+		]
+	  }
+	]
+  }
+  
