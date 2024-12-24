@@ -1,0 +1,86 @@
+/**
+  * GLOBAL / BODY STYLES 
+  */
+* {
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-image: radial-gradient(circle, blue, cyan);
+  color: yellow;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+/**
+  * TYPE / TAG SPECIFICITY
+  */
+img {
+  padding: 10px;
+}
+
+/**
+  * CLASS SPECIFICITY
+  */
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/**
+  * ID SPECIFICITY 
+  */
+#headerRow {
+  width: 100%;
+}
+#headerRow h1 {
+  width: 100%;
+  font-size: 2.5rem;
+  text-align: center;
+}
+#headerRow img {
+  float: right;
+  margin: 5px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 500;
+}
+
+/* TEAM BOXES */
+#teamsBox {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+#teamsBox div.teamBox {
+  max-width: 50%;
+  min-width: 25%;
+  margin: 10px 25px;
+  border: 1px solid black;
+  background-color: #896978;
+  color: white;
+  font-size: 1.1rem;
+  padding: 10px;
+}
+#teamsBox div.teamBox img {
+  width: 150px;
+  height: auto;
+  max-height: 300px;
+  background-color: #fff;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px;
+}
+#teamsBox div.teamBox span.score {
+  float: right;
+	font-family: Arial;
+	font-weight: bolder;
+	padding: 0 10px;
+  margin: 0;
+  border: 1px solid black;
+  border-radius: 50%;
+  background-color: yellow;
+  color: white;
+}

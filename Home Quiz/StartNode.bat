@@ -1,5 +1,5 @@
-S:
-cd Development\Node.JS\Home Quiz
+::S:
+::cd Development\Node.JS\Home Quiz
 node view.js
-#pause
+::pause
 open "192.168.2.137:8080"

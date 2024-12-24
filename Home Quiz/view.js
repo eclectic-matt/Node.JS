@@ -1,6 +1,8 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
+/*var ip = require('ip');
+var myLocalIP = ip.address();*/
 
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
@@ -17,6 +19,8 @@ teams.scores = [0,0,0,0];
 var buzzerActive = false;
 var buzzerTeam = false;
 var currentQuestion = "In what year was the first National Grid pylon installed?";
+
+
 
 //Create an event handler:
 var myEventHandler = function () {
@@ -67,7 +71,7 @@ http.createServer(function (req, res) {
   var q = url.parse(req.url, true);
   var path = q.pathname;
   var search = q.search;
-  //console.log(path);
+  //console.log('Running ' + path + ' on ' + req.url);
 
   // Detect a click from a team buzzer
   if (path.indexOf('click') >= 0){

@@ -1,0 +1,18 @@
+module.exports = class QuizGame {
+  name = undefined;
+  teams = [];
+  canvases = [];
+  constructor (data) = {
+    this.name = data.name;
+    this.teams = data.teams | [];
+    this.canvases = data.canvases | [];
+  }
+  addTeam(teamName){
+    if(this.teams.contains(teamName)){
+      return false;
+    }else{
+     this.teams.push(teamName);
+     return true;
+    }
+  }
+}

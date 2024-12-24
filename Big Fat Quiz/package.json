@@ -1,0 +1,17 @@
+{
+  "name": "bigfatquiz",
+  "version": "1.0.0",
+  "description": "network quiz software",
+  "main": "init.js",
+  "start": "node --watch init.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --watch init.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "signature_pad": "^5.0.4"
+  }
+}
