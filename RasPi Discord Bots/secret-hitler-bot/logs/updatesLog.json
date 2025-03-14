@@ -1,8 +1,0 @@
-{
-  "updates": [
-    {
-      "date": "16/04/2020",
-      "description": "First (beta) version (16 April 2020):\n\nThis is the first version of the Secret Roles Bot, which is out in beta for testing.\n\nThe bot has many features implemented in the Codenames Bot including logging of issues and channels to prevent repeated welcome messages and more.\n\nYou can find more information about this Bot and my upcoming new Discord Bots at my new site:\n\nhttps://eclectic-matt.github.io/Isolation-Bots/\n\n"
-    }
-  ]
-}

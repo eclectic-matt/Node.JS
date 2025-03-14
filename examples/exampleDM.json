@@ -1,0 +1,28 @@
+{
+  app_permissions: '180224',
+  application_id: '1204865370385817660',
+  channel: {
+    flags: 0,
+    id: '1205939259698188398',
+    last_message_id: '1209143594108063765',
+    recipients: [ [Object] ],
+    type: 1
+  },
+  channel_id: '1205939259698188398',
+  data: { id: '1208137825338527785', name: 'reset', type: 1 },
+  entitlements: [],
+  id: '1209145236828323841',
+  locale: 'en-GB',
+  token: 'aW50ZXJhY3Rpb246MTIwOTE0NTIzNjgyODMyMzg0MTp1WHA2bjFSWUpoQmI5N25RVm0yVkx1bmVySTczcnE2M00xejFydHQxYmZzYXNObk1MUGdoVjFPOVJzRkNoSUFiMDV3U2liN2Y4MFl6eEhqQWtBY3QyRE4wRmczaHdXWThZRjdGbktoTlBTZFlLSUZ2YVNkOVlobWVmcXZkZmVMMA',
+  type: 2,
+  user: {
+    avatar: '08c2529153e19953df1bb999069fecb6',
+    avatar_decoration_data: null,
+    discriminator: '0',
+    global_name: 'EclecticMatt',
+    id: '531174007043784704',
+    public_flags: 0,
+    username: 'eclecticmatt'
+  },
+  version: 1
+}

@@ -1,0 +1,31 @@
+[
+  { 
+    "id": "_meta", 
+    "name": "An Eldritch Uprising", 
+    "author": "Ben Burns" 
+  },
+  "chef",
+  "shugenja",
+  "high_priestess",
+  "general",
+  "preacher",
+  "village_idiot",
+  "balloonist",
+  "savant",
+  "amnesiac",
+  "juggler",
+  "nightwatchman",
+  "fisherman",
+  "philosopher",
+  "snitch",
+  "puzzlemaster",
+  "klutz",
+  "politician",
+  "widow",
+  "godfather",
+  "harpy",
+  "marionette",
+  "poisoner",
+  "leviathan",
+  "riot"
+]

@@ -1,7 +1,0 @@
-button {
-	width: 90%;
-	margin: 20px 5%;
-	font-size: 2.5em;
-	background-color: var(--dark-fg-color);
-	color: var(--main-button-text-color);
-}
